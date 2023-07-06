@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Site BuildName="Linux-g++"
+	BuildStamp="20230706-0148-Experimental"
+	Name="hecs-214848"
+	Generator="ctest-3.16.3"
+	CompilerName="/usr/bin/g++"
+	CompilerVersion="9.3.0"
+	OSName="Linux"
+	Hostname="hecs-214848"
+	OSRelease="5.4.0-100-generic"
+	OSVersion="#113-Ubuntu SMP Thu Feb 3 18:43:29 UTC 2022"
+	OSPlatform="x86_64"
+	Is64Bits="1"
+	VendorString="GenuineIntel"
+	VendorID="Intel Corporation"
+	FamilyID="6"
+	ModelID="85"
+	ProcessorCacheSize="30976"
+	NumberOfLogicalCPU="2"
+	NumberOfPhysicalCPU="1"
+	TotalVirtualMemory="0"
+	TotalPhysicalMemory="3931"
+	LogicalProcessorsPerPhysical="2"
+	ProcessorClockFrequency="2200"
+	>
+	<Testing>
+		<StartDateTime>Jul 06 16:13 CST</StartDateTime>
+		<StartTestTime>1688631204</StartTestTime>
+		<TestList/>
+		<EndDateTime>Jul 06 16:13 CST</EndDateTime>
+		<EndTestTime>1688631204</EndTestTime>
+		<ElapsedMinutes>0</ElapsedMinutes>
+	</Testing>
+</Site>

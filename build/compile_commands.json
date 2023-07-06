@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/root/modeler/build/src",
+  "command": "/usr/bin/g++   -I/root/modeler/src/../include  -g   -o CMakeFiles/modeler.dir/main.cpp.o -c /root/modeler/src/main.cpp",
+  "file": "/root/modeler/src/main.cpp"
+},
+{
+  "directory": "/root/modeler/build/src",
+  "command": "/usr/bin/g++   -I/root/modeler/src/../include  -g   -o CMakeFiles/modeler.dir/test.cpp.o -c /root/modeler/src/test.cpp",
+  "file": "/root/modeler/src/test.cpp"
+}
+]

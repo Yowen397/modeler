@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/modeler/src/main.cpp
+iostream
+-
+
+/root/modeler/src/test.cpp
+
+/root/modeler/src/test2.cpp
+

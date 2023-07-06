@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.solc": "solidity",
+        "*.iii": "cpp",
+        "*.i": "cpp",
+        "*.ast": "json",
+        "ostream": "cpp",
+        "iostream": "cpp"
+    }
+}

@@ -1,0 +1,1 @@
+/usr/bin/g++  -g  -rdynamic CMakeFiles/hello.dir/test.cpp.o  -o CMAKE_BINARY_DIR/bin/hello 
