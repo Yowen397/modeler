@@ -1,1 +1,0 @@
-/usr/bin/g++  -g  -rdynamic CMakeFiles/modeler.dir/main.cpp.o CMakeFiles/modeler.dir/test.cpp.o  -o ../../bin/modeler 
