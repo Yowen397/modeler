@@ -5,13 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "整体运行",
+            "name": "完整执行",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
             "args": ["hello test"],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/bin",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
