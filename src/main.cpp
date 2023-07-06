@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]){
 
     std::cout << A() << std::endl;
-    std::cout << "Hello, from modeler!" << std::endl;
+    std::cout << "Hello, from modeler! git" << std::endl;
 
     std::cout << argv[0] << std::endl;
     auto path = getcwd(NULL, 0);
