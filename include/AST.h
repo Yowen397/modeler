@@ -1,19 +1,20 @@
+#pragma once
+
 #include <fstream>
 #include <iostream>
 #include "rapidjson/document.h"
 
 
 
-const std::string filename_ast = "../testset/output/combined.json";
+const std::string path_ast = "../solc_file/output/combined.json";
 
 class AST {
     private:
-      
 
     protected:
 
       rapidjson::Document doc;
 
     public:
-      void parse(std::string f_);
+      int parse(std::string f_);
 };

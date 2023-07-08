@@ -7,7 +7,9 @@
 int main(int argc, char* argv[]){
 
     AST ast;
-    ast.parse(filename_ast);
+    ast.parse(path_ast);
+
+
 
     return 0;
 }
