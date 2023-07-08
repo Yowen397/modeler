@@ -3,6 +3,7 @@ project(modeler VERSION 0.1.0 LANGUAGES C CXX)
 
 add_subdirectory(src)
 
+# add_subdirectory(test)
+# enable_testing()
 
-# add_executable(modeler main.cpp)
 
