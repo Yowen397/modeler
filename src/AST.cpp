@@ -33,6 +33,7 @@ int AST::extractSolcFilename() {
 
 /**
  * 解析json文件，获取语法树
+ * 并且获取root节点对象，存放在Value
 */
 int AST::parse(std::string path_) {
     // 读取json文件中的数据
@@ -63,15 +64,16 @@ int AST::parse(std::string path_) {
         std::cerr << "There is no \"AST\" node in AST(json file)." << std::endl;
         return -1;
     }
-    this->root = node_AST->value;
+    this->root = node_AST;
 
     /*
     if (doc.HasMember("sourceList")) {
         const rapidjson::Value &sl = doc["sourceList"];
         std::cout << "sl is array?: " << sl.IsArray() << std::endl;
         // const rapidjson::Value &mem = sl.GetArray();
-        for (rapidjson::Value::ConstValueIterator it = sl.Begin();it!=sl.End();++it) {
-            std::cout << (it->IsString() ? it->GetString() : "") << std::endl;
+        for (rapidjson::Value::ConstValueIterator it =
+    sl.Begin();it!=sl.End();++it) { std::cout << (it->IsString() ?
+    it->GetString() : "") << std::endl;
         }
     }
     if (doc.HasMember("contracts")) {
@@ -80,8 +82,9 @@ int AST::parse(std::string path_) {
                   << (cs.GetType() == rapidjson::kObjectType) << std::endl;
         std::cout << "has member (storage.solc:Storage)?: "
                   << cs.HasMember("storage.solc:Storage") << std::endl;
-        rapidjson::Value::ConstMemberIterator sss = cs.FindMember("storage.solc:Storage");
-        std::cout << sss->value.IsObject() << std::endl;
+        rapidjson::Value::ConstMemberIterator sss =
+    cs.FindMember("storage.solc:Storage"); std::cout << sss->value.IsObject() <<
+    std::endl;
     }*/
     return 0;
 }
