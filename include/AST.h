@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 #include <queue>
+#include <stack>
+#include <cstdlib>
 
 #include "rapidjson/document.h"
 
@@ -19,6 +21,8 @@ static const char *kTypeNames[] = {"Null",  "False",  "True",  "Object",
 class AST {
     private:
       int extractSolcFilename();
+      int traverse_r(bool print_, std::ofstream &of_,
+                     rapidjson::Value *node); // 遍历语法树的递归部分
 
     protected:
       rapidjson::Document doc;                      // 整个json文件
@@ -27,5 +31,5 @@ class AST {
 
     public:
       int parse(std::string f_);                    // 从json文件中读取语法树
-      int traverse();                               // 遍历语法树，提取一些数据
+      int traverse(bool print_);                 // 遍历语法树，提取一些数据
 };
