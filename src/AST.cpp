@@ -1,5 +1,4 @@
 #include "AST.h"
-#include "common.h"
 
 using namespace rapidjson;
 
@@ -64,7 +63,11 @@ int AST::parse(std::string path_) {
         std::cerr << "There is no \"AST\" node in AST(json file)." << std::endl;
         return -1;
     }
-    this->root = node_AST;
+    this->root = &node_AST->value;
+    // auto rt = &(node_AST->value);
+    // std::cout << kTypeNames[rt->GetType()] << std::endl;
+    // std::cout << rt->GetObject().FindMember("id")->value.GetInt() <<
+    // std::endl;
 
     /*
     if (doc.HasMember("sourceList")) {
@@ -86,5 +89,68 @@ int AST::parse(std::string path_) {
     cs.FindMember("storage.solc:Storage"); std::cout << sss->value.IsObject() <<
     std::endl;
     }*/
+    return 0;
+}
+
+int arrayPush(std::queue<rapidjson::Value *> &s_,
+              rapidjson::Value::ConstMemberIterator array_){
+
+    for (rapidjson::Value::ConstValueIterator it = array_->value.Begin();
+         it != array_->value.End(); it++) {
+        // std::cout << kTypeNames[it->GetType()] << std::endl;
+        if (it->IsObject())
+            s_.push((rapidjson::Value *)it);
+        // s_.push(&(it->GetObject()));
+    }
+
+    // int tmp = 0;
+    // for (rapidjson::Value::ConstValueIterator it = array_->value.End() - 1;
+    //      it >= array_->value.Begin(); it--) {
+    //     tmp++;
+    //     if (it->IsObject())
+    //         s_.push((rapidjson::Value *)it);
+    // }
+    return 0;
+}
+
+/**
+ * 遍历语法树，提取关键信息，采用非递归深搜
+*/
+int AST::traverse() {
+
+    // 递归栈，仅存储object类型的，如果遍历遇到数组，则分别将内部的object存入递归栈，若数组内不是object，则无需存入
+    // 需要保证栈内都是object类型节点
+    std::queue<rapidjson::Value *> q;
+    q.push(this->root);
+
+    while (!q.empty()) {
+        // 取出栈顶元素
+        auto head = q.front();
+        q.pop();
+
+        // 检查是否有nodetype节点
+        auto node_type = head->FindMember("nodeType");
+        if (node_type==head->MemberEnd()) {
+            // 不存在nodeType，该节点
+            ;   
+        } else {
+            // 存在nodeType
+            static int cnt = 0;
+            std::cout << ++cnt << "\t";
+            std::cout << "nodeType: " << node_type->value.GetString()
+                      << std::endl;
+        }
+
+        // 子节点压栈，继续搜索
+        for (auto it = head->MemberBegin();
+             it != head->MemberEnd(); it++) {
+            if (it->value.IsObject()) {
+                q.push(&it->value);
+            } else if (it->value.IsArray()) {
+                arrayPush(q, it);
+            }
+        }
+    }
+
     return 0;
 }
