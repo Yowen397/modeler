@@ -11,6 +11,7 @@ int main(int argc, char* argv[]){
     AST ast;
     ast.parse(path_ast);
     ast.traverse(print_AST);
+    ast.info();
 
     return 0;
 }

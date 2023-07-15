@@ -111,6 +111,34 @@ int AST::parse(std::string path_) {
 //     return 0;
 // }
 
+static const char *RangeStr[] = {"empty", "global", "local", "param",
+                                 "r_param"};
+std::string SC_VAR::getStr() {
+    return type + "\t\t" + name + "\t" + RangeStr[range] + "\t\tfunction: " + fun;
+}
+
+std::string SC_FUN::getStr() {
+    std::string ret = "function name: " + name + "\n";
+    ret += "parameters : \n";
+    for (auto p : param)
+        ret += "\t" + p.getStr() + "\n";
+    for (auto p : param_ret)
+        ret += "\t" + p.getStr() + "\n";
+    return ret + "\n";
+}
+
+int AST::info() {
+    std::cout << "==========AST info==========\n";
+    std::cout << "variables:\n";
+    for (auto v : vars)
+        std::cout << "\t" + v.getStr() << std::endl;
+    std::cout << std::endl;
+    for (auto f : funs)
+        std::cout << f.getStr();
+    std::cout << "============================\n";
+    return 0;
+}
+
 /**
  * 遍历语法树，递归部分函数
  * @param src_node 这个参数专门为绘图使用，指出当前节点的父节点（nodeType）
@@ -131,6 +159,7 @@ int AST::traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
                 of_ << (long)src_node << "->" << (long)node << std::endl;
             src_node = node;
         }
+        this->EntryOperation(attr_type->value.GetString(), node);
     }
 
     // 子节点继续搜索
@@ -178,12 +207,35 @@ int AST::traverse(bool print_) {
     return 0;
 }
 
+int AST::EntryOperation(std::string str_, const rapidjson::Value *node) {
+    if (str_ == "FunctionDefinition") {
+        auto attr_fun_name = node->FindMember("name");
+        if (attr_fun_name==node->MemberEnd()) {
+            std::cerr << "AST::EntryOperation: FunctionDefinition node failed "
+                         "to find attribute\"name\""
+                      << std::endl;
+            std::exit(-1);
+        }
+        // 创建变量标记，参数阶段
+        this->funs.emplace_back();
+        this->cur_fun = attr_fun_name->value.GetString();
+        this->funs.back().name = this->cur_fun;
+        this->cur_param_stage = "parameters";
+    }
+    return 0;
+}
+
 /**
  * 根据参数的字符串，选择应该执行的函数
+ * @param str_ nodeType的字符串表示
 */
 int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
     int ret = -1;
     str_ == "SourceUnit" ? ret = e_SourceUnit(node) : 0;
+    str_ == "VariableDeclaration" ? ret = e_VariableDeclaration(node) : 0;
+    str_ == "ElementaryTypeName" ? ret = e_ElementaryTypeName(node) : 0;
+    str_ == "FunctionDefinition" ? ret = e_FunctionDefinition(node) : 0;
+    str_ == "ParameterList" ? ret = e_ParameterList(node) : 0;
 
     if (ret != 0)
         return e_Unknown(str_, node);
@@ -192,7 +244,7 @@ int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
 }
 
 int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
-    std::cout << "Unknown node type: [" << str_ << "]" << std::endl;
+    std::cerr << "Untreated node type: [" << str_ << "]" << std::endl;
     // std::cout << "---modeler exit---" << std::endl;
     return 0;
 }
@@ -204,5 +256,85 @@ int AST::e_SourceUnit(const rapidjson::Value *node) {
 }
 
 int AST::e_PragmaDirective(const rapidjson::Value *node) {
+    return 0;
+}
+
+int AST::e_VariableDeclaration(const rapidjson::Value *node) {
+    // 变量名
+    auto attr_name = node->FindMember("name");
+    if (attr_name==node->MemberEnd()) {
+        std::cerr << "AST::e_VariableDeclaration: failed to get \"name\""
+                  << std::endl;
+        std::exit(-1);
+    }
+    this->vars.emplace_back();
+    // 全局变量、局部变量
+    if (this->cur_fun=="") {
+        this->vars.back().name = attr_name->value.GetString();
+        this->vars.back().range = SC_VAR::global;
+    } else {
+        this->vars.back().name = attr_name->value.GetString();
+        this->vars.back().range = SC_VAR::local;
+        this->vars.back().fun = this->cur_fun;
+    }
+    // 变量类型
+    this->vars.back().type = this->cur_typename;
+
+    return 0;
+}
+
+int AST::e_ElementaryTypeName(const rapidjson::Value*node) {
+    auto attr_name = node->FindMember("name");
+    if (attr_name == node->MemberEnd()) {
+        std::cerr << "AST::e_ElementaryTypeName: failed to get \"name\""
+                  << std::endl;
+        std::exit(-1);
+    }
+    this->cur_typename = attr_name->value.GetString();
+    return 0;
+}
+
+int AST::e_FunctionDefinition(const rapidjson::Value *node) {
+    auto attr_fun_name = node->FindMember("name");
+    if (attr_fun_name == node->MemberEnd()) {
+        std::cerr << "AST::e_FunctionDefinition: FunctionDefinition node failed "
+                     "to find attribute\"name\""
+                  << std::endl;
+        std::exit(-1);
+    }
+
+
+    // 后序遍历至此，取消当前函数标记
+    this->cur_fun = "";
+    return 0;
+}
+
+int AST::e_ParameterList(const rapidjson::Value *node) {
+    // 统计参数数量
+    auto attr_params = node->FindMember("parameters");
+    if (attr_params == node->MemberEnd()) {
+        std::cerr << "AST::e_ParameterList: failed to get \"parameters\" "
+                  << std::endl;
+        std::exit(-1);
+    }
+    unsigned int num = attr_params->value.Size();
+    // 根据当前stage选择当前的parameters属于参数还是返回值
+    std::vector<SC_VAR> &vec = this->cur_param_stage == "parameters"
+                                   ? this->funs.back().param
+                                   : this->funs.back().param_ret;
+    for (int i = 0; i < num; i++) {
+        vec.insert(vec.begin(), this->vars.back());
+        this->vars.pop_back();
+        // 更改类型
+        vec.front().range =
+            this->cur_param_stage == "parameters" ? SC_VAR::param
+                                                  : SC_VAR::ret_param;
+    }
+
+    // 阶段切换
+    if (this->cur_param_stage == "parameters")
+        this->cur_param_stage = "return";
+    else if (this->cur_param_stage == "return")
+        this->cur_param_stage = "";
     return 0;
 }
