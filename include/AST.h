@@ -11,7 +11,7 @@
 
 #include "rapidjson/document.h"
 
-#include "CPN.h"
+// #include "CPN.h"
 #include "common.h"
 
 
@@ -63,6 +63,10 @@ class AST {
     int parse(std::string f_);  // 从json文件中读取语法树
     int traverse(bool print_);  // 遍历语法树，提取一些数据
     int info();                 // 输出提取到的信息
+
+    rapidjson::Value *getRoot();
+    std::vector<SC_VAR> &getVars();
+    std::vector<SC_FUN> &getFuns();
 
   private:
     /* 以下变量用于搜索语法树过程中暂存，部分信息 */

@@ -8,9 +8,11 @@ AST::~AST() {}
 
 AST::AST() {}
 
+rapidjson::Value *AST::getRoot() { return this->root; }
 
+std::vector<SC_VAR> &AST::getVars() { return this->vars; }
 
-
+std::vector<SC_FUN> &AST::getFuns() { return this->funs; }
 
 /**
  * 从rapid json的doc中，提取出solc文件的文件名
@@ -244,14 +246,14 @@ int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
 }
 
 int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
-    std::cerr << "Untreated node type: [" << str_ << "]" << std::endl;
+    // std::cerr << "Untreated node type: [" << str_ << "]" << std::endl;
     // std::cout << "---modeler exit---" << std::endl;
     return 0;
 }
 
 int AST::e_SourceUnit(const rapidjson::Value *node) {
-    std::cout << "postorder traversal visit node type:[SourceUnit]"
-              << std::endl;
+    // std::cout << "postorder traversal visit node type:[SourceUnit]"
+    //           << std::endl;
     return 0;
 }
 
