@@ -16,7 +16,9 @@ contract Storage {
      * @param num value to store
      */
     function store(uint256 num) public {
+        uint256 test_v;
         number = num;
+        test_v = num + 1;
     }
 
     /**

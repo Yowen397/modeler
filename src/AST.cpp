@@ -2,6 +2,16 @@
 
 using namespace rapidjson;
 
+
+
+AST::~AST() {}
+
+AST::AST() {}
+
+
+
+
+
 /**
  * 从rapid json的doc中，提取出solc文件的文件名
  * 提取方式为从sourceList节点（array类型）中取第一个
@@ -140,8 +150,11 @@ int AST::traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
             }
         }
     }
-    // 后序访问
-    
+    // 后序访问，
+    if (attr_type!=node->MemberEnd()) {
+        FunctionSelector(attr_type->value.GetString(), node);
+    }
+
     return 0;
 }
 
@@ -162,5 +175,34 @@ int AST::traverse(bool print_) {
     outfile.close();
     if (print_)
         system("dot -Tpng AST.dot -o AST.png");
+    return 0;
+}
+
+/**
+ * 根据参数的字符串，选择应该执行的函数
+*/
+int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
+    int ret = -1;
+    str_ == "SourceUnit" ? ret = e_SourceUnit(node) : 0;
+
+    if (ret != 0)
+        return e_Unknown(str_, node);
+    else
+        return 0;
+}
+
+int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
+    std::cout << "Unknown node type: [" << str_ << "]" << std::endl;
+    // std::cout << "---modeler exit---" << std::endl;
+    return 0;
+}
+
+int AST::e_SourceUnit(const rapidjson::Value *node) {
+    std::cout << "postorder traversal visit node type:[SourceUnit]"
+              << std::endl;
+    return 0;
+}
+
+int AST::e_PragmaDirective(const rapidjson::Value *node) {
     return 0;
 }
