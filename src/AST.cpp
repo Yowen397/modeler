@@ -103,35 +103,47 @@ int AST::parse(std::string path_) {
 
 /**
  * 遍历语法树，递归部分函数
+ * @param src_node 这个参数专门为绘图使用，指出当前节点的父节点（nodeType）
 */
-int AST::traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node) {
+int AST::traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
+                    rapidjson::Value *src_node) {
+    // 先序访问，这个区域主要是绘图
     auto attr_type = node->FindMember("nodeType");
     if (attr_type!=node->MemberEnd()) {
         // 存在nodeType
-        static int cnt = 0;
-        std::cout << ++cnt << "\t";
-        std::cout << "nodeType: " << attr_type->value.GetString() << std::endl;
+        // static int cnt = 0;
+        // std::cout << ++cnt << "\t";
+        // std::cout << "nodeType: " << attr_type->value.GetString() << std::endl;
+        if (print_) {
+            of_ << long(node) << "[label=\"" << attr_type->value.GetString()
+                << "\"]\n";
+            if (src_node)
+                of_ << (long)src_node << "->" << (long)node << std::endl;
+            src_node = node;
+        }
     }
 
     // 子节点继续搜索
     for (auto it = node->MemberBegin(); it != node->MemberEnd(); it++) {
         if (it->value.IsObject()) {
-            traverse_r(print_, of_, &it->value);
+            traverse_r(print_, of_, &it->value, src_node);
         } else if (it->value.IsArray()) {
             // arrayPush(q, it);
+            // 如果是数组，则子节点的object类型全部进入搜索
             for (rapidjson::Value::ConstValueIterator iter = it->value.Begin();
                  iter != it->value.End(); iter++) {
                 // std::cout << kTypeNames[it->GetType()] << std::endl;
                 if (iter->IsObject())
                     // s_.push((rapidjson::Value *)it);
-                    traverse_r(print_, of_, (rapidjson::Value *)iter);
+                    traverse_r(print_, of_, (rapidjson::Value *)iter, src_node);
                 // s_.push(&(it->GetObject()));
             }
         }
     }
+    // 后序访问
+    
     return 0;
 }
-
 
 /**
  * 遍历语法树，提取关键信息，采用递归深搜
@@ -149,6 +161,6 @@ int AST::traverse(bool print_) {
         outfile << "}\n";
     outfile.close();
     if (print_)
-        system("dot -Tsvg AST.dot -o AST.svg");
+        system("dot -Tpng AST.dot -o AST.png");
     return 0;
 }

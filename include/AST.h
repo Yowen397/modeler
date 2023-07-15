@@ -21,8 +21,8 @@ static const char *kTypeNames[] = {"Null",  "False",  "True",  "Object",
 class AST {
     private:
       int extractSolcFilename();
-      int traverse_r(bool print_, std::ofstream &of_,
-                     rapidjson::Value *node); // 遍历语法树的递归部分
+      int traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
+                     rapidjson::Value *src_node = NULL); // 遍历语法树的递归部分
 
     protected:
       rapidjson::Document doc;                      // 整个json文件
