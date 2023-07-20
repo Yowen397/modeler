@@ -138,6 +138,7 @@ int AST::info() {
     for (auto f : funs)
         std::cout << f.getStr();
     std::cout << "============================\n";
+    std::cout << std::endl;
     return 0;
 }
 

@@ -16,6 +16,8 @@ int main(int argc, char* argv[]){
 
     CPN cpn(ast);
     // CPN cpn;
+    cpn.build();
+    cpn.info();
 
     return 0;
 }

@@ -43,10 +43,6 @@ class SC_FUN {
 };
 
 class AST {
-  private:
-    int extractSolcFilename();
-    int traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
-                   rapidjson::Value *src_node = NULL); // 遍历语法树的递归部分
 
   protected:
     rapidjson::Document doc;   // 整个json文件
@@ -68,6 +64,11 @@ class AST {
     std::vector<SC_VAR> &getVars();
     std::vector<SC_FUN> &getFuns();
 
+
+  private:
+    int extractSolcFilename();
+    int traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
+                   rapidjson::Value *src_node = NULL); // 遍历语法树的递归部分
   private:
     /* 以下变量用于搜索语法树过程中暂存，部分信息 */
     std::string cur_fun = "";

@@ -12,21 +12,36 @@
 
 class Place {
   protected:
+
+  public:
     std::string name;
     std::string color;
-
     std::string init_tokens;
+
+    Place();
+    virtual ~Place();
+    std::string getStr();
 };
 
 class Transition {
   protected:
+    bool isSubNet = false;
+  public:
     std::string name;
+
+
+    bool getSubNet();
+    void setSubNet(bool v_);
+    std::string getStr();
 };
 
 class Arc {
-  protected:
+  public:
     std::string st;
     std::string ed;
+    std::string dir;  // "t2p" or "p2t"
+
+    std::string getStr();
 };
 
 class CPN {
@@ -45,5 +60,17 @@ class CPN {
     std::vector<SC_FUN> &funs;
 
   public:
-    // int traverse();
+    int build();      // 构建CPN的核心函数
+    int info();
+
+  protected:
+    int traverse(const rapidjson::Value *node_);    // 遍历，深搜，前后序，构建CPN
+
+    int build_topNet();
+
+    /* pr_ 开头为前序遍历用到的函数 */
+    int pr_selector(const std::string &type_, const rapidjson::Value *node_);
+
+    /* po_ 开头为后序遍历用到的函数 */
+    int po_selector(const std::string &type_, const rapidjson::Value *node_);
 };
