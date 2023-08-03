@@ -3,6 +3,8 @@
 using namespace rapidjson;
 using namespace std;
 
+bool debug = true;
+
 Place::Place() {}
 
 Place::~Place() {}
@@ -137,10 +139,36 @@ int CPN::traverse(const rapidjson::Value *node_) {
 }
 
 /**
+ * @param pr bool型变量，用于判断是否是前序遍历中进入该函数，若为后序遍历
+ *              进入，则该变量应该为false
+*/
+int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
+                   bool pr)
+{
+    cerr << "Untreated node type: [" << type_ << "]";
+    cerr << string(" in ") + (pr ? "[pre order]" : "[post order]") << endl;
+
+    cout << "---modeler exit---" << endl;
+    exit(-1);
+
+    return 0;
+}
+
+/**
  * pre 前序遍历
 */
 int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node_) {
     cout << "pre->>:\t" << type_ << endl;
+    int check = 0;
+    // 如果字符串匹配，则执行对应函数，并且将check修改为1
+    type_ == "SourceUnit" ? pr_SourceUnit(node_), check = 1 : 0;
+    type_ == "PragmaDirective" ? pr_PragmaDirective(node_), check = 1 : 0;
+    
+
+    if (!check)
+        return e_Unkonwn(type_, node_);
+    else
+        return 0;
     return 0;
 }
 
@@ -149,5 +177,34 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node_) {
 */
 int CPN::po_selector(const std::string &type_, const rapidjson::Value *node_) {
     cout << "post<<-:\t" << type_ << endl;
+    int check = 0;
+    // 如果字符串匹配，则执行对应函数，并且将check修改为1
+    // type_ == "SourceUnit" ? po_SourceUnit(node_), check = 1 : 0;
+
+    if (!check)
+        return e_Unkonwn(type_, node_, false);
+    else
+        return 0;
+    return 0;
+}
+
+int CPN::pr_PragmaDirective(const Value *node_) {
+    // 代码编译信息节点
+    if (debug) {
+        auto attr_literals = node_->FindMember("literals");
+        if (attr_literals == node_->MemberEnd()) {
+            cerr << "no literals node in this node[PragmaDirective]" << endl;
+            exit(-1);
+        }
+        for (const auto &it : attr_literals->value.GetArray())
+            cout << it.GetString() << ' '; 
+        cout << endl;
+        return 0;
+    }
+    return 0;
+}
+
+int CPN::pr_SourceUnit(const Value *node_) {
+    // 最根节点
     return 0;
 }
