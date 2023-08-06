@@ -158,12 +158,16 @@ int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
  * pre 前序遍历
 */
 int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node_) {
-    cout << "pre->>:\t" << type_ << endl;
+    if (debug)
+        cout << "pre--->>>:\t" << type_ << endl;
     int check = 0;
     // 如果字符串匹配，则执行对应函数，并且将check修改为1
     type_ == "SourceUnit" ? pr_SourceUnit(node_), check = 1 : 0;
     type_ == "PragmaDirective" ? pr_PragmaDirective(node_), check = 1 : 0;
-    
+    type_ == "ContractDefinition" ? pr_ContractDefinition(node_), check = 1 : 0;
+    type_ == "StructuredDocumentation" ? pr_StructuredDocumentation(node_), check = 1 : 0;
+    type_ == "VariableDeclaration" ? pr_VariableDeclaration(node_), check = 1 : 0;
+    type_ == "ElementaryTypeName" ? pr_ElementaryTypeName(node_), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node_);
@@ -176,15 +180,75 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node_) {
  * post 后序遍历
 */
 int CPN::po_selector(const std::string &type_, const rapidjson::Value *node_) {
-    cout << "post<<-:\t" << type_ << endl;
+    if (debug)
+        cout << "post<<<---:\t" << type_ << endl;
     int check = 0;
     // 如果字符串匹配，则执行对应函数，并且将check修改为1
     // type_ == "SourceUnit" ? po_SourceUnit(node_), check = 1 : 0;
+    type_ == "PragmaDirective" ? po_PragmaDirective(node_), check = 1 : 0;
+    type_ == "StructuredDocumentation" ? po_StructuredDocumentation(node_), check = 1 : 0;
+    type_ == "ElementaryTypeName" ? po_ElementaryTypeName(node_), check = 1 : 0;
+    type_ == "VariableDeclaration" ? po_VariableDeclaration(node_), check = 1 : 0;
+
 
     if (!check)
         return e_Unkonwn(type_, node_, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_VariableDeclaration(const Value *node) {
+    // 由于变量库所的构建已经在构建0层网的过程中完成，该步骤不需要重复构建
+    if (debug) {
+        auto attr_name = node->FindMember("name");
+        cout << attr_name->value.GetString() << endl;
+    }
+    return 0;
+}
+
+int CPN::po_ElementaryTypeName(const Value *node) {
+    // 变量的基础类型
+    // 该节点一般为叶子节点
+    if (debug) {
+        auto attr_name = node->FindMember("name");
+        cout << attr_name->value.GetString() << endl;
+    }
+    return 0;
+}
+
+int CPN::pr_ElementaryTypeName(const Value *node) {
+    // 基础的变量类型
+    return 0;
+}
+
+int CPN::pr_VariableDeclaration(const Value *node) {
+    // 变量定义相关
+    return 0;
+}
+
+int CPN::po_StructuredDocumentation(const Value *node) {
+    // 合约前注释文档，进入时有debug输出，退出不需要操作
+    return 0;
+}
+
+int CPN::pr_StructuredDocumentation(const Value *node) {
+    // 合约前注释文档
+    if (debug) {
+        auto attr_text = node->FindMember("text");
+        cout << attr_text->value.GetString() << endl;
+    }
+    return 0;
+}
+
+int CPN::pr_ContractDefinition(const Value *node) {
+    // 合约定义函数
+    return 0;
+}
+
+int CPN::po_PragmaDirective(const Value *node) {
+    // 代码编译信息节点，退出
+    // 不需要任何操作
     return 0;
 }
 

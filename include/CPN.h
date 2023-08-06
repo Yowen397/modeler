@@ -68,7 +68,7 @@ class CPN {
 
     int build_topNet();
 
-    /* 构造中通用函数 */
+    /* 构造中通用函数、变量 */
     int e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
                   bool pr = true);
 
@@ -76,7 +76,15 @@ class CPN {
     int pr_selector(const std::string &type_, const rapidjson::Value *node_);
     int pr_SourceUnit(const rapidjson::Value *node_);
     int pr_PragmaDirective(const rapidjson::Value *node_);
+    int pr_ContractDefinition(const rapidjson::Value *node_);
+    int pr_StructuredDocumentation(const rapidjson::Value *node);
+    int pr_VariableDeclaration(const rapidjson::Value *node);
+    int pr_ElementaryTypeName(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
+    int po_PragmaDirective(const rapidjson::Value *node);
+    int po_StructuredDocumentation(const rapidjson::Value *node);
+    int po_ElementaryTypeName(const rapidjson::Value *node);
+    int po_VariableDeclaration(const rapidjson::Value *node);
 };
