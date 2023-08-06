@@ -157,20 +157,24 @@ int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
 /**
  * pre 前序遍历
 */
-int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node_) {
+int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     if (debug)
-        cout << "pre--->>>:\t" << type_ << endl;
+        cout << "PRE--->>>:\t" << type_ << endl;
     int check = 0;
     // 如果字符串匹配，则执行对应函数，并且将check修改为1
-    type_ == "SourceUnit" ? pr_SourceUnit(node_), check = 1 : 0;
-    type_ == "PragmaDirective" ? pr_PragmaDirective(node_), check = 1 : 0;
-    type_ == "ContractDefinition" ? pr_ContractDefinition(node_), check = 1 : 0;
-    type_ == "StructuredDocumentation" ? pr_StructuredDocumentation(node_), check = 1 : 0;
-    type_ == "VariableDeclaration" ? pr_VariableDeclaration(node_), check = 1 : 0;
-    type_ == "ElementaryTypeName" ? pr_ElementaryTypeName(node_), check = 1 : 0;
+    type_ == "SourceUnit" ? pr_SourceUnit(node), check = 1 : 0;
+    type_ == "PragmaDirective" ? pr_PragmaDirective(node), check = 1 : 0;
+    type_ == "ContractDefinition" ? pr_ContractDefinition(node), check = 1 : 0;
+    type_ == "StructuredDocumentation" ? pr_StructuredDocumentation(node), check = 1 : 0;
+    type_ == "VariableDeclaration" ? pr_VariableDeclaration(node), check = 1 : 0;
+    type_ == "ElementaryTypeName" ? pr_ElementaryTypeName(node), check = 1 : 0;
+    type_ == "FunctionDefinition" ? pr_FunctionDefinition(node), check = 1 : 0;
+    type_ == "Block" ? pr_Block(node), check = 1 : 0;
+    type_ == "VariableDeclarationStatement"?pr_VariableDeclarationStatement(node), check = 1 : 0;
+
 
     if (!check)
-        return e_Unkonwn(type_, node_);
+        return e_Unkonwn(type_, node);
     else
         return 0;
     return 0;
@@ -179,22 +183,47 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node_) {
 /**
  * post 后序遍历
 */
-int CPN::po_selector(const std::string &type_, const rapidjson::Value *node_) {
+int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     if (debug)
-        cout << "post<<<---:\t" << type_ << endl;
+        cout << "POST<<<---:\t" << type_ << endl;
     int check = 0;
     // 如果字符串匹配，则执行对应函数，并且将check修改为1
-    // type_ == "SourceUnit" ? po_SourceUnit(node_), check = 1 : 0;
-    type_ == "PragmaDirective" ? po_PragmaDirective(node_), check = 1 : 0;
-    type_ == "StructuredDocumentation" ? po_StructuredDocumentation(node_), check = 1 : 0;
-    type_ == "ElementaryTypeName" ? po_ElementaryTypeName(node_), check = 1 : 0;
-    type_ == "VariableDeclaration" ? po_VariableDeclaration(node_), check = 1 : 0;
-
+    // type_ == "SourceUnit" ? po_SourceUnit(node), check = 1 : 0;
+    type_ == "PragmaDirective" ? po_PragmaDirective(node), check = 1 : 0;
+    type_ == "StructuredDocumentation" ? po_StructuredDocumentation(node), check = 1 : 0;
+    type_ == "ElementaryTypeName" ? po_ElementaryTypeName(node), check = 1 : 0;
+    type_ == "VariableDeclaration" ? po_VariableDeclaration(node), check = 1 : 0;
+    type_ == "VariableDeclarationStatement" ? po_VariableDeclarationStatement(node), check = 1 : 0;
 
     if (!check)
-        return e_Unkonwn(type_, node_, false);
+        return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_VariableDeclarationStatement(const Value *node) { return 0; }
+
+int CPN::pr_VariableDeclarationStatement(const Value *node) {
+    // 变量声明，但是变量已经在0层网络中构建对应库所
+    return 0;
+}
+
+int CPN::pr_Block(const Value *node) {
+    // 语句块
+    return 0;
+}
+
+int CPN::pr_FunctionDefinition(const Value *node) {
+    // 进入函数定义区域
+    auto attr_name = node->FindMember("name");
+    if (attr_name==node->MemberEnd()) {
+        cerr << "FunctionDefinition node can't find member [name]" << endl;
+        exit(-1);
+    }
+    inFunction = attr_name->value.GetString();
+    if (debug)
+        cout << "entry function: " << attr_name->value.GetString() << endl;
     return 0;
 }
 
@@ -202,7 +231,7 @@ int CPN::po_VariableDeclaration(const Value *node) {
     // 由于变量库所的构建已经在构建0层网的过程中完成，该步骤不需要重复构建
     if (debug) {
         auto attr_name = node->FindMember("name");
-        cout << attr_name->value.GetString() << endl;
+        cout << attr_name->value.GetString() << "\tin function : " << inFunction << endl;
     }
     return 0;
 }

@@ -71,6 +71,7 @@ class CPN {
     /* 构造中通用函数、变量 */
     int e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
                   bool pr = true);
+    std::string inFunction = "-global-";
 
     /* pr_ 开头为前序遍历用到的函数 */
     int pr_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -80,6 +81,9 @@ class CPN {
     int pr_StructuredDocumentation(const rapidjson::Value *node);
     int pr_VariableDeclaration(const rapidjson::Value *node);
     int pr_ElementaryTypeName(const rapidjson::Value *node);
+    int pr_FunctionDefinition(const rapidjson::Value *node);
+    int pr_Block(const rapidjson::Value *node);
+    int pr_VariableDeclarationStatement(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -87,4 +91,5 @@ class CPN {
     int po_StructuredDocumentation(const rapidjson::Value *node);
     int po_ElementaryTypeName(const rapidjson::Value *node);
     int po_VariableDeclaration(const rapidjson::Value *node);
+    int po_VariableDeclarationStatement(const rapidjson::Value *node);
 };
