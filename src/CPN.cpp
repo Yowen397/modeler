@@ -50,6 +50,39 @@ int CPN::info() {
     return 0;
 }
 
+/**
+ * 将字符串中的'.'转变为'_'
+*/
+inline string to_underline(const string &str_) {
+    string ret;
+    for (const auto &c: str_)
+        ret += c == '.' ? '_' : c;
+    return ret;
+}
+
+int CPN::draw() {
+    ofstream outfile("CPN.dot", ios::out);
+    outfile << "digraph G{" << endl;
+    outfile << "node[shape=box]" << endl; // 先输出变迁
+
+    for (const auto &t : trans)
+        outfile << to_underline(t.name) << "[label=\"" << t.name << "\"]" << endl;
+
+    outfile << "node[shape=circle]" << endl;
+    for (const auto &p : places)
+        outfile << to_underline(p.name) << "[label=\"" << p.name << "\"]" << endl;
+
+    for (const auto &a : arcs)
+        outfile << to_underline(a.st) << "->" << to_underline(a.ed) << endl;
+
+    outfile << "}" << endl;
+    outfile.close();
+    if (debug)
+        cout << "CALL dot TO GENERATE .png FILE..." << endl;
+    system("dot -Tpng CPN.dot -o CPN.png");
+    return 0;
+}
+
 Place &CPN::getPlace(const string &s_) {
     for (auto &it : places) {
         if (it.name == s_)
@@ -313,8 +346,8 @@ int CPN::po_Assignment(const Value *node) {
     //          to_string(attr_id->value.GetInt());
     // trans.emplace_back(t);
     // lastTransition = t.name;
-    Transition &t = newTransition(attr_name->value.GetString(),
-                                  attr_id->value.GetInt(), true, false);
+    Transition &t =
+        newTransition("Assignment", attr_id->value.GetInt(), true, false);
     newArc(lastControlPlace, t.name, "p2t", "control");
     // t.init()
     // 从栈顶取元素处理
@@ -339,8 +372,6 @@ int CPN::po_Assignment(const Value *node) {
     // 填充控制库所
     Place &p_c = newPlace("Assignment", true);
     newArc(t.name, lastControlPlace, "t2p", "control");
-
-
 
     if (debug) {
         cout << "Assignment expression left hand side variable is : "

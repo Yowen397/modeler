@@ -66,7 +66,8 @@ class CPN {
 
   public:
     int build();      // 构建CPN的核心函数
-    int info();
+    int info();       // 输出信息
+    int draw();       // 绘图，输出CPN
 
     Place &getPlace(const std::string &s_);
     Transition &getTransition(const std::string &s_);
