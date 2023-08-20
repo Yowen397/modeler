@@ -9,10 +9,6 @@ Place::Place() {}
 
 Place::~Place() {}
 
-bool Transition::getSubNet() { return isSubNet; }
-
-void Transition::setSubNet(bool v_) { this->isSubNet = v_; }
-
 CPN::CPN(AST &ast_) : vars(ast_.getVars()), funs(ast_.getFuns()) {
     root = ast_.getRoot();
 }
@@ -22,10 +18,16 @@ CPN::~CPN() {}
 std::string Place::getStr() { return "[" + color + "\t] " + name; }
 
 std::string Transition::getStr() {
-    return name + (getSubNet() ? "(subnet)" : "(normal)");
+    return name + (isSubNet ? "(subnet)" : "(normal)");
 }
 
-std::string Arc::getStr() { return "[" + dir + "] " + st + "-->>" + ed; }
+void Transition::init(std::string name_, bool isControl_, bool isSubNet_) {
+    this->name = name_;
+    this->isControl = isControl_;
+    this->isSubNet = isSubNet_;
+}
+
+std::string Arc::getStr() { return "[" + dir + "] " + st + "\t-->>\t" + ed; }
 
 /**
  * 输出CPN的信息
@@ -46,6 +48,24 @@ int CPN::info() {
     }
     cout << "============================" << endl << endl;
     return 0;
+}
+
+Place &CPN::getPlace(const string &s_) {
+    for (auto &it : places) {
+        if (it.name == s_)
+            return it;
+    }
+    cerr << "\ninexistent place name [" << s_ << "]" << endl;
+    exit(-1);
+}
+
+Transition &CPN::getTransition(const std::string &s_) {
+    for (auto &it : trans) {
+        if (it.name == s_)
+            return it;
+    }
+    cerr << "\ninexistent transition name [" << s_ << "]" << endl;
+    exit(-1);
 }
 
 /**
@@ -82,8 +102,9 @@ int CPN::build_topNet() {
     for (const auto &f : funs) {
         trans.emplace_back();
         auto &t = trans.back();
-        t.name = f.name;
-        t.setSubNet(true);
+        t.name = f.name + ".f";
+        t.isSubNet = true;
+        t.isControl = true;
     }
 
     return 0;
@@ -154,6 +175,72 @@ int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
     return 0;
 }
 
+
+
+Place &CPN::getPlaceByIdentifier(const string &id_) {
+    // 从所有库所中查找，先查找函数内作用域的(排除全局变量)
+    for (auto &p : places) {
+        if (p.name.find("global.") != string::npos)
+            continue;
+        if (p.name.find(id_) != string::npos)
+            return p;
+    }
+    // 全局变量
+    for (auto &p : places) {
+        if (p.name.find(id_) != string::npos)
+            return p;
+    }
+    // 正常来说不会执行此句，仅写出来取消警告
+    cerr << "can't find place by id [" << id_ << "]" << endl;
+    exit(-1);
+    return places.front();
+}
+
+Transition &CPN::newTransition(const string &name_, const int id,
+                               const bool isControl_, const bool isSubNet_) {
+    Transition t;
+    t.name = name_ + "." + to_string(id);
+    t.isControl = isControl_;
+    t.isSubNet = isSubNet_;
+
+    trans.emplace_back(t);
+    lastTransition = t.name;
+    return trans.back();
+}
+
+Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
+                 const string &name_) {
+    Arc a;
+    a.st = st_;
+    a.ed = ed_;
+    a.dir = dir_;
+
+    static int cnt = 0;
+    if (name_!="control")
+        a.name = name_ + "." + to_string(cnt++);
+    else
+        a.name = "control." + to_string(cnt++);
+
+    arcs.emplace_back(a);
+    return arcs.back();
+}
+
+Place &CPN::newPlace(const string &name_, const bool isControl_) {
+    Place p;
+    p.name = name_;
+
+    p.isControl = isControl_;
+    if (p.isControl)
+        p.name += ".c";
+
+    static int cnt = 0;
+    p.name += "." + to_string(cnt++);
+
+    places.emplace_back(p);
+    lastControlPlace = p.name;
+    return places.back();
+}
+
 /**
  * pre 前序遍历
 */
@@ -170,8 +257,10 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ElementaryTypeName" ? pr_ElementaryTypeName(node), check = 1 : 0;
     type_ == "FunctionDefinition" ? pr_FunctionDefinition(node), check = 1 : 0;
     type_ == "Block" ? pr_Block(node), check = 1 : 0;
-    type_ == "VariableDeclarationStatement"?pr_VariableDeclarationStatement(node), check = 1 : 0;
-
+    type_ == "VariableDeclarationStatement" ? pr_VariableDeclarationStatement(node), check = 1 : 0;
+    type_ == "ExpressionStatement" ? pr_ExpressionStatement(node), check = 1 : 0;
+    type_ == "Assignment" ? pr_Assignment(node), check = 1 : 0;
+    type_ == "Identifier" ? pr_Identifier(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -194,11 +283,97 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ElementaryTypeName" ? po_ElementaryTypeName(node), check = 1 : 0;
     type_ == "VariableDeclaration" ? po_VariableDeclaration(node), check = 1 : 0;
     type_ == "VariableDeclarationStatement" ? po_VariableDeclarationStatement(node), check = 1 : 0;
+    type_ == "Identifier" ? po_Identifier(node), check = 1 : 0;
+    type_ == "Assignment" ? po_Assignment(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_Assignment(const Value *node) {
+    // 当前处理方案，认为Assignment结束时应按序处理所有的Identifier，在id_stk中
+    // 需要找到Assignment左值，left hand side，定为处理的终止点
+    auto node_leftHandSide = node->FindMember("leftHandSide");
+    if (node_leftHandSide==node->MemberEnd()) {
+        cerr << "Assignment node can't find member [leftHandSide]" << endl;
+        exit(-1);
+    }
+    auto attr_name = node_leftHandSide->value.FindMember("name");
+    if (attr_name==node_leftHandSide->value.MemberEnd()) {
+        cerr << "leftHandSide node can't find member [name]" << endl;
+        exit(-1);
+    }
+    auto attr_id = node->FindMember("id"); // 确定nodeType节点一定包含id
+    // 新建一个变迁，并连接
+    // Transition t;
+    // t.name = attr_name->value.GetString() + string(".") +
+    //          to_string(attr_id->value.GetInt());
+    // trans.emplace_back(t);
+    // lastTransition = t.name;
+    Transition &t = newTransition(attr_name->value.GetString(),
+                                  attr_id->value.GetInt(), true, false);
+    newArc(lastControlPlace, t.name, "p2t", "control");
+    // t.init()
+    // 从栈顶取元素处理
+    while (id_stk.size() && id_stk.top()!=attr_name->value.GetString()) {
+        string id = id_stk.top();
+        id_stk.pop();
+        Place &p = getPlaceByIdentifier(id);
+        // 建立弧连接，操作类型为read
+        newArc(p.name, t.name, "p2t", "read");
+        // 读完之后要返回
+        newArc(t.name, p.name, "t2p", "replace");
+    }
+    // 最后处理表达式左值
+    if (id_stk.empty()||(id_stk.top()!=attr_name->value.GetString())) {
+        cerr << "stack top is not assignment left hand side." << endl;
+        exit(-1);
+    }
+    Place &p_reslut = getPlaceByIdentifier(id_stk.top());
+    id_stk.pop();
+    newArc(t.name, p_reslut.name, "t2p", "assign");
+
+    // 填充控制库所
+    Place &p_c = newPlace("Assignment", true);
+    newArc(t.name, lastControlPlace, "t2p", "control");
+
+
+
+    if (debug) {
+        cout << "Assignment expression left hand side variable is : "
+             << attr_name->value.GetString() << endl;
+    }
+
+    return 0;
+}
+
+int CPN::po_Identifier(const Value *node) {
+    auto attr_name = node->FindMember("name");
+    if (attr_name == node->MemberEnd()) {
+        cerr << "Identifier node can't find member [name]" << endl;
+        exit(-1);
+    }
+    id_stk.push(attr_name->value.GetString());
+
+    if (debug)
+        cout << "Identifier: " << attr_name->value.GetString() << endl;
+    return 0;
+}
+
+int CPN::pr_Identifier(const Value *node) {
+    return 0;
+}
+
+int CPN::pr_Assignment(const Value *node) {
+    // 赋值语句
+    return 0;
+}
+
+int CPN::pr_ExpressionStatement(const Value *node) {
+    // 表达式
     return 0;
 }
 
@@ -222,6 +397,29 @@ int CPN::pr_FunctionDefinition(const Value *node) {
         exit(-1);
     }
     inFunction = attr_name->value.GetString();
+    // 构建控制流库所，以及对应的弧
+    // Place p;
+    // p.name = inFunction + ".in.c";
+    // p.isControl = true;
+    // places.emplace_back(p);
+    Place &p = newPlace(inFunction + ".in", true);
+    // Arc a;
+    // a.dir = "t2p";
+    // a.st = inFunction + ".f";
+    // getTransition(a.st);    // 设置之后调用一次查找，为了确保名字无误
+    // a.ed = p.name;
+    // getPlace(a.ed);
+    // a.isControl = true;
+    // a.name = "control";
+    // arcs.emplace_back(a);
+    newArc(inFunction + ".f", p.name, "t2p", "control");
+    // info();
+    // cout << "DEBUG::arcs st[" << getTransition(a.st).name << "]" << endl;
+    // cout << "DEBUG::arcs ed[" << getPlace(a.ed).name << "]" << endl;
+
+    lastControlPlace = p.name;
+    lastTransition = inFunction + ".f";
+
     if (debug)
         cout << "entry function: " << attr_name->value.GetString() << endl;
     return 0;

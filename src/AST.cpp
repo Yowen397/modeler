@@ -152,6 +152,14 @@ int AST::traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
     auto attr_type = node->FindMember("nodeType");
     if (attr_type!=node->MemberEnd()) {
         // 存在nodeType
+
+        // 若存在nodeType尝试检测id
+        // auto attr_id = node->FindMember("id");
+        // if (attr_id!=node->MemberEnd()) {
+        //     std::cout << attr_id->value.GetInt() << ",";
+        //     // exit(0);
+        // }
+
         // static int cnt = 0;
         // std::cout << ++cnt << "\t";
         // std::cout << "nodeType: " << attr_type->value.GetString() << std::endl;
