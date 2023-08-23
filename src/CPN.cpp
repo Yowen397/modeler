@@ -51,13 +51,12 @@ int CPN::info() {
 }
 
 /**
- * 将字符串中的'.'转变为'_'
+ * 在字符串前后添加   \"
 */
-inline string to_underline(const string &str_) {
-    string ret;
-    for (const auto &c: str_)
-        ret += c == '.' ? '_' : c;
-    return ret;
+inline string to_quotation(const string &str_) {
+    string ret = "\"";
+
+    return ret + str_ + "\"";
 }
 
 int CPN::draw() {
@@ -66,14 +65,14 @@ int CPN::draw() {
     outfile << "node[shape=box]" << endl; // 先输出变迁
 
     for (const auto &t : trans)
-        outfile << to_underline(t.name) << "[label=\"" << t.name << "\"]" << endl;
+        outfile << to_quotation(t.name) << "[label=\"" << t.name << "\"]" << endl;
 
     outfile << "node[shape=circle]" << endl;
     for (const auto &p : places)
-        outfile << to_underline(p.name) << "[label=\"" << p.name << "\"]" << endl;
+        outfile << to_quotation(p.name) << "[label=\"" << p.name << "\"]" << endl;
 
     for (const auto &a : arcs)
-        outfile << to_underline(a.st) << "->" << to_underline(a.ed) << endl;
+        outfile << to_quotation(a.st) << "->" << to_quotation(a.ed) << endl;
 
     outfile << "}" << endl;
     outfile.close();
@@ -211,22 +210,34 @@ int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
 
 
 Place &CPN::getPlaceByIdentifier(const string &id_) {
+    size_t pos;
     // 从所有库所中查找，先查找函数内作用域的(排除全局变量)
     for (auto &p : places) {
+        // 排除控制库所
+        if (p.name.find(".c.") != string::npos)
+            continue;
+        // 排除全局变量
         if (p.name.find("global.") != string::npos)
             continue;
-        if (p.name.find(id_) != string::npos)
+        // 变量名匹配
+        if ((pos = p.name.find(id_)) != string::npos &&
+            pos + id_.size() == p.name.size() && p.name[pos - 1] == '.')
             return p;
     }
     // 全局变量
     for (auto &p : places) {
-        if (p.name.find(id_) != string::npos)
+        if (p.name.find(".c.") != string::npos)
+            continue;
+        if ((pos = p.name.find(id_)) != string::npos &&
+            pos + id_.size() == p.name.size() && p.name[pos - 1] == '.')
             return p;
     }
     // 正常来说不会执行此句，仅写出来取消警告
-    cerr << "can't find place by id [" << id_ << "]" << endl;
-    exit(-1);
-    return places.front();
+    static Place error_place;
+    error_place.name = "ERROR";
+    // cerr << "can't find place by id [" << id_ << "]" << endl;
+    // exit(-1);
+    return error_place;
 }
 
 Transition &CPN::newTransition(const string &name_, const int id,
@@ -263,14 +274,15 @@ Place &CPN::newPlace(const string &name_, const bool isControl_) {
     p.name = name_;
 
     p.isControl = isControl_;
-    if (p.isControl)
+    if (p.isControl) {
         p.name += ".c";
 
-    static int cnt = 0;
-    p.name += "." + to_string(cnt++);
+        static int cnt = 0;
+        p.name += "." + to_string(cnt++);
+    }
 
     places.emplace_back(p);
-    lastControlPlace = p.name;
+    lastPlace = p.name;
     return places.back();
 }
 
@@ -294,6 +306,9 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ExpressionStatement" ? pr_ExpressionStatement(node), check = 1 : 0;
     type_ == "Assignment" ? pr_Assignment(node), check = 1 : 0;
     type_ == "Identifier" ? pr_Identifier(node), check = 1 : 0;
+    type_ == "BinaryOperation" ? pr_BinaryOperation(node), check = 1 : 0;
+    type_ == "Literal" ? pr_Literal(node), check = 1 : 0;
+    type_ == "ParameterList" ? pr_ParameterList(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -318,11 +333,111 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "VariableDeclarationStatement" ? po_VariableDeclarationStatement(node), check = 1 : 0;
     type_ == "Identifier" ? po_Identifier(node), check = 1 : 0;
     type_ == "Assignment" ? po_Assignment(node), check = 1 : 0;
+    type_ == "ExpressionStatement" ? po_ExpressionStatement(node), check = 1 : 0;
+    type_ == "Literal" ? po_Literal(node), check = 1 : 0;
+    type_ == "BinaryOperation" ? po_BinaryOperation(node), check = 1 : 0;
+    type_ == "Block" ? po_Block(node), check = 1 : 0;
+    type_ == "ParameterList" ? po_ParameterList(node), check = 1 : 0;
+    type_ == "FunctionDefinition" ? po_FunctionDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_FunctionDefinition(const Value *node) {
+    // 退出函数构建
+    return 0;
+}
+
+int CPN::po_ParameterList(const Value *node) {
+    // 参数列表，0层构建时已经处理
+    return 0;
+}
+
+int CPN::pr_ParameterList(const Value *node) {
+    // 参数列表，0层构建时已经处理
+    return 0;
+}
+
+int CPN::po_Block(const Value *node) {
+    // 暂时不处理
+    return 0;
+}
+
+int CPN::po_BinaryOperation(const Value *node) {
+    // 二元运算的处理，暂且为先加
+    // 先生成一个变迁
+    auto attr_id = node->FindMember("id");
+    newTransition(op_stk.top(), attr_id->value.GetInt());
+    op_stk.pop();
+    newArc(lastPlace, lastTransition, "p2t");
+    // 左值和右值存放在id_stk
+    // 右值
+    Place &right = getPlaceByIdentifier(id_stk.top());
+    id_stk.pop();
+    if (right.name=="ERROR"){
+        if (debug)
+            cout << "right value is Literal"; // 找不到，说明是常量
+    }
+    else{
+        newArc(right.name, lastTransition, "p2t", "read");
+        newArc(lastTransition, right.name, "t2p", "replace");
+    }
+    // 左值
+    Place &left = getPlaceByIdentifier(id_stk.top());
+    id_stk.pop();
+    if (left.name=="ERROR"){
+        if (debug)
+            cout << "left value is Literal"; // 找不到，说明是常量
+    }
+    else{
+        newArc(left.name, lastTransition, "p2t", "read");
+        newArc(lastTransition, left.name, "t2p", "replace");
+    }
+    // 结果库所（tmp）
+    newPlace(inFunction + ".tmp." + to_string(attr_id->value.GetInt()), false);
+    newArc(lastTransition, lastPlace, "t2p", "write");
+    id_stk.push("tmp." + to_string(attr_id->value.GetInt()));
+    // 填充控制库所
+    newPlace("BinaryOperation", true);
+    newArc(lastTransition, lastPlace, "t2p");
+
+    // draw();
+    return 0;
+}
+
+int CPN::po_Literal(const Value *node) {
+    // 常量值
+    auto attr_value = node->FindMember("value");
+    if (attr_value==node->MemberEnd()) {
+        cerr << "Literal can't find member [value]" << endl;
+        exit(-1);
+    }
+    id_stk.push(attr_value->value.GetString());
+    return 0;
+}
+
+int CPN::pr_Literal(const Value *node) {
+    // 常量值的出现形式？
+    return 0;
+}
+
+int CPN::pr_BinaryOperation(const Value *node) {
+    // 在二元运算进入节点不需要考虑处理，记录操作符即可
+    auto attr_operator = node->FindMember("operator");
+    if (attr_operator == node->MemberEnd()) {
+        cerr << "BinaryOperation can't find member [operator]" << endl;
+        exit(-1);
+    }
+    op_stk.push(attr_operator->value.GetString());
+    return 0;
+}
+
+int CPN::po_ExpressionStatement(const Value *node) {
+    // 表达式语句认为在赋值中已经处理
     return 0;
 }
 
@@ -348,7 +463,7 @@ int CPN::po_Assignment(const Value *node) {
     // lastTransition = t.name;
     Transition &t =
         newTransition("Assignment", attr_id->value.GetInt(), true, false);
-    newArc(lastControlPlace, t.name, "p2t", "control");
+    newArc(lastPlace, t.name, "p2t", "control");
     // t.init()
     // 从栈顶取元素处理
     while (id_stk.size() && id_stk.top()!=attr_name->value.GetString()) {
@@ -371,13 +486,14 @@ int CPN::po_Assignment(const Value *node) {
 
     // 填充控制库所
     Place &p_c = newPlace("Assignment", true);
-    newArc(t.name, lastControlPlace, "t2p", "control");
+    newArc(t.name, lastPlace, "t2p", "control");
 
     if (debug) {
         cout << "Assignment expression left hand side variable is : "
              << attr_name->value.GetString() << endl;
     }
 
+    
     return 0;
 }
 
@@ -448,7 +564,7 @@ int CPN::pr_FunctionDefinition(const Value *node) {
     // cout << "DEBUG::arcs st[" << getTransition(a.st).name << "]" << endl;
     // cout << "DEBUG::arcs ed[" << getPlace(a.ed).name << "]" << endl;
 
-    lastControlPlace = p.name;
+    lastPlace = p.name;
     lastTransition = inFunction + ".f";
 
     if (debug)

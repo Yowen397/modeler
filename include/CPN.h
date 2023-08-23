@@ -85,12 +85,13 @@ class CPN {
                               const bool isSubNet = false);
     Place &getPlaceByIdentifier(const std::string &id_);
     Arc &newArc(const std::string &st_, const std::string &ed,
-                const std::string &dir, const std::string &name_);
+                const std::string &dir, const std::string &name_="control");
     Place &newPlace(const std::string &name_, const bool isControl);
     std::string inFunction = "-global-";
-    std::string lastControlPlace; // 最新的一个控制流库所/末端控制流
+    std::string lastPlace; // 最新的一个库所，末端控制流或者是最新的临时数据流
     std::string lastTransition;   // 最新的一个执行变迁
     std::stack<std::string> id_stk;
+    std::stack<std::string> op_stk;
 
     /* pr_ 开头为前序遍历用到的函数 */
     int pr_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -106,6 +107,9 @@ class CPN {
     int pr_ExpressionStatement(const rapidjson::Value *node);
     int pr_Assignment(const rapidjson::Value *node);
     int pr_Identifier(const rapidjson::Value *node);
+    int pr_BinaryOperation(const rapidjson::Value *node);
+    int pr_Literal(const rapidjson::Value *node);
+    int pr_ParameterList(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -116,4 +120,10 @@ class CPN {
     int po_VariableDeclarationStatement(const rapidjson::Value *node);
     int po_Identifier(const rapidjson::Value *node);
     int po_Assignment(const rapidjson::Value *node);
+    int po_ExpressionStatement(const rapidjson::Value *node);
+    int po_Literal(const rapidjson::Value *node);
+    int po_BinaryOperation(const rapidjson::Value *node);
+    int po_Block(const rapidjson::Value *node);
+    int po_ParameterList(const rapidjson::Value *node);
+    int po_FunctionDefinition(const rapidjson::Value *node);
 };
