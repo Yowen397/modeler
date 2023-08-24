@@ -345,11 +345,23 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ParameterList" ? po_ParameterList(node), check = 1 : 0;
     type_ == "FunctionDefinition" ? po_FunctionDefinition(node), check = 1 : 0;
     type_ == "Return" ? po_Return(node), check = 1 : 0;
+    type_ == "ContractDefinition" ? po_ContractDefinition(node), check = 1 : 0;
+    type_ == "SourceUnit" ? po_SourceUnit(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_SourceUnit(const Value *node) {
+    //
+    return 0;
+}
+
+int CPN::po_ContractDefinition(const Value *node) {
+    //
     return 0;
 }
 

@@ -18,6 +18,7 @@ int main(int argc, char* argv[]){
     // CPN cpn;
     cpn.build();
     cpn.info();
+    cpn.draw();
 
     return 0;
 }

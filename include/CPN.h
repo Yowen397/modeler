@@ -131,4 +131,6 @@ class CPN {
     int po_ParameterList(const rapidjson::Value *node);
     int po_FunctionDefinition(const rapidjson::Value *node);
     int po_Return(const rapidjson::Value *node);
+    int po_ContractDefinition(const rapidjson::Value *node);
+    int po_SourceUnit(const rapidjson::Value *node);
 };
