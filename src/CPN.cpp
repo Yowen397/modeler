@@ -269,6 +269,10 @@ Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
     return arcs.back();
 }
 
+/**
+ * 新建一个库所
+ * 若isControl为true，则会自动在库所名称后追加  .c.cnt
+*/
 Place &CPN::newPlace(const string &name_, const bool isControl_) {
     Place p;
     p.name = name_;
@@ -309,6 +313,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "BinaryOperation" ? pr_BinaryOperation(node), check = 1 : 0;
     type_ == "Literal" ? pr_Literal(node), check = 1 : 0;
     type_ == "ParameterList" ? pr_ParameterList(node), check = 1 : 0;
+    type_ == "Return" ? pr_Return(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -339,11 +344,40 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "Block" ? po_Block(node), check = 1 : 0;
     type_ == "ParameterList" ? po_ParameterList(node), check = 1 : 0;
     type_ == "FunctionDefinition" ? po_FunctionDefinition(node), check = 1 : 0;
+    type_ == "Return" ? po_Return(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_Return(const Value *node) {
+    // 返回语句最终在id_stk中必然包含一个变量（可能临时变量）
+
+    // 执行变迁
+    auto attr_id = node->FindMember("id");
+    newTransition("Return", attr_id->value.GetInt());
+    newArc(lastPlace, lastTransition, "p2t");
+
+    // 返回值来源
+    Place &p = getPlaceByIdentifier(id_stk.top());
+    id_stk.pop();
+    newArc(p.name, lastTransition, "p2t", "read");
+
+    // 找到返回值库所，目前只处理单值返回的，返回值库所命名唯一
+    newArc(lastTransition, returnPlace, "t2p", "write");
+
+    // 控制流
+    newArc(lastTransition, outPlace, "t2p");
+
+    return 0;
+}
+
+int CPN::pr_Return(const Value *node) {
+    //
+    
     return 0;
 }
 
@@ -438,6 +472,10 @@ int CPN::pr_BinaryOperation(const Value *node) {
 
 int CPN::po_ExpressionStatement(const Value *node) {
     // 表达式语句认为在赋值中已经处理
+
+    // id_stk需要清空
+    while (!id_stk.empty())
+        id_stk.pop();
     return 0;
 }
 
@@ -536,6 +574,19 @@ int CPN::pr_Block(const Value *node) {
     return 0;
 }
 
+/**
+ * 通过函数名获取函数的引用 (SC_FUN)
+*/
+SC_FUN &CPN::getFun(const string &name_) {
+    for (auto &f: funs) {
+        if (f.name == name_)
+            return f;
+    }
+    static SC_FUN ef;
+    ef.name = "ERROR_FUN";
+    return ef;
+}
+
 int CPN::pr_FunctionDefinition(const Value *node) {
     // 进入函数定义区域
     auto attr_name = node->FindMember("name");
@@ -544,28 +595,23 @@ int CPN::pr_FunctionDefinition(const Value *node) {
         exit(-1);
     }
     inFunction = attr_name->value.GetString();
-    // 构建控制流库所，以及对应的弧
-    // Place p;
-    // p.name = inFunction + ".in.c";
-    // p.isControl = true;
-    // places.emplace_back(p);
+
+    // 构建入口控制流库所，以及对应的弧
     Place &p = newPlace(inFunction + ".in", true);
-    // Arc a;
-    // a.dir = "t2p";
-    // a.st = inFunction + ".f";
-    // getTransition(a.st);    // 设置之后调用一次查找，为了确保名字无误
-    // a.ed = p.name;
-    // getPlace(a.ed);
-    // a.isControl = true;
-    // a.name = "control";
-    // arcs.emplace_back(a);
     newArc(inFunction + ".f", p.name, "t2p", "control");
-    // info();
+ 
+    // 构建出口库所，该库所当前不需要弧连接
+    outPlace = newPlace(inFunction + ".out", true).name;
+
     // cout << "DEBUG::arcs st[" << getTransition(a.st).name << "]" << endl;
     // cout << "DEBUG::arcs ed[" << getPlace(a.ed).name << "]" << endl;
 
     lastPlace = p.name;
     lastTransition = inFunction + ".f";
+    // 暂时只处理单个返回值(若有返回值)
+    if (getFun(inFunction).param_ret.size())
+        returnPlace =
+            inFunction + ".ret." + getFun(inFunction).param_ret[0].name;
 
     if (debug)
         cout << "entry function: " << attr_name->value.GetString() << endl;

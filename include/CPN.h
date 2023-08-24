@@ -87,9 +87,12 @@ class CPN {
     Arc &newArc(const std::string &st_, const std::string &ed,
                 const std::string &dir, const std::string &name_="control");
     Place &newPlace(const std::string &name_, const bool isControl);
+    SC_FUN &getFun(const std::string &name_);
     std::string inFunction = "-global-";
     std::string lastPlace; // 最新的一个库所，末端控制流或者是最新的临时数据流
     std::string lastTransition;   // 最新的一个执行变迁
+    std::string returnPlace;      // 返回值库所的名称
+    std::string outPlace;         // 控制流返回库所的名称
     std::stack<std::string> id_stk;
     std::stack<std::string> op_stk;
 
@@ -110,6 +113,7 @@ class CPN {
     int pr_BinaryOperation(const rapidjson::Value *node);
     int pr_Literal(const rapidjson::Value *node);
     int pr_ParameterList(const rapidjson::Value *node);
+    int pr_Return(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -126,4 +130,5 @@ class CPN {
     int po_Block(const rapidjson::Value *node);
     int po_ParameterList(const rapidjson::Value *node);
     int po_FunctionDefinition(const rapidjson::Value *node);
+    int po_Return(const rapidjson::Value *node);
 };
