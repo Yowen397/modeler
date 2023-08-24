@@ -88,6 +88,7 @@ class CPN {
                 const std::string &dir, const std::string &name_="control");
     Place &newPlace(const std::string &name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
+    int removePlace(const std::string &name_);
     std::string inFunction = "-global-";
     std::string lastPlace;        // 最新的一个库所，末端控制流或者是最新的临时数据流
     std::string lastTransition;   // 最新的一个执行变迁

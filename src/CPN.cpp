@@ -64,15 +64,27 @@ int CPN::draw() {
     outfile << "digraph G{" << endl;
     outfile << "node[shape=box]" << endl; // 先输出变迁
 
-    for (const auto &t : trans)
-        outfile << to_quotation(t.name) << "[label=\"" << t.name << "\"]" << endl;
+    for (const auto &t : trans) {
+        outfile << to_quotation(t.name) << "[label=\"" << t.name << "\"";
+        outfile << (t.isControl ? ",color=gold" : "");
+        outfile << "]" << endl;
+    }
 
     outfile << "node[shape=circle]" << endl;
-    for (const auto &p : places)
-        outfile << to_quotation(p.name) << "[label=\"" << p.name << "\"]" << endl;
+    for (const auto &p : places) {
+        outfile << to_quotation(p.name) << "[label=\"" << p.name << "\"";
+        outfile << (p.isControl ? ",color=gold" : "");
+        outfile << "]" << endl;
+    }
 
-    for (const auto &a : arcs)
-        outfile << to_quotation(a.st) << "->" << to_quotation(a.ed) << endl;
+    for (const auto &a : arcs) {
+        outfile << to_quotation(a.st) << "->" << to_quotation(a.ed) << "[";
+        if (a.isControl)
+            outfile << "color=gold";
+        else 
+            outfile << "label=\"" << a.name << "\"";
+        outfile << "]" << endl;
+    }
 
     outfile << "}" << endl;
     outfile.close();
@@ -108,6 +120,7 @@ int CPN::build_topNet() {
     for (auto &v : vars) {
         places.emplace_back();
         auto &p = places.back();
+        p.isControl = false;
         if (v.range == SC_VAR::RANGE::global)
             p.name = "global." + v.name;
         else
@@ -119,12 +132,14 @@ int CPN::build_topNet() {
         for (auto &v : f.param) {
             places.emplace_back();
             auto &p = places.back();
+            p.isControl = false;
             p.name = f.name + ".param." + v.name;
             p.color = v.type;
         }
         for (auto &v : f.param_ret) {
             places.emplace_back();
             auto &p = places.back();
+            p.isControl = false;
             p.name = f.name + ".ret." + v.name;
             p.color = v.type;
         }
@@ -260,10 +275,13 @@ Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
     a.dir = dir_;
 
     static int cnt = 0;
-    if (name_!="control")
+    if (name_ != "control") {
         a.name = name_ + "." + to_string(cnt++);
-    else
+        a.isControl = false;
+    } else {
         a.name = "control." + to_string(cnt++);
+        a.isControl = true;
+    }
 
     arcs.emplace_back(a);
     return arcs.back();
@@ -288,6 +306,49 @@ Place &CPN::newPlace(const string &name_, const bool isControl_) {
     places.emplace_back(p);
     lastPlace = p.name;
     return places.back();
+}
+
+/**
+ * 通过函数名获取函数的引用 (SC_FUN)
+*/
+SC_FUN &CPN::getFun(const string &name_) {
+    for (auto &f: funs) {
+        if (f.name == name_)
+            return f;
+    }
+    static SC_FUN ef;
+    ef.name = "ERROR_FUN";
+    return ef;
+}
+
+/**
+ * 删除库所，连带相关的Arc
+*/
+int CPN::removePlace(const string &name_) {
+    //
+    auto it = places.begin();
+    while (it != places.end()) {
+        if (it->name != name_) {
+            it++;
+            continue;
+        }
+        // 找到要移除的库所，首先移除相关的arc
+        auto it_a = arcs.begin();
+        while (it_a != arcs.end()) {
+            if (it_a->st == name_ || it_a->ed == name_)
+                it_a = arcs.erase(it_a);
+            else
+                it_a++;
+        }
+        places.erase(it);
+        return 0;
+    }
+    if (it == places.end()) {
+        cerr << "place [" << name_ << "] doesn't exist, remove failed..."
+             << endl;
+        exit(-1);
+    }
+    return 0;
 }
 
 /**
@@ -398,8 +459,11 @@ int CPN::po_FunctionDefinition(const Value *node) {
     // 若函数最后一句就是return，则直接返回
     if (getTransition(lastTransition).name.find("Return") != string::npos)
         return 0;
+
     // 否则引导控制流退出
-    newArc(lastTransition, outPlace, "t2p");
+    newArc(lastTransition, outPlace, "t2p");    
+    // 并且删除无效的控制库所
+    removePlace(lastPlace);
     return 0;
 }
 
@@ -589,19 +653,6 @@ int CPN::pr_VariableDeclarationStatement(const Value *node) {
 int CPN::pr_Block(const Value *node) {
     // 语句块
     return 0;
-}
-
-/**
- * 通过函数名获取函数的引用 (SC_FUN)
-*/
-SC_FUN &CPN::getFun(const string &name_) {
-    for (auto &f: funs) {
-        if (f.name == name_)
-            return f;
-    }
-    static SC_FUN ef;
-    ef.name = "ERROR_FUN";
-    return ef;
 }
 
 int CPN::pr_FunctionDefinition(const Value *node) {
