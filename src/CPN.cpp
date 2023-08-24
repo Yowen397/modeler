@@ -394,7 +394,12 @@ int CPN::pr_Return(const Value *node) {
 }
 
 int CPN::po_FunctionDefinition(const Value *node) {
-    // 退出函数构建
+    // 退出函数构建，如果退出时最后一句不是return，则需引导控制流回到退出点
+    // 若函数最后一句就是return，则直接返回
+    if (getTransition(lastTransition).name.find("Return") != string::npos)
+        return 0;
+    // 否则引导控制流退出
+    newArc(lastTransition, outPlace, "t2p");
     return 0;
 }
 

@@ -40,6 +40,7 @@ node[shape=circle]
 "Assignment.21"->"store.tmp.20"
 "Assignment.21"->"store.test_v"
 "Assignment.21"->"Assignment.c.4"
+"Assignment.21"->"store.out.c.1"
 "retrieve.f"->"retrieve.in.c.5"
 "retrieve.in.c.5"->"+.36"
 "retrieve.param.p2"->"+.36"

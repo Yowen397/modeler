@@ -89,7 +89,7 @@ class CPN {
     Place &newPlace(const std::string &name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
     std::string inFunction = "-global-";
-    std::string lastPlace; // 最新的一个库所，末端控制流或者是最新的临时数据流
+    std::string lastPlace;        // 最新的一个库所，末端控制流或者是最新的临时数据流
     std::string lastTransition;   // 最新的一个执行变迁
     std::string returnPlace;      // 返回值库所的名称
     std::string outPlace;         // 控制流返回库所的名称
