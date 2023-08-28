@@ -55,14 +55,15 @@ int AST::parse(std::string path_) {
     // 解析json数据
     if (doc.Parse(str.data()).HasParseError()) {
         std::cerr << "error in parse json file." << std::endl;
-        return -1;
+        std::cerr << "check file name [" << path_ << "]" << std::endl;
+        exit(-1);
     }
     this->extractSolcFilename(); //提取solc文件的文件名
     // 至此json数据存放在doc中，下一步操作是找到语法树的根节点
     auto node_sources = doc.FindMember("sources"); // sources节点
     if ( node_sources==doc.MemberEnd()) {
         std::cerr << "There is no \"sources\" node in AST(json file)." << std::endl;
-        return -1;
+        exit(-1);
     }
     auto node_filename_solc =
         node_sources->value.FindMember(this->filename_solc.c_str()); // "源文件名"节点，例如storage.solc

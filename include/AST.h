@@ -16,7 +16,7 @@
 
 
 
-const std::string path_ast = "../solc_files/output/combined.json";
+
 
 static const char *kTypeNames[] = {"Null",  "False",  "True",  "Object",
                                    "Array", "String", "Number"};

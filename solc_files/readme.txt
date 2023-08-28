@@ -7,3 +7,8 @@ solc版本可以通过solc-select工具管理
 solc-select工具安装方式为：
 pip3 install solc-select
 该工具具体使用方法可以查看其说明
+
+
+编译其它文件
+solc -o ./output/storage/  --combined-json ast  storage.solc --overwrite
+solc -o ./output/Purchase/ --combined-json ast Purchase.solc --overwrite
