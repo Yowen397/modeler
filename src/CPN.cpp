@@ -9,7 +9,8 @@ Place::Place() {}
 
 Place::~Place() {}
 
-CPN::CPN(AST &ast_) : vars(ast_.getVars()), funs(ast_.getFuns()) {
+CPN::CPN(AST &ast_)
+    : vars(ast_.getVars()), funs(ast_.getFuns()), enums(ast_.getEnums()) {
     root = ast_.getRoot();
 }
 
@@ -375,6 +376,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "Literal" ? pr_Literal(node), check = 1 : 0;
     type_ == "ParameterList" ? pr_ParameterList(node), check = 1 : 0;
     type_ == "Return" ? pr_Return(node), check = 1 : 0;
+    type_ == "EnumDefinition" ? pr_EnumDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -415,6 +417,8 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::pr_EnumDefinition(const Value *ndoe) { return 0; }
 
 int CPN::po_SourceUnit(const Value *node) {
     //

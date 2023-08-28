@@ -14,6 +14,8 @@ std::vector<SC_VAR> &AST::getVars() { return this->vars; }
 
 std::vector<SC_FUN> &AST::getFuns() { return this->funs; }
 
+std::vector<SC_ENUM> &AST::getEnums() { return this->enums; }
+
 /**
  * 从rapid json的doc中，提取出solc文件的文件名
  * 提取方式为从sourceList节点（array类型）中取第一个
@@ -130,11 +132,21 @@ std::string SC_FUN::getStr() {
     return ret + "\n";
 }
 
+std::string SC_ENUM::getStr() {
+    std::string ret = name+":\t";
+    for (auto &id : ids)
+        ret += id + ", ";
+    return ret;
+}
+
 int AST::info() {
     std::cout << "==========AST info==========\n";
     std::cout << "variables:\n";
     for (auto v : vars)
         std::cout << "\t" + v.getStr() << std::endl;
+    std::cout << "enum:\n";
+    for (auto e:enums)
+        std::cout << e.getStr() << std::endl;
     std::cout << std::endl;
     for (auto f : funs)
         std::cout << f.getStr();
@@ -248,6 +260,17 @@ int AST::EntryOperation(std::string str_, const rapidjson::Value *node) {
         this->funs.back().name = this->cur_fun;
         this->cur_param_stage = "parameters";
     }
+    if (str_ == "EnumDefinition") {
+        this->enums.emplace_back();
+        auto attr_name = node->FindMember("name");
+        if (attr_name == node->MemberEnd()) {
+            std::cerr << "AST::EntryOperation: EnumDefinition node failed "
+                         "to find attribute\"name\""
+                      << std::endl;
+            std::exit(-1);
+        }
+        this->enums.back().name = attr_name->value.GetString();
+    }
     return 0;
 }
 
@@ -257,16 +280,18 @@ int AST::EntryOperation(std::string str_, const rapidjson::Value *node) {
 */
 int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
     int ret = -1;
-    str_ == "SourceUnit" ? ret = e_SourceUnit(node) : 0;
-    str_ == "VariableDeclaration" ? ret = e_VariableDeclaration(node) : 0;
-    str_ == "ElementaryTypeName" ? ret = e_ElementaryTypeName(node) : 0;
-    str_ == "FunctionDefinition" ? ret = e_FunctionDefinition(node) : 0;
-    str_ == "ParameterList" ? ret = e_ParameterList(node) : 0;
+    str_ == "SourceUnit" ? ret = po_SourceUnit(node) : 0;
+    str_ == "VariableDeclaration" ? ret = po_VariableDeclaration(node) : 0;
+    str_ == "ElementaryTypeName" ? ret = po_ElementaryTypeName(node) : 0;
+    str_ == "FunctionDefinition" ? ret = po_FunctionDefinition(node) : 0;
+    str_ == "ParameterList" ? ret = po_ParameterList(node) : 0;
+    str_ == "UserDefinedTypeName" ? ret = po_UserDefinedTypeName(node) : 0;
+    str_ == "EnumValue" ? ret = po_EnumValue(node) : 0;
 
-    if (ret != 0)
+    if (ret == -1)
         return e_Unknown(str_, node);
     else
-        return 0;
+        return ret;
 }
 
 int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
@@ -275,21 +300,51 @@ int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
     return 0;
 }
 
-int AST::e_SourceUnit(const rapidjson::Value *node) {
+int AST::po_EnumValue(const rapidjson::Value *node) {
+    auto attr_name = node->FindMember("name");
+    if (attr_name == node->MemberEnd()) {
+        std::cerr << "AST::po_EnumValue: EnumValue node failed to find "
+                     "attribute\"name\""
+                  << std::endl;
+        std::exit(-1);
+    }
+    this->enums.back().ids.emplace_back(attr_name->value.GetString());
+    return 0;
+}
+
+int AST::po_UserDefinedTypeName(const rapidjson::Value *node) {
+    // 自定义类型
+    auto attr_pathNode = node->FindMember("pathNode");
+    if (attr_pathNode == node->MemberEnd()) {
+        std::cerr << "AST::po_UserDefinedTypeName: can't find  [pathNode]"
+                  << std::endl;
+        exit(-1);
+    }
+    auto attr_name = attr_pathNode->value.FindMember("name");
+    if (attr_name == node->MemberEnd()) {
+        std::cerr << "AST::po_UserDefinedTypeName: can't find [name]"
+                  << std::endl;
+        exit(-1);
+    }
+    this->cur_typename = attr_name->value.GetString();
+    return 0;
+}
+
+int AST::po_SourceUnit(const rapidjson::Value *node) {
     // std::cout << "postorder traversal visit node type:[SourceUnit]"
     //           << std::endl;
     return 0;
 }
 
-int AST::e_PragmaDirective(const rapidjson::Value *node) {
+int AST::po_PragmaDirective(const rapidjson::Value *node) {
     return 0;
 }
 
-int AST::e_VariableDeclaration(const rapidjson::Value *node) {
+int AST::po_VariableDeclaration(const rapidjson::Value *node) {
     // 变量名
     auto attr_name = node->FindMember("name");
     if (attr_name==node->MemberEnd()) {
-        std::cerr << "AST::e_VariableDeclaration: failed to get \"name\""
+        std::cerr << "AST::po_VariableDeclaration: failed to get \"name\""
                   << std::endl;
         std::exit(-1);
     }
@@ -309,10 +364,10 @@ int AST::e_VariableDeclaration(const rapidjson::Value *node) {
     return 0;
 }
 
-int AST::e_ElementaryTypeName(const rapidjson::Value*node) {
+int AST::po_ElementaryTypeName(const rapidjson::Value*node) {
     auto attr_name = node->FindMember("name");
     if (attr_name == node->MemberEnd()) {
-        std::cerr << "AST::e_ElementaryTypeName: failed to get \"name\""
+        std::cerr << "AST::po_ElementaryTypeName: failed to get \"name\""
                   << std::endl;
         std::exit(-1);
     }
@@ -320,10 +375,10 @@ int AST::e_ElementaryTypeName(const rapidjson::Value*node) {
     return 0;
 }
 
-int AST::e_FunctionDefinition(const rapidjson::Value *node) {
+int AST::po_FunctionDefinition(const rapidjson::Value *node) {
     auto attr_fun_name = node->FindMember("name");
     if (attr_fun_name == node->MemberEnd()) {
-        std::cerr << "AST::e_FunctionDefinition: FunctionDefinition node failed "
+        std::cerr << "AST::po_FunctionDefinition: FunctionDefinition node failed "
                      "to find attribute\"name\""
                   << std::endl;
         std::exit(-1);
@@ -335,11 +390,11 @@ int AST::e_FunctionDefinition(const rapidjson::Value *node) {
     return 0;
 }
 
-int AST::e_ParameterList(const rapidjson::Value *node) {
+int AST::po_ParameterList(const rapidjson::Value *node) {
     // 统计参数数量
     auto attr_params = node->FindMember("parameters");
     if (attr_params == node->MemberEnd()) {
-        std::cerr << "AST::e_ParameterList: failed to get \"parameters\" "
+        std::cerr << "AST::po_ParameterList: failed to get \"parameters\" "
                   << std::endl;
         std::exit(-1);
     }

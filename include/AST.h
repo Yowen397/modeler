@@ -42,6 +42,14 @@ class SC_FUN {
     std::string getStr();
 };
 
+class SC_ENUM {
+  public:
+    std::string name;
+    std::vector<std::string> ids;
+
+    std::string getStr();
+};
+
 class AST {
 
   protected:
@@ -51,6 +59,7 @@ class AST {
 
     std::vector<SC_VAR> vars;
     std::vector<SC_FUN> funs;
+    std::vector<SC_ENUM> enums;
 
   public:
     AST();
@@ -63,7 +72,7 @@ class AST {
     rapidjson::Value *getRoot();
     std::vector<SC_VAR> &getVars();
     std::vector<SC_FUN> &getFuns();
-
+    std::vector<SC_ENUM> &getEnums();
 
   private:
     int extractSolcFilename();
@@ -78,10 +87,12 @@ class AST {
     int EntryOperation(std::string str_, const rapidjson::Value *node);
     int FunctionSelector(std::string str_, const rapidjson::Value *node);
     int e_Unknown(std::string str_, const rapidjson::Value *node);
-    int e_SourceUnit(const rapidjson::Value *node);
-    int e_PragmaDirective(const rapidjson::Value *node);
-    int e_VariableDeclaration(const rapidjson::Value *node);
-    int e_ElementaryTypeName(const rapidjson::Value *node);
-    int e_FunctionDefinition(const rapidjson::Value *node);
-    int e_ParameterList(const rapidjson::Value *node);
+    int po_SourceUnit(const rapidjson::Value *node);
+    int po_PragmaDirective(const rapidjson::Value *node);
+    int po_VariableDeclaration(const rapidjson::Value *node);
+    int po_ElementaryTypeName(const rapidjson::Value *node);
+    int po_FunctionDefinition(const rapidjson::Value *node);
+    int po_ParameterList(const rapidjson::Value *node);
+    int po_UserDefinedTypeName(const rapidjson::Value *node);
+    int po_EnumValue(const rapidjson::Value *node);
 };

@@ -63,6 +63,7 @@ class CPN {
     rapidjson::Value *root;
     std::vector<SC_VAR> &vars;
     std::vector<SC_FUN> &funs;
+    std::vector<SC_ENUM> &enums;
 
   public:
     int build();      // 构建CPN的核心函数
@@ -115,6 +116,7 @@ class CPN {
     int pr_Literal(const rapidjson::Value *node);
     int pr_ParameterList(const rapidjson::Value *node);
     int pr_Return(const rapidjson::Value *node);
+    int pr_EnumDefinition(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
