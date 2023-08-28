@@ -234,6 +234,20 @@ int AST::EntryOperation(std::string str_, const rapidjson::Value *node) {
         this->funs.back().name = this->cur_fun;
         this->cur_param_stage = "parameters";
     }
+    if (str_ == "ModifierDefinition") {
+        // modifier作为特殊的函数来建模
+        auto attr_name = node->FindMember("name");
+        if (attr_name == node->MemberEnd()) {
+            std::cerr << "AST::EntryOperation: ModifierDefinition node failed "
+                         "to find attribute\"name\""
+                      << std::endl;
+            std::exit(-1);
+        }
+        this->funs.emplace_back();
+        this->cur_fun = attr_name->value.GetString();
+        this->funs.back().name = this->cur_fun;
+        this->cur_param_stage = "parameters";
+    }
     return 0;
 }
 
