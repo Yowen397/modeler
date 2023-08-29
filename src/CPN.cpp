@@ -414,6 +414,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "IdentifierPath" ? pr_IdentifierPath(node), check = 1 : 0;
     type_ == "ModifierDefinition" ? pr_ModifierDefinition(node), check = 1 : 0;
     type_ == "FunctionCall" ? pr_FunctionCall(node), check = 1 : 0;
+    type_ == "PlaceholderStatement" ? pr_PlaceholderStatement(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -452,6 +453,8 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "IdentifierPath" ? po_IdentifierPath(node), check = 1 : 0;
     type_ == "UserDefinedTypeName" ? po_UserDefinedTypeName(node), check = 1 : 0;
     type_ == "FunctionCall" ? po_FunctionCall(node), check = 1 : 0;
+    type_ == "PlaceholderStatement" ? po_PlaceholderStatement(node), check = 1 : 0;
+    type_ == "ModifierDefinition" ? po_ModifierDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -459,6 +462,26 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::po_ModifierDefinition(const Value *node) {
+    int id = node->FindMember("id")->value.GetInt();
+    // modifier没有return，只需要将最后控制流引导至.out就可以
+    newTransition("ModifierEnd", id, true);
+    newArc(lastPlace, lastTransition, "p2t");
+    newArc(lastTransition, outPlace, "t2p");
+    return 0;
+}
+
+int CPN::po_PlaceholderStatement(const Value *node) {
+    int id = node->FindMember("id")->value.GetInt();
+    newTransition(inFunction + "PlaceholderStatement", id, true, false);
+    newArc(lastPlace, lastTransition, "p2t");
+
+    newPlace(inFunction + "PlaceholderStatement", true);    // 这个place不连接，等待具体调用时连接
+    return 0;
+}
+
+int CPN::pr_PlaceholderStatement(const Value *node) { return 0; }
 
 int CPN::po_FunctionCall(const Value *node) {
     auto attr_id = node->FindMember("id");
@@ -471,13 +494,18 @@ int CPN::po_FunctionCall(const Value *node) {
 
     // 至此，需要调用的函数已经存在CPN模型
     // 首先构建控制流
-    newArc(p_before_name, t_call_name, "p2t");
-    newTransition("FunctionCall", attr_id->value.GetInt());
+    string fcallm_name = newTransition("FunctionCall", attr_id->value.GetInt()).name;
     newArc(p_before_name, lastTransition, "p2t");
+    newArc(p_before_name, t_call_name, "p2t");              // 两条arc分开
+    string p_mid_name = newPlace("FunctionCallMid", true).name;
+    newArc(lastTransition, lastPlace, "t2p");               // 第一个t-p组合
+
+    newTransition("FunctionCallMid", attr_id->value.GetInt(), true);
     Place &p_out = getPlaceByMatch(call_name + ".out.c.");
     newArc(p_out.name, lastTransition, "p2t");
+    newArc(p_mid_name, lastTransition, "p2t");              // 两条arc合并
     newPlace("FunctionCall", true);                         // 执行流末尾
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p");               // 第二个t-p组合
 
     // 数据流，入参和返回
     SC_FUN &f = getFun(call_name);
@@ -485,12 +513,12 @@ int CPN::po_FunctionCall(const Value *node) {
     while (!id_stk.empty() && i <= f.param.size()) {
         // 读取操作
         string pname = getPlaceByIdentifier(id_stk.top()).name;
-        newArc(pname, t_call_name, "p2t", "read");
-        newArc(t_call_name, pname, "t2p", "replace");
+        newArc(pname, fcallm_name, "p2t", "read");
+        newArc(fcallm_name, pname, "t2p", "replace");
 
         // 赋值给参数place
         pname = getPlaceByMatch(call_name + ".param." + f.param[i].name).name;
-        newArc(t_call_name, pname, "t2p", "write");
+        newArc(fcallm_name, pname, "t2p", "write");
         id_stk.pop();
         i++;
     }
