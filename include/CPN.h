@@ -3,6 +3,7 @@
 #include "AST.h"
 
 #include <vector>
+#include <map>
 
 
 /**
@@ -84,19 +85,23 @@ class CPN {
     Transition &newTransition(const std::string &name_, const int id,
                               const bool isControl = true,
                               const bool isSubNet = false);
+    Transition &getTransitionByMatch(const std::string &str_);
     Place &getPlaceByIdentifier(const std::string &id_);
+    Place &getPlaceByMatch(const std::string &str_);
     Arc &newArc(const std::string &st_, const std::string &ed,
                 const std::string &dir, const std::string &name_="control");
     Place &newPlace(const std::string &name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
     int removePlace(const std::string &name_);
+    // 标识符相关
     std::string inFunction = "-global-";
-    std::string lastPlace;        // 最新的一个库所，末端控制流或者是最新的临时数据流
-    std::string lastTransition;   // 最新的一个执行变迁
-    std::string returnPlace;      // 返回值库所的名称
-    std::string outPlace;         // 控制流返回库所的名称
     std::stack<std::string> id_stk;
     std::stack<std::string> op_stk;
+    // CPN相关
+    std::string lastPlace;        // 最新的一个库所，末端控制流或者是最新的临时数据流
+    std::string lastTransition;   // 最新的一个执行变迁
+    std::string returnPlace;      // 返回值库所的名称（函数）
+    std::string outPlace;         // 控制流返回库所的名称
 
     /* pr_ 开头为前序遍历用到的函数 */
     int pr_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -117,6 +122,11 @@ class CPN {
     int pr_ParameterList(const rapidjson::Value *node);
     int pr_Return(const rapidjson::Value *node);
     int pr_EnumDefinition(const rapidjson::Value *node);
+    int pr_EnumValue(const rapidjson::Value *node);
+    int pr_UserDefinedTypeName(const rapidjson::Value *node);
+    int pr_IdentifierPath(const rapidjson::Value *node);
+    int pr_ModifierDefinition(const rapidjson::Value *node);
+    int pr_FunctionCall(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -136,4 +146,14 @@ class CPN {
     int po_Return(const rapidjson::Value *node);
     int po_ContractDefinition(const rapidjson::Value *node);
     int po_SourceUnit(const rapidjson::Value *node);
+    int po_EnumValue(const rapidjson::Value *node);
+    int po_EnumDefinition(const rapidjson::Value *node);
+    int po_IdentifierPath(const rapidjson::Value *node);
+    int po_UserDefinedTypeName(const rapidjson::Value *node);
+    int po_FunctionCall(const rapidjson::Value *node);
+
+    /* 部分常用函数构建 */
+    int preBuildFun(const std::string &f_name);
+    bool fun_Require = false;
+    int fun_buildRequire();
 };

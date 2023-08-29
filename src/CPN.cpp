@@ -256,6 +256,38 @@ Place &CPN::getPlaceByIdentifier(const string &id_) {
     return error_place;
 }
 
+/**
+ * 通过字符串匹配获取place，只要place名中包含给定字符串则返回
+*/
+Place &CPN::getPlaceByMatch(const string &str_) {
+    for (auto &p:places) {
+        if (p.name.find(str_)!=string::npos)
+            return p;
+    }
+    // 正常来说不会执行此句，仅写出来取消警告
+    static Place error_place;
+    error_place.name = "ERROR";
+    // cerr << "can't find place by id [" << id_ << "]" << endl;
+    // exit(-1);
+    return error_place;
+}
+
+/**
+ * 通过字符串匹配获取transition，只要transition名中包含给定字符串则返回
+*/
+Transition &CPN::getTransitionByMatch(const string &str_) {
+    for (auto &t:trans) {
+        if (t.name.find(str_)!=string::npos)
+            return t;
+    }
+    // 正常来说不会执行此句，仅写出来取消警告
+    static Transition error_t;
+    error_t.name = "ERROR";
+    // cerr << "can't find place by id [" << id_ << "]" << endl;
+    // exit(-1);
+    return error_t;
+}
+
 Transition &CPN::newTransition(const string &name_, const int id,
                                const bool isControl_, const bool isSubNet_) {
     Transition t;
@@ -275,7 +307,7 @@ Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
     a.ed = ed_;
     a.dir = dir_;
 
-    static int cnt = 0;
+    static int cnt = 1;
     if (name_ != "control") {
         a.name = name_ + "." + to_string(cnt++);
         a.isControl = false;
@@ -300,7 +332,7 @@ Place &CPN::newPlace(const string &name_, const bool isControl_) {
     if (p.isControl) {
         p.name += ".c";
 
-        static int cnt = 0;
+        static int cnt = 1;
         p.name += "." + to_string(cnt++);
     }
 
@@ -377,6 +409,11 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ParameterList" ? pr_ParameterList(node), check = 1 : 0;
     type_ == "Return" ? pr_Return(node), check = 1 : 0;
     type_ == "EnumDefinition" ? pr_EnumDefinition(node), check = 1 : 0;
+    type_ == "EnumValue" ? pr_EnumValue(node), check = 1 : 0;
+    type_ == "UserDefinedTypeName" ? pr_UserDefinedTypeName(node), check = 1 : 0;
+    type_ == "IdentifierPath" ? pr_IdentifierPath(node), check = 1 : 0;
+    type_ == "ModifierDefinition" ? pr_ModifierDefinition(node), check = 1 : 0;
+    type_ == "FunctionCall" ? pr_FunctionCall(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -410,6 +447,11 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "Return" ? po_Return(node), check = 1 : 0;
     type_ == "ContractDefinition" ? po_ContractDefinition(node), check = 1 : 0;
     type_ == "SourceUnit" ? po_SourceUnit(node), check = 1 : 0;
+    type_ == "EnumValue" ? po_EnumValue(node), check = 1 : 0;
+    type_ == "EnumDefinition" ? po_EnumDefinition(node), check = 1 : 0;
+    type_ == "IdentifierPath" ? po_IdentifierPath(node), check = 1 : 0;
+    type_ == "UserDefinedTypeName" ? po_UserDefinedTypeName(node), check = 1 : 0;
+    type_ == "FunctionCall" ? po_FunctionCall(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -418,17 +460,114 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     return 0;
 }
 
+int CPN::po_FunctionCall(const Value *node) {
+    auto attr_id = node->FindMember("id");
+    string p_before_name = getPlace(lastPlace).name;        // “保存现场”
+    // 函数调用节点
+    string call_name = id_stk.top();
+    id_stk.pop();
+    this->preBuildFun(call_name);                           // 预购建函数
+    string t_call_name = getTransitionByMatch(call_name + ".f").name;
+
+    // 至此，需要调用的函数已经存在CPN模型
+    // 首先构建控制流
+    newArc(p_before_name, t_call_name, "p2t");
+    newTransition("FunctionCall", attr_id->value.GetInt());
+    newArc(p_before_name, lastTransition, "p2t");
+    Place &p_out = getPlaceByMatch(call_name + ".out.c.");
+    newArc(p_out.name, lastTransition, "p2t");
+    newPlace("FunctionCall", true);                         // 执行流末尾
+    newArc(lastTransition, lastPlace, "t2p");
+
+    // 数据流，入参和返回
+    SC_FUN &f = getFun(call_name);
+    int i = 0;
+    while (!id_stk.empty() && i <= f.param.size()) {
+        // 读取操作
+        string pname = getPlaceByIdentifier(id_stk.top()).name;
+        newArc(pname, t_call_name, "p2t", "read");
+        newArc(t_call_name, pname, "t2p", "replace");
+
+        // 赋值给参数place
+        pname = getPlaceByMatch(call_name + ".param." + f.param[i].name).name;
+        newArc(t_call_name, pname, "t2p", "write");
+        id_stk.pop();
+        i++;
+    }
+    return 0;
+}
+
+int CPN::pr_FunctionCall(const Value *node) {
+    // 先处理后面
+    return 0;
+}
+
+int CPN::pr_ModifierDefinition(const Value *node) {
+    // 整体处理类似函数
+    auto attr_name = node->FindMember("name");
+    if (attr_name==node->MemberEnd()) {
+        cerr << "FunctionDefinition node can't find member [name]" << endl;
+        exit(-1);
+    }
+    inFunction = attr_name->value.GetString();
+
+    Transition &t_in = getTransition(inFunction + ".f");    // 变迁更名   .m
+    t_in.name = inFunction + ".m";
+
+    Place &p_in = newPlace(inFunction + ".in", true);       // 入口库所
+
+    newArc(t_in.name, p_in.name, "t2p");                    // 连接入口变迁-入口库所
+
+    outPlace = newPlace(inFunction + ".out", true).name;    // 出口库所，暂时不用连接
+
+    lastPlace = p_in.name;
+    lastTransition = t_in.name;
+
+    // modifier没有返回值
+    if (debug)
+        cout << "entry modifier: " << inFunction << endl;
+    return 0;
+}
+
+int CPN::po_UserDefinedTypeName(const Value *node) {
+    id_stk.pop();  // “消耗”掉id栈中的内容
+    if (!id_stk.empty()) {
+        cout << "[Warning] CPN::po_UserDefinedTypeName: id_stk has more than "
+                "one item"
+             << endl;
+    }
+    return 0;
+}
+
+int CPN::po_IdentifierPath(const Value *node) {
+    auto attr_name = node->FindMember("name");
+    if (attr_name == node->MemberEnd()) {
+        cerr << "CPN::pr_IdentifierPath: can't find [name]" << endl;
+        exit(-1);
+    }
+    id_stk.push(attr_name->value.GetString());
+    return 0;
+}
+
+int CPN::pr_IdentifierPath(const Value *node) { return 0; }
+
+int CPN::pr_UserDefinedTypeName(const Value *node) {
+    // 在AST中已经处理的值在此不需要再次处理
+    // 变量声明才会出现这个值
+    return 0;
+}
+
+int CPN::po_EnumDefinition(const Value *node) { return 0; }
+
+int CPN::po_EnumValue(const Value *node) { return 0; }
+
+int CPN::pr_EnumValue(const Value *node) { return 0; }
+
 int CPN::pr_EnumDefinition(const Value *ndoe) { return 0; }
 
-int CPN::po_SourceUnit(const Value *node) {
-    //
-    return 0;
-}
+int CPN::po_SourceUnit(const Value *node) { return 0; }
 
-int CPN::po_ContractDefinition(const Value *node) {
-    //
-    return 0;
-}
+int CPN::po_ContractDefinition(const Value *node) { return 0; }
 
 int CPN::po_Return(const Value *node) {
     // 返回语句最终在id_stk中必然包含一个变量（可能临时变量）
@@ -762,5 +901,53 @@ int CPN::pr_PragmaDirective(const Value *node_) {
 
 int CPN::pr_SourceUnit(const Value *node_) {
     // 最根节点
+    return 0;
+}
+
+/*****************************************/
+/*************** 常用函数构建 *************/
+/*****************************************/
+
+int CPN::preBuildFun(const string &f_name) {
+    if (f_name == "require" && !fun_Require) 
+            fun_buildRequire(), fun_Require = true;
+    return 0;
+}
+
+/**
+ * 构建一个require函数
+*/
+int CPN::fun_buildRequire() {
+    // 构造一个require函数的模型
+    newTransition("require.f", 0, true, true);
+    Place &p_in = newPlace("require.in", true);
+    newArc(lastTransition, lastPlace, "t2p");                       // 连接入口t和入口p
+    Place &p_arg = newPlace("require.param.condition", false);      // 条件参数
+
+    // 错误出口，直接控制流锁死
+    newTransition("requireF", 0, true, false);
+    newArc(p_in.name, lastTransition, "p2t");
+    newArc(p_arg.name, lastTransition, "p2t", "read");
+    newArc(lastTransition, p_arg.name, "t2p", "replace");
+    newPlace("requireF", true);                                     // 错误控制流终点
+    newArc(lastTransition, lastPlace, "t2p");
+
+    // 正确出口
+    newTransition("requireT", 0, true, false);
+    newArc(p_in.name, lastTransition, "p2t");
+    newArc(p_arg.name, lastTransition, "p2t", "read");
+    newArc(lastTransition, p_arg.name, "t2p", "replace");
+    newPlace("require.out", true);
+    newArc(lastTransition, lastPlace, "t2p");
+    // 构建完成之后，lastPlace就是出口库所
+
+    // 登记funs和参数信息
+    funs.emplace_back();
+    funs.back().name = "require";
+    funs.back().param.emplace_back();
+    funs.back().param.back().name = "condition";
+    funs.back().param.back().type = "bool";
+    funs.back().param.back().range = SC_VAR::RANGE::param;
+    funs.back().param.back().fun = "require";
     return 0;
 }
