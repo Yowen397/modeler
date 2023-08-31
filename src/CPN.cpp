@@ -150,7 +150,10 @@ int CPN::build_topNet() {
     for (const auto &f : funs) {
         trans.emplace_back();
         auto &t = trans.back();
-        t.name = f.name + ".f";
+        if (f.type  == SC_FUN::modifier)
+            t.name = f.name + ".m";
+        else 
+            t.name = f.name + ".f";
         t.isSubNet = true;
         t.isControl = true;
     }
@@ -415,6 +418,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ModifierDefinition" ? pr_ModifierDefinition(node), check = 1 : 0;
     type_ == "FunctionCall" ? pr_FunctionCall(node), check = 1 : 0;
     type_ == "PlaceholderStatement" ? pr_PlaceholderStatement(node), check = 1 : 0;
+    type_ == "ErrorDefinition" ? pr_ErrorDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -455,6 +459,7 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "FunctionCall" ? po_FunctionCall(node), check = 1 : 0;
     type_ == "PlaceholderStatement" ? po_PlaceholderStatement(node), check = 1 : 0;
     type_ == "ModifierDefinition" ? po_ModifierDefinition(node), check = 1 : 0;
+    type_ == "ErrorDefinition" ? po_ErrorDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -462,6 +467,18 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::po_ErrorDefinition(const Value *node) {
+    string e_name = node->FindMember("name")->value.GetString();
+    // 构造一个死结构
+    Transition &t = newTransition(e_name + ".f", 0, true, true);
+    // 当场改名，不需要.0在后面，这是一个可以调用的“函数”
+    t.name = e_name + ".f";                 
+
+    return 0;
+}
+
+int CPN::pr_ErrorDefinition(const Value *nodee) { return 0; }
 
 int CPN::po_ModifierDefinition(const Value *node) {
     int id = node->FindMember("id")->value.GetInt();
@@ -539,8 +556,7 @@ int CPN::pr_ModifierDefinition(const Value *node) {
     }
     inFunction = attr_name->value.GetString();
 
-    Transition &t_in = getTransition(inFunction + ".f");    // 变迁更名   .m
-    t_in.name = inFunction + ".m";
+    Transition &t_in = getTransition(inFunction + ".m");    // 变迁名   .m
 
     Place &p_in = newPlace(inFunction + ".in", true);       // 入口库所
 

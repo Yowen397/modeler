@@ -35,7 +35,10 @@ class SC_VAR {
 
 class SC_FUN {
   public:
+    enum TYPE { function, error, modifier, event };
+
     std::string name;
+    TYPE type = function;
     std::vector<SC_VAR> param;
     std::vector<SC_VAR> param_ret;
 

@@ -258,6 +258,7 @@ int AST::EntryOperation(std::string str_, const rapidjson::Value *node) {
         this->funs.emplace_back();
         this->cur_fun = attr_name->value.GetString();
         this->funs.back().name = this->cur_fun;
+        this->funs.back().type = SC_FUN::TYPE::modifier;
         this->cur_param_stage = "parameters";
     }
     if (str_ == "EnumDefinition") {
