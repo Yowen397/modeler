@@ -510,19 +510,22 @@ int CPN::po_FunctionCall(const Value *node) {
     string t_call_name = getTransitionByMatch(call_name + ".f").name;
 
     // 至此，需要调用的函数已经存在CPN模型
-    // 首先构建控制流
-    string fcallm_name = newTransition("FunctionCall", attr_id->value.GetInt()).name;
-    newArc(p_before_name, lastTransition, "p2t");
-    newArc(p_before_name, t_call_name, "p2t");              // 两条arc分开
-    string p_mid_name = newPlace("FunctionCallMid", true).name;
-    newArc(lastTransition, lastPlace, "t2p");               // 第一个t-p组合
+    // 首先构建控制流，先构造function call的模板，再嵌入函数调用
+    string t_fcall_name = newTransition("FunctionCall", attr_id->value.GetInt()).name;
+    newArc(p_before_name, lastTransition, "p2t");            
+    string p_block_name = newPlace("FunctionCallB", true).name;
+    string p_call_name = newPlace("FunctionCallC", true).name;  // 两条arc分开
+    newArc(lastTransition, p_block_name, "t2p");
+    newArc(lastTransition, p_call_name, "t2p");
+    newTransition("FunctionCallZ", attr_id->value.GetInt(), true);
+    newArc(p_block_name, lastTransition, "p2t");
+    newPlace("FunctionCallA", true);
+    newArc(lastTransition, lastPlace, "t2p");
 
-    newTransition("FunctionCallMid", attr_id->value.GetInt(), true);
-    Place &p_out = getPlaceByMatch(call_name + ".out.c.");
-    newArc(p_out.name, lastTransition, "p2t");
-    newArc(p_mid_name, lastTransition, "p2t");              // 两条arc合并
-    newPlace("FunctionCall", true);                         // 执行流末尾
-    newArc(lastTransition, lastPlace, "t2p");               // 第二个t-p组合
+    newArc(p_call_name, t_call_name, "p2t");
+    string p_out_name = getPlaceByMatch(call_name + ".out.c.").name;
+    newArc(p_out_name, lastTransition, "p2t");
+
 
     // 数据流，入参和返回
     SC_FUN &f = getFun(call_name);
@@ -530,12 +533,12 @@ int CPN::po_FunctionCall(const Value *node) {
     while (!id_stk.empty() && i <= f.param.size()) {
         // 读取操作
         string pname = getPlaceByIdentifier(id_stk.top()).name;
-        newArc(pname, fcallm_name, "p2t", "read");
-        newArc(fcallm_name, pname, "t2p", "replace");
+        newArc(pname, t_fcall_name, "p2t", "read");
+        newArc(t_fcall_name, pname, "t2p", "replace");
 
         // 赋值给参数place
         pname = getPlaceByMatch(call_name + ".param." + f.param[i].name).name;
-        newArc(fcallm_name, pname, "t2p", "write");
+        newArc(t_fcall_name, pname, "t2p", "write");
         id_stk.pop();
         i++;
     }
