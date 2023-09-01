@@ -94,6 +94,8 @@ class CPN {
     SC_FUN &getFun(const std::string &name_);
     int removePlace(const std::string &name_);
     int mid_IfStatement(const rapidjson::Value *node);
+    // 一次性标记
+    // bool revert_call = false;
     // 标识符相关
     std::string inFunction = "-global-";
     std::stack<std::string> id_stk;
@@ -132,6 +134,7 @@ class CPN {
     int pr_ErrorDefinition(const rapidjson::Value *noded);
     int pr_IfStatement(const rapidjson::Value *node);
     int pr_MemberAccess(const rapidjson::Value *node);
+    int pr_RevertStatement(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -160,6 +163,8 @@ class CPN {
     int po_ModifierDefinition(const rapidjson::Value *node);
     int po_ErrorDefinition(const rapidjson::Value *node);
     int po_MemberAccess(const rapidjson::Value *node);
+    int po_RevertStatement(const rapidjson::Value *node);
+    int po_IfStatement(const rapidjson::Value *node);
 
     /* 部分常用函数构建 */
     int preBuildFun(const std::string &f_name);

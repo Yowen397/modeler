@@ -431,6 +431,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ErrorDefinition" ? pr_ErrorDefinition(node), check = 1 : 0;
     type_ == "IfStatement" ? pr_IfStatement(node), check = 1 : 0;
     type_ == "MemberAccess" ? pr_MemberAccess(node), check = 1 : 0;
+    type_ == "RevertStatement" ? pr_RevertStatement(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -473,6 +474,8 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ModifierDefinition" ? po_ModifierDefinition(node), check = 1 : 0;
     type_ == "ErrorDefinition" ? po_ErrorDefinition(node), check = 1 : 0;
     type_ == "MemberAccess" ? po_MemberAccess(node), check = 1 : 0;
+    type_ == "RevertStatement" ? po_RevertStatement(node), check = 1 : 0;
+    type_ == "IfStatement" ? po_IfStatement(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -480,6 +483,23 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::po_IfStatement(const Value *node) {
+    // mid
+    return 0;
+}
+
+int CPN::po_RevertStatement(const Value *node) {
+    int id = node->FindMember("id")->value.GetInt();
+    newTransition("RevertStatement", id, true);
+    newArc(lastPlace, lastTransition, "p2t");
+    newPlace("RevertStatement", true);
+    newArc(lastTransition, lastPlace, "t2p");
+
+    return 0;
+}
+
+int CPN::pr_RevertStatement(const Value *node) { return 0; }
 
 /**
  * 非常规遍历，特殊节点特殊处理，mid类型的函数不仅要建模，还要控制遍历顺序
@@ -542,7 +562,10 @@ int CPN::po_MemberAccess(const Value *node) {
 
 int CPN::pr_MemberAccess(const Value *node) { return 0; }
 
-int CPN::pr_IfStatement(const Value *node) { return 0; }
+int CPN::pr_IfStatement(const Value *node) { 
+    // mid处理
+    return 0; 
+}
 
 int CPN::po_ErrorDefinition(const Value *node) {
     string e_name = node->FindMember("name")->value.GetString();
@@ -551,6 +574,9 @@ int CPN::po_ErrorDefinition(const Value *node) {
     // 当场改名，不需要.0在后面，这是一个可以调用的“函数”
     t.name = e_name + ".f";                 
 
+    // 需要出口place，和一条停止arc
+    newPlace(e_name + ".out", true);
+    newArc(e_name + ".f", lastPlace, "t2p", "control-end");
     return 0;
 }
 
@@ -585,17 +611,23 @@ int CPN::po_FunctionCall(const Value *node) {
     this->preBuildFun(call_name);                           // 预购建函数
     string t_call_name = getTransitionByMatch(call_name + ".f").name;
 
+    // if (this->revert_call) {
+    //     newArc(lastPlace, t_call_name, "p2t");
+    //     this->revert_call = false;
+    //     return 0;
+    // }
+
     // 至此，需要调用的函数已经存在CPN模型
     // 首先构建控制流，先构造function call的模板，再嵌入函数调用
-    string t_fcall_name = newTransition("FunctionCall", attr_id->value.GetInt()).name;
+    string t_fcall_name = newTransition("FunctionCallA", attr_id->value.GetInt()).name;
     newArc(p_before_name, lastTransition, "p2t");            
     string p_block_name = newPlace("FunctionCallB", true).name;
     string p_call_name = newPlace("FunctionCallC", true).name;  // 两条arc分开
     newArc(lastTransition, p_block_name, "t2p");
     newArc(lastTransition, p_call_name, "t2p");
-    newTransition("FunctionCallZ", attr_id->value.GetInt(), true);
+    newTransition("FunctionCall", attr_id->value.GetInt(), true);
     newArc(p_block_name, lastTransition, "p2t");
-    newPlace("FunctionCallA", true);
+    newPlace("FunctionCall", true);                 // lastPlace
     newArc(lastTransition, lastPlace, "t2p");
 
     newArc(p_call_name, t_call_name, "p2t");
