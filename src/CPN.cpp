@@ -145,6 +145,11 @@ int CPN::build_topNet() {
             p.color = v.type;
         }
     }
+    // 1.c 全局变量msg
+    places.emplace_back();
+    places.back().name = "global.msg";
+    places.back().color = "struct";
+    places.back().isControl = false;
 
     // 2 函数变迁
     for (const auto &f : funs) {
@@ -191,15 +196,20 @@ int CPN::traverse(const rapidjson::Value *node_) {
         pr_selector(nodeType, node_);
 
     // 子节点继续搜索
-    for (auto it = node_->MemberBegin(); it != node_->MemberEnd(); it++) {
-        if (it->value.IsObject()) {
-            traverse(&it->value);
-        } else if (it->value.IsArray()) {
-            // 如果是数组，则子节点的object类型全部进入搜索
-            for (rapidjson::Value::ConstValueIterator iter = it->value.Begin();
-                 iter != it->value.End(); iter++) {
-                if (iter->IsObject())
-                    traverse((const rapidjson::Value *)iter);
+    if (nodeType == "IfStatement")
+        mid_IfStatement(node_);
+    else {
+        for (auto it = node_->MemberBegin(); it != node_->MemberEnd(); it++) {
+            if (it->value.IsObject()) {
+                traverse(&it->value);
+            } else if (it->value.IsArray()) {
+                // 如果是数组，则子节点的object类型全部进入搜索
+                for (rapidjson::Value::ConstValueIterator iter =
+                         it->value.Begin();
+                     iter != it->value.End(); iter++) {
+                    if (iter->IsObject())
+                        traverse((const rapidjson::Value *)iter);
+                }
             }
         }
     }
@@ -419,6 +429,8 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "FunctionCall" ? pr_FunctionCall(node), check = 1 : 0;
     type_ == "PlaceholderStatement" ? pr_PlaceholderStatement(node), check = 1 : 0;
     type_ == "ErrorDefinition" ? pr_ErrorDefinition(node), check = 1 : 0;
+    type_ == "IfStatement" ? pr_IfStatement(node), check = 1 : 0;
+    type_ == "MemberAccess" ? pr_MemberAccess(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -460,6 +472,7 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "PlaceholderStatement" ? po_PlaceholderStatement(node), check = 1 : 0;
     type_ == "ModifierDefinition" ? po_ModifierDefinition(node), check = 1 : 0;
     type_ == "ErrorDefinition" ? po_ErrorDefinition(node), check = 1 : 0;
+    type_ == "MemberAccess" ? po_MemberAccess(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -467,6 +480,69 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+/**
+ * 非常规遍历，特殊节点特殊处理，mid类型的函数不仅要建模，还要控制遍历顺序
+*/
+int CPN::mid_IfStatement(const Value *node) {
+    int id = node->FindMember("id")->value.GetInt();
+    // 构建条件
+    this->traverse(&node->FindMember("condition")->value);
+    string p_con_c_name = lastPlace;
+    // true 部分，以及收尾部分
+    string p_con_name = getPlaceByIdentifier(id_stk.top()).name;
+    id_stk.pop();
+    newTransition("IfStatementA", id, true, false);
+    newArc(p_con_c_name, lastTransition, "p2t");
+    newArc(p_con_name, lastTransition, "p2t", "read");
+    newArc(lastTransition, p_con_name, "t2p", "replace");
+    newPlace("IfStatementA", true);
+    newArc(lastTransition, lastPlace, "t2p");
+    this->traverse(&node->FindMember("trueBody")->value);
+    // 收尾部分
+    string t_b_name = newTransition("IfStatementB", id, true).name;
+    newArc(lastPlace, lastTransition, "p2t");
+    string p_if_name = newPlace("IfStatement", true).name;
+    newArc(t_b_name, p_if_name, "t2p");
+
+    // false 部分
+    if (node->FindMember("falseBody")==node->MemberEnd()) {
+        // 没有false
+        string t_c_name = newTransition("IfStatementC", id, true).name;
+        newArc(p_con_c_name, t_c_name, "p2t");
+        newArc(p_con_name, t_c_name, "read");
+        newArc(t_c_name, p_con_name, "t2p", "replace");
+
+        newArc(t_c_name, p_if_name, "t2p");
+    } else {
+        // 有false
+        string t_c_name = newTransition("IfStatementC", id, true).name;
+        newArc(p_con_c_name, t_c_name, "p2t");
+        newArc(p_con_name, t_c_name, "read");
+        newArc(t_c_name, p_con_name, "t2p", "replace");
+        newPlace("IfStatementC", true);
+        newArc(t_c_name, lastPlace, "t2p");
+        this->traverse(&node->FindMember("falseBody")->value);
+        string t_d_name = newTransition("IfStatementD", id, true).name;
+        newArc(lastPlace, lastTransition, "p2t");
+
+        newArc(t_d_name, p_if_name, "t2p");
+    }
+
+    return 0;
+}
+
+int CPN::po_MemberAccess(const Value *node) {
+    string membername = node->FindMember("memberName")->value.GetString();
+    if (debug)
+        cout << "use member [" << membername << "] of [" << id_stk.top() << "] "
+             << endl;
+    return 0;
+}
+
+int CPN::pr_MemberAccess(const Value *node) { return 0; }
+
+int CPN::pr_IfStatement(const Value *node) { return 0; }
 
 int CPN::po_ErrorDefinition(const Value *node) {
     string e_name = node->FindMember("name")->value.GetString();
@@ -561,13 +637,13 @@ int CPN::pr_ModifierDefinition(const Value *node) {
 
     Transition &t_in = getTransition(inFunction + ".m");    // 变迁名   .m
 
-    Place &p_in = newPlace(inFunction + ".in", true);       // 入口库所
+    string p_in_name = newPlace(inFunction + ".in", true).name;       // 入口库所
 
-    newArc(t_in.name, p_in.name, "t2p");                    // 连接入口变迁-入口库所
+    newArc(t_in.name, p_in_name, "t2p");                    // 连接入口变迁-入口库所
 
     outPlace = newPlace(inFunction + ".out", true).name;    // 出口库所，暂时不用连接
 
-    lastPlace = p_in.name;
+    lastPlace = p_in_name;
     lastTransition = t_in.name;
 
     // modifier没有返回值
