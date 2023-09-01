@@ -433,6 +433,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "MemberAccess" ? pr_MemberAccess(node), check = 1 : 0;
     type_ == "RevertStatement" ? pr_RevertStatement(node), check = 1 : 0;
     type_ == "EventDefinition" ? pr_EventDefinition(node), check = 1 : 0;
+    type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -478,6 +479,7 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "RevertStatement" ? po_RevertStatement(node), check = 1 : 0;
     type_ == "IfStatement" ? po_IfStatement(node), check = 1 : 0;
     type_ == "EventDefinition" ? po_EventDefinition(node), check = 1 : 0;
+    type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -485,6 +487,14 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::po_ElementaryTypeNameExpression(const Value *node) {
+    // 强制类型转换
+    // 不做任何处理，交给实际运行中去考虑
+    return 0;
+}
+
+int CPN::pr_ElementaryTypeNameExpression(const Value *node) { return 0; }
 
 int CPN::po_EventDefinition(const Value *node) { return 0; }
 
@@ -616,6 +626,10 @@ int CPN::pr_PlaceholderStatement(const Value *node) { return 0; }
 
 int CPN::po_FunctionCall(const Value *node) {
     auto attr_id = node->FindMember("id");
+
+    string kind = node->FindMember("kind")->value.GetString();
+    if (kind == "typeConversion")
+        return 0;
     string p_before_name = getPlace(lastPlace).name;        // “保存现场”
     // 函数调用节点
     string call_name = id_stk.top();
