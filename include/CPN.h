@@ -135,6 +135,7 @@ class CPN {
     int pr_IfStatement(const rapidjson::Value *node);
     int pr_MemberAccess(const rapidjson::Value *node);
     int pr_RevertStatement(const rapidjson::Value *node);
+    int pr_EventDefinition(const rapidjson::Value *node);
 
     /* po_ 开头为后序遍历用到的函数 */
     int po_selector(const std::string &type_, const rapidjson::Value *node_);
@@ -165,6 +166,7 @@ class CPN {
     int po_MemberAccess(const rapidjson::Value *node);
     int po_RevertStatement(const rapidjson::Value *node);
     int po_IfStatement(const rapidjson::Value *node);
+    int po_EventDefinition(const rapidjson::Value *node);
 
     /* 部分常用函数构建 */
     int preBuildFun(const std::string &f_name);

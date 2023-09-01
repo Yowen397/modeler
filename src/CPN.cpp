@@ -432,6 +432,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "IfStatement" ? pr_IfStatement(node), check = 1 : 0;
     type_ == "MemberAccess" ? pr_MemberAccess(node), check = 1 : 0;
     type_ == "RevertStatement" ? pr_RevertStatement(node), check = 1 : 0;
+    type_ == "EventDefinition" ? pr_EventDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -476,11 +477,22 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "MemberAccess" ? po_MemberAccess(node), check = 1 : 0;
     type_ == "RevertStatement" ? po_RevertStatement(node), check = 1 : 0;
     type_ == "IfStatement" ? po_IfStatement(node), check = 1 : 0;
+    type_ == "EventDefinition" ? po_EventDefinition(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_EventDefinition(const Value *node) { return 0; }
+
+int CPN::pr_EventDefinition(const Value *node) {
+    string e_name = node->FindMember("name")->value.GetString();
+    string t_name = getTransitionByMatch(e_name + ".f").name;
+    newPlace(e_name + ".out", true);
+    newArc(t_name, lastPlace, "t2p");
     return 0;
 }
 

@@ -246,6 +246,14 @@ int AST::EntryOperation(std::string str_, const rapidjson::Value *node) {
         this->funs.back().name = this->cur_fun;
         this->cur_param_stage = "parameters";
     }
+    if (str_ == "EventDefinition") {
+        // “特殊”的函数event
+        std::string e_name = node->FindMember("name")->value.GetString();
+        this->funs.emplace_back();
+        this->funs.back().name = e_name;
+        this->funs.back().type = SC_FUN::TYPE::event;
+        this->cur_param_stage = "parameters";
+    }
     if (str_ == "ModifierDefinition") {
         // modifier作为特殊的函数来建模
         auto attr_name = node->FindMember("name");
