@@ -93,9 +93,12 @@ class CPN {
     Place &newPlace(const std::string &name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
     int removePlace(const std::string &name_);
+    int removeArc(const std::string &st_, const std::string &ed_);
     int mid_IfStatement(const rapidjson::Value *node);
     // 一次性标记
     bool is_transfer = false;
+    int BlockDepth = 0;
+    bool need_out = false;
     // 标识符相关
     std::string inFunction = "-global-";
     std::stack<std::string> id_stk;
@@ -174,6 +177,7 @@ class CPN {
     int po_ElementaryTypeNameExpression(const rapidjson::Value *node);
     int po_TupleExpression(const rapidjson::Value *node);
     int po_EmitStatement(const rapidjson::Value *node);
+    int po_ModifierInvocation(const rapidjson::Value *node);
 
     /* 部分常用函数构建 */
     int preBuildFun(const std::string &f_name);

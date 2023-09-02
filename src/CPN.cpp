@@ -91,7 +91,7 @@ int CPN::draw() {
     outfile.close();
     if (debug)
         cout << "CALL dot TO GENERATE .png FILE..." << endl;
-    system("dot -Tpng CPN.dot -o CPN.png");
+    system("dot -Tsvg CPN.dot -o CPN.svg");
     return 0;
 }
 
@@ -217,12 +217,24 @@ int CPN::traverse(const rapidjson::Value *node_) {
                 traverse(&it->value);
             } else if (it->value.IsArray()) {
                 // 如果是数组，则子节点的object类型全部进入搜索
-                for (rapidjson::Value::ConstValueIterator iter =
-                         it->value.Begin();
-                     iter != it->value.End(); iter++) {
-                    if (iter->IsObject())
-                        traverse((const rapidjson::Value *)iter);
+                // modifier需要逆序遍历
+                std::vector<const rapidjson::Value *> v;
+                for (rapidjson::Value::ConstValueIterator iter = it->value.Begin(); iter != it->value.End(); iter++) {
+                    if (iter->IsObject()) {
+                        // traverse((const rapidjson::Value *)iter);
+                        v.emplace_back((const rapidjson::Value *)iter);
+                    }
                 }
+                int i = 0;
+                string node_name = it->name.GetString();
+                if (node_name == "modifiers")
+                    for (int i = v.size() - 1; i >= 0; i--) {
+                        traverse(v[i]);
+                    }
+                else
+                    for (int i = 0; i < v.size(); i++) {
+                        traverse(v[i]);
+                    }
             }
         }
     }
@@ -411,6 +423,38 @@ int CPN::removePlace(const string &name_) {
 }
 
 /**
+ * 删除一条arc
+ * 若st或ed为空，则删除以另一侧为准的arc
+*/
+int CPN::removeArc(const string &st, const string &ed) {
+    int init_size = arcs.size();
+    if (st == "" && ed == "")
+        return init_size - arcs.size();
+    else if (st == "") {
+        for (int i = 0; i < arcs.size(); i++)
+            if (arcs[i].ed == ed) {
+                arcs.erase(arcs.begin() + i);
+                i--;
+            }
+    }
+    else if (ed == "") {
+        for (int i = 0; i < arcs.size(); i++)
+            if (arcs[i].st == st) {
+                arcs.erase(arcs.begin() + i);
+                i--;
+            }
+    }
+    else {
+        for (int i = 0; i < arcs.size(); i++)
+            if (arcs[i].ed == ed && arcs[i].st == st) {
+                arcs.erase(arcs.begin() + i);
+                i--;
+            }
+    }
+    return init_size - arcs.size();
+}
+
+/**
  * pre 前序遍历
 */
 int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
@@ -498,11 +542,84 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
     type_ == "TupleExpression" ? po_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? po_EmitStatement(node), check = 1 : 0;
+    type_ == "ModifierInvocation" ? po_ModifierInvocation(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_ModifierInvocation(const Value *node) {
+    int id = node->FindMember("id")->value.GetInt();
+    string t_m_N = getTransitionByMatch(id_stk.top() + ".m").name;
+    string t_PH_N = getTransitionByMatch(id_stk.top() + "PlaceholderStatement.").name;
+    string p_PH_N = getPlaceByMatch(id_stk.top() + "PlaceholderStatement.c.").name;
+    string p_mout_N = getPlaceByMatch(id_stk.top() + ".out.c.").name;
+    string call_name = id_stk.top();
+    id_stk.pop();
+
+    /**
+     * 调用部分
+    */
+    string p_in_N = getPlaceByMatch(inFunction + ".in.c.").name;
+    string p_MI_N = newPlace("ModifierInvocation", true).name;
+    for (auto &a : arcs)
+        if (a.st == p_in_N)
+            a.st = p_MI_N;                                      // “移花接木”，新建一个库所
+    string t_MI_N = newTransition("ModifierInvocation", id, true).name;
+    newArc(p_in_N, t_MI_N, "p2t");
+    string p_a_N = newPlace("ModifierInvocationA", true).name;
+    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastPlace, t_m_N, "p2t");
+    string p_c_N = newPlace("ModifierInvocationC", true).name;
+    newArc(t_PH_N, lastPlace, "t2p");
+    string p_b_N = newPlace("ModifierInvocationB", true).name;
+    newArc(t_MI_N, lastPlace, "t2p");
+    string t_c_N = newTransition("ModifierInvocationC", id, true).name;
+    newArc(p_b_N, t_c_N, "p2t");
+    newArc(p_c_N, t_c_N, "p2t");
+    newArc(t_c_N, p_MI_N, "t2p");                               // 调用部分建模
+
+    /**
+     * 返回部分
+    */
+    string p_out_N = getPlaceByMatch(inFunction + ".out.c.").name;
+    string p_d_N = newPlace("ModifierInvocationD", true).name;
+    for (auto &a : arcs)
+        if (a.ed == p_out_N)
+            a.ed = p_d_N;
+    string t_d_N = newTransition("ModifierInvocationD", id, true).name;
+    newArc(p_out_N, t_d_N, "p2t");
+    newArc(p_d_N, t_d_N, "p2t");
+    newArc(t_d_N, p_PH_N, "t2p");
+    string p_e_N = newPlace("ModifierInvocationE", true).name;
+    newArc(t_d_N, p_e_N, "t2p");
+    string t_e_N = newTransition("ModifierInvocationE", id).name;
+    newArc(p_e_N, t_e_N, "p2t");
+    newArc(p_mout_N, t_e_N, "p2t");
+    newArc(t_e_N, p_out_N, "t2p");
+
+    /**
+     * 传参
+    */
+    // 数据流，入参
+    SC_FUN &f = getFun(call_name);
+    int i = 0;
+    while (!id_stk.empty() && i < f.param.size()) {
+        // 读取操作
+        string pname = getPlaceByIdentifier(id_stk.top()).name;
+        newArc(pname, t_MI_N, "p2t", "read");
+        newArc(t_MI_N, pname, "t2p", "replace");
+
+        // 赋值给参数place
+        pname = getPlaceByMatch(call_name + ".param." + f.param[i].name).name;
+        newArc(t_MI_N, pname, "t2p", "write");
+        id_stk.pop();
+        i++;
+    }
+
     return 0;
 }
 
@@ -710,7 +827,7 @@ int CPN::po_FunctionCall(const Value *node) {
     // 数据流，入参和返回
     SC_FUN &f = getFun(call_name);
     int i = 0;
-    while (!id_stk.empty() && i <= f.param.size()) {
+    while (!id_stk.empty() && i < f.param.size()) {
         // 读取操作
         string pname = getPlaceByIdentifier(id_stk.top()).name;
         newArc(pname, t_fcall_name, "p2t", "read");
@@ -825,18 +942,15 @@ int CPN::pr_Return(const Value *node) {
 }
 
 int CPN::po_FunctionDefinition(const Value *node) {
-    int id = node->FindMember("id")->value.GetInt();
-    // 退出函数构建，如果退出时最后一句不是return，则需引导控制流回到退出点
-    // 若函数最后一句就是return，则直接返回
-    if (getTransition(lastTransition).name.find("Return") != string::npos)
-        return 0;
-    newTransition(inFunction + ".FOut", id, true);
-    newArc(lastPlace, lastTransition, "p2t");
-    newArc(lastTransition, outPlace, "t2p");
-    // // 否则引导控制流退出
+    // int id = node->FindMember("id")->value.GetInt();
+    // // 退出函数构建，如果退出时最后一句不是return，则需引导控制流回到退出点
+    // // 若函数最后一句就是return，则直接返回
+    // if (getTransition(lastTransition).name.find("Return") != string::npos)
+    //     return 0;
+    // newTransition(inFunction + ".FOut", id, true);
+    // newArc(lastPlace, lastTransition, "p2t");
     // newArc(lastTransition, outPlace, "t2p");
-    // // 并且删除无效的控制库所
-    // removePlace(lastPlace);
+
     return 0;
 }
 
@@ -851,7 +965,19 @@ int CPN::pr_ParameterList(const Value *node) {
 }
 
 int CPN::po_Block(const Value *node) {
-    // 暂时不处理
+    // 如果退到最后一层，则触发函数收尾工作
+    this->BlockDepth--;
+    if (this->BlockDepth == 0 && this->need_out) {
+        this->need_out = false;
+        int id = node->FindMember("id")->value.GetInt();
+        // 退出函数构建，如果退出时最后一句不是return，则需引导控制流回到退出点
+        // 若函数最后一句就是return，则直接返回
+        if (getTransition(lastTransition).name.find("Return") != string::npos)
+            return 0;
+        newTransition(inFunction + ".FOut", id, true);
+        newArc(lastPlace, lastTransition, "p2t");
+        newArc(lastTransition, outPlace, "t2p");
+    }
     return 0;
 }
 
@@ -1024,6 +1150,7 @@ int CPN::pr_VariableDeclarationStatement(const Value *node) {
 
 int CPN::pr_Block(const Value *node) {
     // 语句块
+    this->BlockDepth++;
     return 0;
 }
 
@@ -1035,6 +1162,7 @@ int CPN::pr_FunctionDefinition(const Value *node) {
         exit(-1);
     }
     inFunction = attr_name->value.GetString();
+    this->need_out = true;
 
     // 构建入口控制流库所，以及对应的弧
     Place &p = newPlace(inFunction + ".in", true);
