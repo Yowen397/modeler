@@ -150,6 +150,11 @@ int CPN::build_topNet() {
     places.back().name = "global.msg";
     places.back().color = "struct";
     places.back().isControl = false;
+    // 1.d 全局变量this
+    places.emplace_back();
+    places.back().name = "global.this";
+    places.back().color = "struct";
+    places.back().isControl = false;
 
     // 2 函数变迁
     for (const auto &f : funs) {
@@ -161,6 +166,14 @@ int CPN::build_topNet() {
             t.name = f.name + ".f";
         t.isSubNet = true;
         t.isControl = true;
+    }
+
+    // 3 enum类型库所
+    for (const auto &e : enums) {
+        places.emplace_back();
+        places.back().name = "global." + e.name;
+        places.back().color = "enum";
+        places.back().isControl = false;
     }
 
     return 0;
@@ -434,6 +447,8 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "RevertStatement" ? pr_RevertStatement(node), check = 1 : 0;
     type_ == "EventDefinition" ? pr_EventDefinition(node), check = 1 : 0;
     type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
+    type_ == "TupleExpression" ? pr_TupleExpression(node), check = 1 : 0;
+    type_ == "EmitStatement" ? pr_EmitStatement(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -480,6 +495,8 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "IfStatement" ? po_IfStatement(node), check = 1 : 0;
     type_ == "EventDefinition" ? po_EventDefinition(node), check = 1 : 0;
     type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
+    type_ == "TupleExpression" ? po_TupleExpression(node), check = 1 : 0;
+    type_ == "EmitStatement" ? po_EmitStatement(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -487,6 +504,22 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::po_EmitStatement(const Value *node) {
+    // emit 操作目前只看到用于调用event，输出日志
+    // 让其走函数调用流程
+    return 0;
+}
+
+int CPN::pr_EmitStatement(const Value *node) { return 0; }
+
+int CPN::po_TupleExpression(const Value *node) {
+    // 括号，暂时不处理
+    // 运算优先级？
+    return 0;
+}
+
+int CPN::pr_TupleExpression(const Value *node) { return 0; }
 
 int CPN::po_ElementaryTypeNameExpression(const Value *node) {
     // 强制类型转换
@@ -552,7 +585,7 @@ int CPN::mid_IfStatement(const Value *node) {
         // 没有false
         string t_c_name = newTransition("IfStatementC", id, true).name;
         newArc(p_con_c_name, t_c_name, "p2t");
-        newArc(p_con_name, t_c_name, "read");
+        newArc(p_con_name, t_c_name, "p2t", "read");
         newArc(t_c_name, p_con_name, "t2p", "replace");
 
         newArc(t_c_name, p_if_name, "t2p");
@@ -560,7 +593,7 @@ int CPN::mid_IfStatement(const Value *node) {
         // 有false
         string t_c_name = newTransition("IfStatementC", id, true).name;
         newArc(p_con_c_name, t_c_name, "p2t");
-        newArc(p_con_name, t_c_name, "read");
+        newArc(p_con_name, t_c_name, "p2t", "read");
         newArc(t_c_name, p_con_name, "t2p", "replace");
         newPlace("IfStatementC", true);
         newArc(t_c_name, lastPlace, "t2p");
@@ -576,9 +609,14 @@ int CPN::mid_IfStatement(const Value *node) {
 
 int CPN::po_MemberAccess(const Value *node) {
     string membername = node->FindMember("memberName")->value.GetString();
+    
+    if (membername == "transfer")
+        this->is_transfer = true;
+
     if (debug)
         cout << "use member [" << membername << "] of [" << id_stk.top() << "] "
              << endl;
+    
     return 0;
 }
 
@@ -627,9 +665,14 @@ int CPN::pr_PlaceholderStatement(const Value *node) { return 0; }
 int CPN::po_FunctionCall(const Value *node) {
     auto attr_id = node->FindMember("id");
 
+    // 一些对函数调用特殊处理的情况
     string kind = node->FindMember("kind")->value.GetString();
-    if (kind == "typeConversion")
+    if (kind == "typeConversion") // 强制类型转换
         return 0;
+    else if (this->is_transfer) { // 
+        this->once_transfer(node);
+        return 0;
+    }
     string p_before_name = getPlace(lastPlace).name;        // “保存现场”
     // 函数调用节点
     string call_name = id_stk.top();
@@ -904,8 +947,7 @@ int CPN::po_Assignment(const Value *node) {
     //          to_string(attr_id->value.GetInt());
     // trans.emplace_back(t);
     // lastTransition = t.name;
-    Transition &t =
-        newTransition("Assignment", attr_id->value.GetInt(), true, false);
+    Transition &t = newTransition("Assignment", attr_id->value.GetInt(), true, false);
     newArc(lastPlace, t.name, "p2t", "control");
     // t.init()
     // 从栈顶取元素处理
@@ -1130,5 +1172,34 @@ int CPN::fun_buildRequire() {
     funs.back().param.back().type = "bool";
     funs.back().param.back().range = SC_VAR::RANGE::param;
     funs.back().param.back().fun = "require";
+    return 0;
+}
+
+/**
+ * 每次遇到调用transfer的时候调用此函数，单独构建transfer
+ * 逻辑类似于assignment
+*/
+int CPN::once_transfer(const Value *node) {
+    this->is_transfer = false;
+
+    int id = node->FindMember("id")->value.GetInt();
+    newTransition("FC_transfer",id, true);
+    newArc(lastPlace, lastTransition, "p2t");
+
+    // 写入逻辑
+    string p_w_name = getPlaceByIdentifier(id_stk.top()).name;
+    id_stk.pop();
+    newArc(lastTransition, p_w_name, "t2p", "write");
+
+    // 读取逻辑
+    string p_r_name = getPlaceByIdentifier(id_stk.top()).name;
+    id_stk.pop();
+    newArc(p_r_name, lastTransition, "p2t", "read");
+    newArc(lastTransition, p_r_name, "t2p", "replace");
+
+    // 控制流收尾
+    newPlace("FC_transfer", true);
+    newArc(lastTransition, lastPlace, "t2p");
+
     return 0;
 }
