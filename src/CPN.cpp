@@ -449,6 +449,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
     type_ == "TupleExpression" ? pr_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? pr_EmitStatement(node), check = 1 : 0;
+    type_ == "ModifierInvocation" ? pr_ModifierInvocation(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -504,6 +505,8 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
         return 0;
     return 0;
 }
+
+int CPN::pr_ModifierInvocation(const Value *node) { return 0; }
 
 int CPN::po_EmitStatement(const Value *node) {
     // emit 操作目前只看到用于调用event，输出日志
@@ -822,15 +825,18 @@ int CPN::pr_Return(const Value *node) {
 }
 
 int CPN::po_FunctionDefinition(const Value *node) {
+    int id = node->FindMember("id")->value.GetInt();
     // 退出函数构建，如果退出时最后一句不是return，则需引导控制流回到退出点
     // 若函数最后一句就是return，则直接返回
     if (getTransition(lastTransition).name.find("Return") != string::npos)
         return 0;
-
-    // 否则引导控制流退出
-    newArc(lastTransition, outPlace, "t2p");    
-    // 并且删除无效的控制库所
-    removePlace(lastPlace);
+    newTransition(inFunction + ".FOut", id, true);
+    newArc(lastPlace, lastTransition, "p2t");
+    newArc(lastTransition, outPlace, "t2p");
+    // // 否则引导控制流退出
+    // newArc(lastTransition, outPlace, "t2p");
+    // // 并且删除无效的控制库所
+    // removePlace(lastPlace);
     return 0;
 }
 
