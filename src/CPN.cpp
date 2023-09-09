@@ -47,6 +47,10 @@ int CPN::info() {
     for (auto &a : arcs) {
         cout << a.getStr() << endl;
     }
+    cout << "----------summary ----------" << endl;
+    cout << "Place num: " << places.size() << endl;
+    cout << "Transition num: " << trans.size() << endl;
+    cout << "Arc num: " << arcs.size() << endl;
     cout << "============================" << endl << endl;
     return 0;
 }
@@ -110,6 +114,15 @@ Transition &CPN::getTransition(const std::string &s_) {
             return it;
     }
     cerr << "\ninexistent transition name [" << s_ << "]" << endl;
+    exit(-1);
+}
+
+Arc &CPN::getArc(const std::string &st_, const std::string &ed_) {
+    for (auto &a : arcs) {
+        if (a.st == st_ && a.ed == ed_)
+            return a;
+    }
+    cerr << "\ninexistent arc from [" << st_ << "] to [" << ed_ << "]" << endl;
     exit(-1);
 }
 
@@ -180,6 +193,48 @@ int CPN::build_topNet() {
 }
 
 /**
+ * 函数入口变迁新增一个库所
+*/
+int CPN::build_entryPlace() {
+    for (auto &f : funs) {
+        if (f.type != SC_FUN::TYPE::function)
+            continue;
+        newPlace(f.name+".start", true);
+        newArc(lastPlace, f.name + ".f", "p2t");
+    }
+    return 0;
+}
+
+/**
+ * 链接每个库所和变迁的前集和后集
+ * 此处链接的为下标
+*/
+void CPN::link_() {
+    for (const auto &a : arcs) {
+        int i, j;
+        if (a.dir == "t2p") {
+            for (i = 0; i < trans.size(); i++)
+                if (trans[i].name == a.st)
+                    break;
+            for (j = 0; j < places.size(); j++)
+                if (places[j].name == a.ed)
+                    break;
+            trans[i].pos.emplace_back(j);
+            places[j].pre.emplace_back(i);
+        } else if (a.dir == "p2t") {
+            for (i = 0; i < trans.size(); i++)
+                if (trans[i].name == a.ed)
+                    break;
+            for (j = 0; j < places.size(); j++)
+                if (places[j].name == a.st)
+                    break;
+            trans[i].pre.emplace_back(j);
+            places[j].pos.emplace_back(i);
+        }
+    }
+}
+
+/**
  * 构建CPN的核心函数
 */
 int CPN::build() {
@@ -189,6 +244,12 @@ int CPN::build() {
 
     // 2.深搜
     traverse(root);
+
+    // 3.函数入口补充一个库所
+    build_entryPlace();
+
+    // 4.链接前集和后集，库所和变迁都要处理
+    link_();
 
     return 0;
 }

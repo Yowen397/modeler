@@ -21,6 +21,9 @@ class Place {
 
     bool isControl;
 
+    std::vector<int> pre;
+    std::vector<int> pos;
+
     Place();
     virtual ~Place();
     std::string getStr();
@@ -30,6 +33,9 @@ class Transition {
   protected:
   public:
     std::string name;
+
+    std::vector<int> pre;
+    std::vector<int> pos;
 
     bool isControl = true;
     bool isSubNet = false;
@@ -51,7 +57,7 @@ class Arc {
 };
 
 class CPN {
-  protected:
+  public:
     std::vector<Place> places;
     std::vector<Transition> trans;
     std::vector<Arc> arcs;
@@ -73,11 +79,16 @@ class CPN {
 
     Place &getPlace(const std::string &s_);
     Transition &getTransition(const std::string &s_);
+    Transition &getTransitionByMatch(const std::string &str_);
+    Place &getPlaceByIdentifier(const std::string &id_);
+    Place &getPlaceByMatch(const std::string &str_);
+    Arc &getArc(const std::string &st_, const std::string &ed_);
 
   protected:
     int traverse(const rapidjson::Value *node_);    // 遍历，深搜，前后序，构建CPN
-
+    int build_entryPlace();
     int build_topNet();
+    void link_();
 
     /* 构造中通用函数、变量 */
     int e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
@@ -85,9 +96,6 @@ class CPN {
     Transition &newTransition(const std::string &name_, const int id,
                               const bool isControl = true,
                               const bool isSubNet = false);
-    Transition &getTransitionByMatch(const std::string &str_);
-    Place &getPlaceByIdentifier(const std::string &id_);
-    Place &getPlaceByMatch(const std::string &str_);
     Arc &newArc(const std::string &st_, const std::string &ed,
                 const std::string &dir, const std::string &name_="control");
     Place &newPlace(const std::string &name_, const bool isControl);
