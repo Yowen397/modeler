@@ -26,7 +26,7 @@ void StateSpace::generate(State *init_s) {
     while (!q.empty()) {
         if (debug) {
             cout << "[State No." << state_cnt++ << " ]" << endl;
-            cout << q.front()->getStr();
+            cout << q.front()->getStr() << endl;
         }
         vector<int> &fireList = getFireable(q.front());
         if (debug) {
@@ -56,9 +56,9 @@ inline string tokenString(const string &exp) {
 
 inline bool tokenCheck(const string &exp, const string &t);
 /**
- * 执行弧表达式，修改token
+ * 执行弧表达式，修改token，仅处理消耗token的部分
  */
-void StateSpace::executeExp(string &tokens, const string &exp, bool add) {
+void StateSpace::executeExp(string &tokens, const string &exp) {
     int i = 0, j = tokens.find(", ", 0);
     // i---j之间代表一个（或多个相同的）token
     while (j != string::npos) {
@@ -68,21 +68,18 @@ void StateSpace::executeExp(string &tokens, const string &exp, bool add) {
         // cout << num << "##" << token << endl;
         if (tokenCheck(exp, token)) {
             // 选择碰到的第一个token执行
-            if (!add) {                                                 // 消耗token
-                if (num == 1) {
-                    tokens = tokens.substr(0, i) + tokens.substr(j);
-                    if (tokens.length() == 2)
-                        tokens = "";
-                    return;
-                }
-                else {
-                    tokens = tokens.substr(0, i) + to_string(num - 1) +
-                             tokens.substr(k);
-                    return;
-                }
-            }else {                                                     // 产生token
-                tokens += "1`" + tokenString(exp);
+            // 消耗token
+            if (num == 1) {
+                tokens = tokens.substr(0, i) + tokens.substr(j);
+                if (tokens.length() == 2)
+                    tokens = "";
+                return;
+            } else {
+                tokens =
+                    tokens.substr(0, i) + to_string(num - 1) + tokens.substr(k);
+                return;
             }
+
         }
 
         i = j + 2;
@@ -105,7 +102,7 @@ State *StateSpace::nextState(State *s, int t) {
         
         
         auto it = ret->tokens.find(cpn->places[j].name);
-        executeExp(it->second, arc_exp, false);
+        executeExp(it->second, arc_exp);
         if (it->second == "")
             ret->tokens.erase(it);
     }
@@ -117,7 +114,8 @@ State *StateSpace::nextState(State *s, int t) {
         if (it == ret->tokens.end()) 
             ret->tokens[cpn->places[j].name] = "";
         it = ret->tokens.find(cpn->places[j].name);
-        executeExp(it->second, arc_exp, true);
+        // executeExp(it->second, arc_exp, true);
+        it->second += "1`" + tokenString(arc_exp) + ", ";
     }
     return ret;
 }

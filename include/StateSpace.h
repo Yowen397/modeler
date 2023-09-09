@@ -28,5 +28,5 @@ class StateSpace {
     bool isFireable(State *s, int t);
     bool satisfyExp(const std::string &exp, const std::string &tokens);
     State *nextState(State *s, int t);
-    void executeExp(std::string &tokens, const std::string &exp, bool add);
+    void executeExp(std::string &tokens, const std::string &exp);
 };
