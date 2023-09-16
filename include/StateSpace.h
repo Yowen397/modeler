@@ -34,7 +34,11 @@ class StateSpace {
 
   protected:
     /* 一些记录信息用的变量 */
+    State *lastState;
     std::string cur_place;
     std::string cur_tran;
     std::map<std::string, std::string> consume; // 消耗的token，库所名对应token字符串
+
+  public:
+    State *getLastState() { return lastState; };
 };

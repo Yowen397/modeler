@@ -19,10 +19,9 @@ size_t State::hash() const {
 
 void StateSpace::generate(State *init_s) {
     queue<State *> q;
-    q.push(init_s);
+    if (states.find(init_s->hash()) == states.end())
+        q.push(init_s);
     states[init_s->hash()] = init_s;
-
-    
 
     static int state_cnt = 0;
     if (debug) {
@@ -42,6 +41,7 @@ void StateSpace::generate(State *init_s) {
             if (states.find(next_s->hash()) == states.end()) {
                 q.push(next_s);
                 states[next_s->hash()] = next_s;
+                lastState = next_s;
                 if (debug) {
                     cout << "[State No." << state_cnt++ << " ]" << endl;
                     cout << q.back()->getStr() << endl;
@@ -72,6 +72,13 @@ string StateSpace::tokenString(const string &exp) {
     }
     if (exp.find("assign.") != string::npos && cur_tran.find("Assignment.") != string::npos) {
         // assign类型只需找到read那一个不属于C类型的token即可
+        for (auto &it : consume)
+            if (it.first.find(".c.") == string::npos)
+                return it.second; // 非控制库所，返回
+    }
+    if (exp.find("write.")!=string::npos && cur_tran.find("Return.")!=string::npos) {
+        // return
+        // write类型需要清空当前库所
         for (auto &it : consume)
             if (it.first.find(".c.") == string::npos)
                 return it.second; // 非控制库所，返回
@@ -150,7 +157,11 @@ State *StateSpace::nextState(State *s, int t) {
             ret->tokens[cpn->places[j].name] = "";
         it = ret->tokens.find(cpn->places[j].name);
         // executeExp(it->second, arc_exp, true);
-        it->second += "1`" + tokenString(arc_exp) + ", ";
+        if (arc_exp.find("write.")!=string::npos)
+            it->second = "1`" + tokenString(arc_exp) + ", ";
+        else
+            it->second += "1`" + tokenString(arc_exp) + ", ";
+
     }
     cur_place = "error:cur_place";
     cur_tran = "error:cur_tran";

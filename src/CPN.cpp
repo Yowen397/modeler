@@ -986,6 +986,7 @@ int CPN::po_Return(const Value *node) {
     Place &p = getPlaceByIdentifier(id_stk.top());
     id_stk.pop();
     newArc(p.name, lastTransition, "p2t", "read");
+    newArc(lastTransition, p.name, "t2p", "replace");
 
     // 找到返回值库所，目前只处理单值返回的，返回值库所命名唯一
     newArc(lastTransition, returnPlace, "t2p", "write");
