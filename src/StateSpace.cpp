@@ -72,6 +72,7 @@ string StateSpace::tokenString(const string &exp) {
     }
     if (exp.find("assign.") != string::npos && cur_tran.find("Assignment.") != string::npos) {
         // assign类型只需找到read那一个不属于C类型的token即可
+        cur_State->tokens[cur_place] = "";
         for (auto &it : consume)
             if (it.first.find(".c.") == string::npos)
                 return it.second; // 非控制库所，返回
@@ -134,9 +135,10 @@ State *StateSpace::nextState(State *s, int t) {
     consume.clear();
     // 先复制，再修改token
     State *ret = new State();
-    for (auto it: s->tokens)
+    cur_State = ret;
+    for (auto it : s->tokens)
         ret->tokens[it.first] = it.second;
-    // 修改
+    // 修改，消耗
     for (auto j : cpn->trans[t].pre) {
         string arc_exp =
             cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
@@ -147,6 +149,7 @@ State *StateSpace::nextState(State *s, int t) {
         if (it->second == "")
             ret->tokens.erase(it);
     }
+    // 修改，输出
     for (auto j : cpn->trans[t].pos) {
         string arc_exp =
             cpn->getArc(cpn->trans[t].name, cpn->places[j].name).name;

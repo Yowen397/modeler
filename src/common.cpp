@@ -21,3 +21,24 @@ int parse_arg(int argc, char* argv[]) {
 
     return 0;
 }
+
+/**
+ * replace all clock() function to get better precision in time analysis, clock()
+ * offers minimum unit is 10ms. my_clock() is 0.001ms
+ * @return
+ */
+clock_t my_clock() {
+    timespec ts;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
+    return ts.tv_sec*1000000+ts.tv_nsec/1000;
+}
+
+void Timer::outputTime(std::vector<Timer> &v) {
+    // for (auto t: v) {
+    //     std::cout << t.time/1000.0 << "ms\t, " << t.msg << std::endl;
+    // }
+    for (int i = 0; i+1 < v.size();i++) {
+        std::cout << (v[i + 1].time - v[i].time) / 1000.0 << "ms\t, "
+                  << v[i + 1].msg << std::endl;
+    }
+}

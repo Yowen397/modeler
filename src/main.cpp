@@ -7,27 +7,38 @@
 #include "StateSpace.h"
 #include "common.h"
 
-const bool print_AST = true;
+const bool print_AST = false;
 std::string path_ast = "error file name";
+std::vector<Timer> timer;
 
 void test_Storage(StateSpace &sp);
 
 int main(int argc, char* argv[]){
+    timer.emplace_back("program begin");
+    
     parse_arg(argc, argv);
-
-    AST ast; 
+    
+    timer.emplace_back("before parse ast");
+    
+    AST ast;
     ast.parse(path_ast);
     ast.traverse(print_AST);
     ast.info();
+
+    timer.emplace_back("ast done, next build cpn");
 
     CPN cpn(ast);
     cpn.build();
     cpn.info();
     // cpn.draw();
 
+    timer.emplace_back("cpn done, next state space");
+
     StateSpace sp(&cpn);
     test_Storage(sp);
-
+    
+    timer.emplace_back("state space done");
+    Timer::outputTime(timer);
     return 0;
 }
 
