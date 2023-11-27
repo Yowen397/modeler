@@ -1363,24 +1363,24 @@ int CPN::fun_buildRequire() {
     // 构造一个require函数的模型
     newTransition("require.f", 0, true, true);
     Place &p_in = newPlace("require.in", true);
-    newArc(lastTransition, lastPlace, "t2p");                       // 连接入口t和入口p
+    newArc(lastTransition, lastPlace, "t2p", "1`()");                       // 连接入口t和入口p
     Place &p_arg = newPlace("require.param.condition", false);      // 条件参数
 
     // 错误出口，直接控制流锁死
     newTransition("requireF", 0, true, false);
-    newArc(p_in.name, lastTransition, "p2t");
-    newArc(p_arg.name, lastTransition, "p2t", "read");
-    newArc(lastTransition, p_arg.name, "t2p", "replace");
+    newArc(p_in.name, lastTransition, "p2t", "1`()");
+    newArc(p_arg.name, lastTransition, "p2t", "x");
+    newArc(lastTransition, p_arg.name, "t2p", "x");
     newPlace("requireF", true);                                     // 错误控制流终点
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p", "1`()");
 
     // 正确出口
     newTransition("requireT", 0, true, false);
-    newArc(p_in.name, lastTransition, "p2t");
-    newArc(p_arg.name, lastTransition, "p2t", "read");
-    newArc(lastTransition, p_arg.name, "t2p", "replace");
+    newArc(p_in.name, lastTransition, "p2t", "1`()");
+    newArc(p_arg.name, lastTransition, "p2t", "x");
+    newArc(lastTransition, p_arg.name, "t2p", "x");
     newPlace("require.out", true);
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p", "1`()");
     // 构建完成之后，lastPlace就是出口库所
 
     // 登记funs和参数信息
@@ -1403,22 +1403,23 @@ int CPN::once_transfer(const Value *node) {
 
     int id = node->FindMember("id")->value.GetInt();
     newTransition("FC_transfer",id, true);
-    newArc(lastPlace, lastTransition, "p2t");
+    newArc(lastPlace, lastTransition, "p2t", "1`()");
 
     // 写入逻辑
     string p_w_name = getPlaceByIdentifier(id_stk.top()).name;
     id_stk.pop();
-    newArc(lastTransition, p_w_name, "t2p", "write");
+    newArc(lastTransition, p_w_name, "t2p", "x");
+    newArc(p_w_name, lastTransition, "p2t", "z");
 
     // 读取逻辑
     string p_r_name = getPlaceByIdentifier(id_stk.top()).name;
     id_stk.pop();
-    newArc(p_r_name, lastTransition, "p2t", "read");
-    newArc(lastTransition, p_r_name, "t2p", "replace");
+    newArc(p_r_name, lastTransition, "p2t", "x");
+    newArc(lastTransition, p_r_name, "t2p", "x");
 
     // 控制流收尾
     newPlace("FC_transfer", true);
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p", "1`()");
 
     return 0;
 }
