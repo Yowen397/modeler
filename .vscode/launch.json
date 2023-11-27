@@ -22,8 +22,8 @@
                     "ignoreFailures": true
                 },
                 {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
+                    "description": "将反汇编风格设置为 amd",
+                    "text": "-gdb-set disassembly-flavor amd",
                     "ignoreFailures": true
                 }
             ]
@@ -46,8 +46,8 @@
                     "ignoreFailures": true
                 },
                 {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
+                    "description": "将反汇编风格设置为 amd",
+                    "text": "-gdb-set disassembly-flavor amd",
                     "ignoreFailures": true
                 }
             ]
@@ -70,8 +70,8 @@
                     "ignoreFailures": true
                 },
                 {
-                    "description": "将反汇编风格设置为 Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
+                    "description": "将反汇编风格设置为 amd",
+                    "text": "-gdb-set disassembly-flavor amd",
                     "ignoreFailures": true
                 }
             ],

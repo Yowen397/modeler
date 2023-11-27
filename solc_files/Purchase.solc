@@ -12,10 +12,10 @@ contract Purchase {
     // State: Created=0,Locked=1,Release=2,Inactive=3
     uint public state = 0;
 
-    modifier condition(bool condition_) {
-        require(condition_);
-        _;
-    }
+    // modifier condition(bool condition_) {
+    //     require(condition_);
+    //     _;
+    // }
 
     /// 只有买方可以调用这个函数。
     error OnlyBuyer();
@@ -26,23 +26,23 @@ contract Purchase {
     /// 提供的值必须是偶数。
     error ValueNotEven();
 
-    modifier onlyBuyer() {
-        if (msg.sender != buyer)
-            revert OnlyBuyer();
-        _;
-    }
+    // modifier onlyBuyer() {
+    //     if (msg.sender != buyer)
+    //         revert OnlyBuyer();
+    //     _;
+    // }
 
-    modifier onlySeller() {
-        if (msg.sender != seller)
-            revert OnlySeller();
-        _;
-    }
+    // modifier onlySeller() {
+    //     if (msg.sender != seller)
+    //         revert OnlySeller();
+    //     _;
+    // }
 
-    modifier inState(uint state_) {
-        if (state != state_)
-            revert InvalidState();
-        _;
-    }
+    // modifier inState(uint state_) {
+    //     if (state != state_)
+    //         revert InvalidState();
+    //     _;
+    // }
 
     event Aborted();
     event PurchaseConfirmed();

@@ -231,6 +231,7 @@ void CPN::link_() {
             for (j = 0; j < places.size(); j++)
                 if (places[j].name == a.st)
                     break;
+            std::cout << "arc: " << a.st << "-->" << a.ed << std::endl;
             trans[i].pre.emplace_back(j);
             places[j].pos.emplace_back(i);
         }
@@ -410,11 +411,11 @@ Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
     a.dir = dir_;
 
     static int cnt = 1;
-    if (name_ != "control") {
+    if (name_ != "1`()") {
         a.name = name_ + "." + to_string(cnt++);
         a.isControl = false;
     } else {
-        a.name = "control." + to_string(cnt++);
+        a.name = "1`()." + to_string(cnt++);
         a.isControl = true;
     }
 
@@ -546,9 +547,9 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "EnumValue" ? pr_EnumValue(node), check = 1 : 0;
     type_ == "UserDefinedTypeName" ? pr_UserDefinedTypeName(node), check = 1 : 0;
     type_ == "IdentifierPath" ? pr_IdentifierPath(node), check = 1 : 0;
-    type_ == "ModifierDefinition" ? pr_ModifierDefinition(node), check = 1 : 0;
+    // type_ == "ModifierDefinition" ? pr_ModifierDefinition(node), check = 1 : 0;
     type_ == "FunctionCall" ? pr_FunctionCall(node), check = 1 : 0;
-    type_ == "PlaceholderStatement" ? pr_PlaceholderStatement(node), check = 1 : 0;
+    // type_ == "PlaceholderStatement" ? pr_PlaceholderStatement(node), check = 1 : 0;
     type_ == "ErrorDefinition" ? pr_ErrorDefinition(node), check = 1 : 0;
     type_ == "IfStatement" ? pr_IfStatement(node), check = 1 : 0;
     type_ == "MemberAccess" ? pr_MemberAccess(node), check = 1 : 0;
@@ -557,7 +558,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
     type_ == "TupleExpression" ? pr_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? pr_EmitStatement(node), check = 1 : 0;
-    type_ == "ModifierInvocation" ? pr_ModifierInvocation(node), check = 1 : 0;
+    // type_ == "ModifierInvocation" ? pr_ModifierInvocation(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -596,8 +597,8 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "IdentifierPath" ? po_IdentifierPath(node), check = 1 : 0;
     type_ == "UserDefinedTypeName" ? po_UserDefinedTypeName(node), check = 1 : 0;
     type_ == "FunctionCall" ? po_FunctionCall(node), check = 1 : 0;
-    type_ == "PlaceholderStatement" ? po_PlaceholderStatement(node), check = 1 : 0;
-    type_ == "ModifierDefinition" ? po_ModifierDefinition(node), check = 1 : 0;
+    // type_ == "PlaceholderStatement" ? po_PlaceholderStatement(node), check = 1 : 0;
+    // type_ == "ModifierDefinition" ? po_ModifierDefinition(node), check = 1 : 0;
     type_ == "ErrorDefinition" ? po_ErrorDefinition(node), check = 1 : 0;
     type_ == "MemberAccess" ? po_MemberAccess(node), check = 1 : 0;
     type_ == "RevertStatement" ? po_RevertStatement(node), check = 1 : 0;
@@ -606,7 +607,7 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
     type_ == "TupleExpression" ? po_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? po_EmitStatement(node), check = 1 : 0;
-    type_ == "ModifierInvocation" ? po_ModifierInvocation(node), check = 1 : 0;
+    // type_ == "ModifierInvocation" ? po_ModifierInvocation(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
@@ -719,6 +720,9 @@ int CPN::po_EventDefinition(const Value *node) { return 0; }
 int CPN::pr_EventDefinition(const Value *node) {
     string e_name = node->FindMember("name")->value.GetString();
     string t_name = getTransitionByMatch(e_name + ".f").name;
+    std::cout << "t_name: " << e_name+".f" << endl;
+    std::cout << "trans[0]: " << trans[0].name << endl;
+    cout << (trans[0].name.find(t_name + ".f") == string::npos) << endl;
     newPlace(e_name + ".out", true);
     newArc(t_name, lastPlace, "t2p", "1`()");
     return 0;
@@ -856,6 +860,7 @@ int CPN::po_PlaceholderStatement(const Value *node) {
     return 0;
 }
 
+// 暂时放弃modifier的处理
 int CPN::pr_PlaceholderStatement(const Value *node) { return 0; }
 
 int CPN::po_FunctionCall(const Value *node) {
@@ -1076,7 +1081,7 @@ int CPN::po_BinaryOperation(const Value *node) {
     id_stk.pop();
     if (right.name=="ERROR"){
         if (debug)
-            cout << "right value is Literal"; // 找不到，说明是常量
+            cout << "right value is Literal" << endl; // 找不到，说明是常量
     }
     else{
         newArc(right.name, lastTransition, "p2t", "y");
@@ -1087,7 +1092,7 @@ int CPN::po_BinaryOperation(const Value *node) {
     id_stk.pop();
     if (left.name=="ERROR"){
         if (debug)
-            cout << "left value is Literal"; // 找不到，说明是常量
+            cout << "left value is Literal" << endl; // 找不到，说明是常量
     }
     else{
         newArc(left.name, lastTransition, "p2t", "x");
