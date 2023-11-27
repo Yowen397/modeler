@@ -212,8 +212,9 @@ int CPN::build_entryPlace() {
 void CPN::link_() {
     for (const auto &a : arcs) {
         int i, j;
-        if (a.dir == "t2p") {
-            for (i = 0; i < trans.size(); i++)
+        if (a.dir == "t2p")
+        {
+            for (i = 0; i < trans.size(); i++) 
                 if (trans[i].name == a.st)
                     break;
             for (j = 0; j < places.size(); j++)
@@ -221,7 +222,9 @@ void CPN::link_() {
                     break;
             trans[i].pos.emplace_back(j);
             places[j].pre.emplace_back(i);
-        } else if (a.dir == "p2t") {
+        }
+        else if (a.dir == "p2t")
+        {
             for (i = 0; i < trans.size(); i++)
                 if (trans[i].name == a.ed)
                     break;
@@ -612,6 +615,7 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     return 0;
 }
 
+// 暂时放弃modifier，交给预处理
 int CPN::po_ModifierInvocation(const Value *node) {
     int id = node->FindMember("id")->value.GetInt();
     string t_m_N = getTransitionByMatch(id_stk.top() + ".m").name;
@@ -716,7 +720,7 @@ int CPN::pr_EventDefinition(const Value *node) {
     string e_name = node->FindMember("name")->value.GetString();
     string t_name = getTransitionByMatch(e_name + ".f").name;
     newPlace(e_name + ".out", true);
-    newArc(t_name, lastPlace, "t2p");
+    newArc(t_name, lastPlace, "t2p", "1`()");
     return 0;
 }
 
@@ -728,9 +732,9 @@ int CPN::po_IfStatement(const Value *node) {
 int CPN::po_RevertStatement(const Value *node) {
     int id = node->FindMember("id")->value.GetInt();
     newTransition("RevertStatement", id, true);
-    newArc(lastPlace, lastTransition, "p2t");
+    newArc(lastPlace, lastTransition, "p2t", "1`()");
     newPlace("RevertStatement", true);
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p", "1`()");
 
     return 0;
 }
@@ -746,43 +750,50 @@ int CPN::mid_IfStatement(const Value *node) {
     this->traverse(&node->FindMember("condition")->value);
     string p_con_c_name = lastPlace;
     // true 部分，以及收尾部分
-    string p_con_name = getPlaceByIdentifier(id_stk.top()).name;
+    string p_result_name = getPlaceByIdentifier(id_stk.top()).name;
     id_stk.pop();
-    newTransition("IfStatementA", id, true, false);
-    newArc(p_con_c_name, lastTransition, "p2t");
-    newArc(p_con_name, lastTransition, "p2t", "read");
-    newArc(lastTransition, p_con_name, "t2p", "replace");
-    newPlace("IfStatementA", true);
-    newArc(lastTransition, lastPlace, "t2p");
+    auto t_if_name = newTransition("IfStatementIf", id, true, false).name;
+    newArc(p_con_c_name, lastTransition, "p2t", "1`()");
+    newArc(p_result_name, lastTransition, "p2t", "x");
+    newArc(lastTransition, p_result_name, "t2p", "x");
+    newPlace("IfStatementCTrue", true);
+    newArc(lastTransition, lastPlace, "t2p", "if x=true then 1`() else empty");
     this->traverse(&node->FindMember("trueBody")->value);
     // 收尾部分
-    string t_b_name = newTransition("IfStatementB", id, true).name;
-    newArc(lastPlace, lastTransition, "p2t");
-    string p_if_name = newPlace("IfStatement", true).name;
-    newArc(t_b_name, p_if_name, "t2p");
+    string t_true_name = newTransition("IfStatementTrue", id, true).name;
+    newArc(lastPlace, lastTransition, "p2t", "1`()");
+    string p_c_if_name = newPlace("IfStatementCIf", true).name;
+    newArc(t_true_name, p_c_if_name, "t2p", "1`()");
 
     // false 部分
     if (node->FindMember("falseBody")==node->MemberEnd()) {
         // 没有false
-        string t_c_name = newTransition("IfStatementC", id, true).name;
-        newArc(p_con_c_name, t_c_name, "p2t");
-        newArc(p_con_name, t_c_name, "p2t", "read");
-        newArc(t_c_name, p_con_name, "t2p", "replace");
+        // string t_c_name = newTransition("IfStatementC", id, true).name;
+        // newArc(p_con_c_name, t_c_name, "p2t");
+        // newArc(p_con_name, t_c_name, "p2t", "read");
+        // newArc(t_c_name, p_con_name, "t2p", "replace");
+        // newArc(t_c_name, p_if_name, "t2p");
 
-        newArc(t_c_name, p_if_name, "t2p");
+        newArc(t_if_name, p_c_if_name, "t2p", "if x=false then 1`() else empty");
     } else {
         // 有false
-        string t_c_name = newTransition("IfStatementC", id, true).name;
-        newArc(p_con_c_name, t_c_name, "p2t");
-        newArc(p_con_name, t_c_name, "p2t", "read");
-        newArc(t_c_name, p_con_name, "t2p", "replace");
-        newPlace("IfStatementC", true);
-        newArc(t_c_name, lastPlace, "t2p");
-        this->traverse(&node->FindMember("falseBody")->value);
-        string t_d_name = newTransition("IfStatementD", id, true).name;
-        newArc(lastPlace, lastTransition, "p2t");
+        // string t_c_name = newTransition("IfStatementC", id, true).name;
+        // newArc(p_con_c_name, t_c_name, "p2t");
+        // newArc(p_con_name, t_c_name, "p2t", "read");
+        // newArc(t_c_name, p_con_name, "t2p", "replace");
+        // newPlace("IfStatementC", true);
+        // newArc(t_c_name, lastPlace, "t2p");
+        // this->traverse(&node->FindMember("falseBody")->value);
+        // string t_d_name = newTransition("IfStatementD", id, true).name;
+        // newArc(lastPlace, lastTransition, "p2t");
+        // newArc(t_d_name, p_if_name, "t2p");
 
-        newArc(t_d_name, p_if_name, "t2p");
+        auto p_c_false_name = newPlace("IfStatementCFalse", true).name;
+        newArc(t_if_name, p_c_false_name, "t2p", "if x=false then 1`() else empty");
+        this->traverse(&node->FindMember("falseBody")->value);
+        auto t_false_name = newTransition("IfStatementFalse", id, true).name;
+        newArc(lastPlace, lastTransition, "p2t", "1`()");
+        newArc(t_false_name, p_c_if_name, "t2p", "1`()");
     }
 
     return 0;
@@ -817,12 +828,15 @@ int CPN::po_ErrorDefinition(const Value *node) {
 
     // 需要出口place，和一条停止arc
     newPlace(e_name + ".out", true);
-    newArc(e_name + ".f", lastPlace, "t2p", "control-end");
+
+    // 停止弧变更为，不要弧
+    // newArc(e_name + ".f", lastPlace, "t2p", "control-end");
     return 0;
 }
 
 int CPN::pr_ErrorDefinition(const Value *nodee) { return 0; }
 
+// 暂时放弃modifier
 int CPN::po_ModifierDefinition(const Value *node) {
     int id = node->FindMember("id")->value.GetInt();
     // modifier没有return，只需要将最后控制流引导至.out就可以
@@ -832,6 +846,7 @@ int CPN::po_ModifierDefinition(const Value *node) {
     return 0;
 }
 
+// 暂时放弃modifier
 int CPN::po_PlaceholderStatement(const Value *node) {
     int id = node->FindMember("id")->value.GetInt();
     newTransition(inFunction + "PlaceholderStatement", id, true, false);
@@ -870,33 +885,36 @@ int CPN::po_FunctionCall(const Value *node) {
     // 至此，需要调用的函数已经存在CPN模型
     // 首先构建控制流，先构造function call的模板，再嵌入函数调用
     string t_fcall_name = newTransition("FunctionCallA", attr_id->value.GetInt()).name;
-    newArc(p_before_name, lastTransition, "p2t");            
+    newArc(p_before_name, lastTransition, "p2t", "1`()");            
     string p_block_name = newPlace("FunctionCallB", true).name;
     string p_call_name = newPlace("FunctionCallC", true).name;  // 两条arc分开
-    newArc(lastTransition, p_block_name, "t2p");
-    newArc(lastTransition, p_call_name, "t2p");
+    newArc(lastTransition, p_block_name, "t2p", "1`()");
+    newArc(lastTransition, p_call_name, "t2p", "1`()");
     newTransition("FunctionCall", attr_id->value.GetInt(), true);
-    newArc(p_block_name, lastTransition, "p2t");
+    newArc(p_block_name, lastTransition, "p2t", "1`()");
     newPlace("FunctionCall", true);                 // lastPlace
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p", "1`()");
 
-    newArc(p_call_name, t_call_name, "p2t");
+    newArc(p_call_name, t_call_name, "p2t", "1`()");
     string p_out_name = getPlaceByMatch(call_name + ".out.c.").name;
-    newArc(p_out_name, lastTransition, "p2t");
+    newArc(p_out_name, lastTransition, "p2t", "1`()");
 
 
+    // 数据流的读取变量按x1,x2,x3，写入变量按y1,y2,y3，消耗原有的变量按z1,z2,z3
+    int p_cnt = 1;
     // 数据流，入参和返回
     SC_FUN &f = getFun(call_name);
     int i = 0;
     while (!id_stk.empty() && i < f.param.size()) {
         // 读取操作
         string pname = getPlaceByIdentifier(id_stk.top()).name;
-        newArc(pname, t_fcall_name, "p2t", "read");
-        newArc(t_fcall_name, pname, "t2p", "replace");
+        newArc(pname, t_fcall_name, "p2t", "x" + to_string(p_cnt));
+        newArc(t_fcall_name, pname, "t2p", "x" + to_string(p_cnt));
 
         // 赋值给参数place
         pname = getPlaceByMatch(call_name + ".param." + f.param[i].name).name;
-        newArc(t_fcall_name, pname, "t2p", "write");
+        newArc(t_fcall_name, pname, "t2p", "y" + to_string(p_cnt));
+        newArc(pname, t_fcall_name, "p2t", "z" + to_string(p_cnt));
         id_stk.pop();
         i++;
     }
@@ -908,6 +926,7 @@ int CPN::pr_FunctionCall(const Value *node) {
     return 0;
 }
 
+// 暂时放弃这个处理
 int CPN::pr_ModifierDefinition(const Value *node) {
     // 整体处理类似函数
     auto attr_name = node->FindMember("name");
@@ -980,19 +999,20 @@ int CPN::po_Return(const Value *node) {
     // 执行变迁
     auto attr_id = node->FindMember("id");
     newTransition("Return", attr_id->value.GetInt());
-    newArc(lastPlace, lastTransition, "p2t");
+    newArc(lastPlace, lastTransition, "p2t", "1`()");
 
     // 返回值来源
     Place &p = getPlaceByIdentifier(id_stk.top());
     id_stk.pop();
-    newArc(p.name, lastTransition, "p2t", "read");
-    newArc(lastTransition, p.name, "t2p", "replace");
+    newArc(p.name, lastTransition, "p2t", "x");
+    newArc(lastTransition, p.name, "t2p", "x");
 
     // 找到返回值库所，目前只处理单值返回的，返回值库所命名唯一
-    newArc(lastTransition, returnPlace, "t2p", "write");
+    newArc(lastTransition, returnPlace, "t2p", "y");
+    newArc(returnPlace, lastTransition, "p2t", "z");
 
     // 控制流
-    newArc(lastTransition, outPlace, "t2p");
+    newArc(lastTransition, outPlace, "t2p", "1`()");
 
     return 0;
 }
@@ -1037,8 +1057,8 @@ int CPN::po_Block(const Value *node) {
         if (getTransition(lastTransition).name.find("Return") != string::npos)
             return 0;
         newTransition(inFunction + ".FOut", id, true);
-        newArc(lastPlace, lastTransition, "p2t");
-        newArc(lastTransition, outPlace, "t2p");
+        newArc(lastPlace, lastTransition, "p2t", "1`()");
+        newArc(lastTransition, outPlace, "t2p", "1`()");
     }
     return 0;
 }
@@ -1049,7 +1069,7 @@ int CPN::po_BinaryOperation(const Value *node) {
     auto attr_id = node->FindMember("id");
     newTransition(op_stk.top(), attr_id->value.GetInt());
     op_stk.pop();
-    newArc(lastPlace, lastTransition, "p2t");
+    newArc(lastPlace, lastTransition, "p2t", "1`()");
     // 左值和右值存放在id_stk
     // 右值
     Place &right = getPlaceByIdentifier(id_stk.top());
@@ -1059,8 +1079,8 @@ int CPN::po_BinaryOperation(const Value *node) {
             cout << "right value is Literal"; // 找不到，说明是常量
     }
     else{
-        newArc(right.name, lastTransition, "p2t", "read");
-        newArc(lastTransition, right.name, "t2p", "replace");
+        newArc(right.name, lastTransition, "p2t", "y");
+        newArc(lastTransition, right.name, "t2p", "y");
     }
     // 左值
     Place &left = getPlaceByIdentifier(id_stk.top());
@@ -1070,16 +1090,18 @@ int CPN::po_BinaryOperation(const Value *node) {
             cout << "left value is Literal"; // 找不到，说明是常量
     }
     else{
-        newArc(left.name, lastTransition, "p2t", "read");
-        newArc(lastTransition, left.name, "t2p", "replace");
+        newArc(left.name, lastTransition, "p2t", "x");
+        newArc(lastTransition, left.name, "t2p", "x");
     }
     // 结果库所（tmp）
+    auto attr_operator = node->FindMember("operator");
     newPlace(inFunction + ".tmp." + to_string(attr_id->value.GetInt()), false);
-    newArc(lastTransition, lastPlace, "t2p", "write");
+    newArc(lastTransition, lastPlace, "t2p", "x" + string(attr_operator->value.GetString()) + "y");
+    newArc(lastPlace, lastTransition, "p2t", "z");
     id_stk.push("tmp." + to_string(attr_id->value.GetInt()));
     // 填充控制库所
     newPlace("BinaryOperation", true);
-    newArc(lastTransition, lastPlace, "t2p");
+    newArc(lastTransition, lastPlace, "t2p", "1`()");
 
     // draw();
     return 0;
@@ -1142,7 +1164,7 @@ int CPN::po_Assignment(const Value *node) {
     // trans.emplace_back(t);
     // lastTransition = t.name;
     Transition &t = newTransition("Assignment", attr_id->value.GetInt(), true, false);
-    newArc(lastPlace, t.name, "p2t", "control");
+    newArc(lastPlace, t.name, "p2t", "1`()");
     // t.init()
     // 从栈顶取元素处理
     while (id_stk.size() && id_stk.top()!=attr_name->value.GetString()) {
@@ -1150,9 +1172,9 @@ int CPN::po_Assignment(const Value *node) {
         id_stk.pop();
         Place &p = getPlaceByIdentifier(id);
         // 建立弧连接，操作类型为read
-        newArc(p.name, t.name, "p2t", "read");
+        newArc(p.name, t.name, "p2t", "x");
         // 读完之后要返回
-        newArc(t.name, p.name, "t2p", "replace");
+        newArc(t.name, p.name, "t2p", "x");
     }
     // 最后处理表达式左值
     if (id_stk.empty()||(id_stk.top()!=attr_name->value.GetString())) {
@@ -1161,11 +1183,12 @@ int CPN::po_Assignment(const Value *node) {
     }
     Place &p_reslut = getPlaceByIdentifier(id_stk.top());
     id_stk.pop();
-    newArc(t.name, p_reslut.name, "t2p", "assign");
+    newArc(p_reslut.name, t.name, "p2t", "z");
+    newArc(t.name, p_reslut.name, "t2p", "x");
 
     // 填充控制库所
     Place &p_c = newPlace("Assignment", true);
-    newArc(t.name, lastPlace, "t2p", "control");
+    newArc(t.name, lastPlace, "t2p", "1`()");
 
     if (debug) {
         cout << "Assignment expression left hand side variable is : "
@@ -1228,7 +1251,7 @@ int CPN::pr_FunctionDefinition(const Value *node) {
 
     // 构建入口控制流库所，以及对应的弧
     Place &p = newPlace(inFunction + ".in", true);
-    newArc(inFunction + ".f", p.name, "t2p", "control");
+    newArc(inFunction + ".f", p.name, "t2p", "1`()");
  
     // 构建出口库所，该库所当前不需要弧连接
     outPlace = newPlace(inFunction + ".out", true).name;
