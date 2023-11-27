@@ -419,6 +419,9 @@ Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
         a.isControl = true;
     }
 
+    if (a.st=="ERROR"||a.ed=="ERROR")
+        cout << "error arc" << endl;
+
     arcs.emplace_back(a);
     return arcs.back();
 }
@@ -720,10 +723,8 @@ int CPN::po_EventDefinition(const Value *node) { return 0; }
 int CPN::pr_EventDefinition(const Value *node) {
     string e_name = node->FindMember("name")->value.GetString();
     string t_name = getTransitionByMatch(e_name + ".f").name;
-    std::cout << "t_name: " << e_name+".f" << endl;
-    std::cout << "trans[0]: " << trans[0].name << endl;
-    cout << (trans[0].name.find(t_name + ".f") == string::npos) << endl;
     newPlace(e_name + ".out", true);
+    std::cout << lastPlace << endl;
     newArc(t_name, lastPlace, "t2p", "1`()");
     return 0;
 }
@@ -1175,11 +1176,11 @@ int CPN::po_Assignment(const Value *node) {
     while (id_stk.size() && id_stk.top()!=attr_name->value.GetString()) {
         string id = id_stk.top();
         id_stk.pop();
-        Place &p = getPlaceByIdentifier(id);
+        auto p_name = getPlaceByIdentifier(id).name;
         // 建立弧连接，操作类型为read
-        newArc(p.name, t.name, "p2t", "x");
+        newArc(p_name, t.name, "p2t", "x");
         // 读完之后要返回
-        newArc(t.name, p.name, "t2p", "x");
+        newArc(t.name, p_name, "t2p", "x");
     }
     // 最后处理表达式左值
     if (id_stk.empty()||(id_stk.top()!=attr_name->value.GetString())) {
