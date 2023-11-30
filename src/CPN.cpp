@@ -200,7 +200,8 @@ int CPN::build_entryPlace() {
         if (f.type != SC_FUN::TYPE::function)
             continue;
         newPlace(f.name+".start", true);
-        newArc(lastPlace, f.name + ".f", "p2t");
+        auto t_f_name = getTransitionByMatch(f.name + ".f").name;
+        newArc(lastPlace, t_f_name, "p2t", "1`()");
     }
     return 0;
 }
@@ -418,9 +419,6 @@ Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
         a.name = "1`()." + to_string(cnt++);
         a.isControl = true;
     }
-
-    if (a.st=="ERROR"||a.ed=="ERROR")
-        cout << "error arc" << endl;
 
     arcs.emplace_back(a);
     return arcs.back();
@@ -724,7 +722,6 @@ int CPN::pr_EventDefinition(const Value *node) {
     string e_name = node->FindMember("name")->value.GetString();
     string t_name = getTransitionByMatch(e_name + ".f").name;
     newPlace(e_name + ".out", true);
-    std::cout << lastPlace << endl;
     newArc(t_name, lastPlace, "t2p", "1`()");
     return 0;
 }
@@ -1172,11 +1169,17 @@ int CPN::po_Assignment(const Value *node) {
     Transition &t = newTransition("Assignment", attr_id->value.GetInt(), true, false);
     newArc(lastPlace, t.name, "p2t", "1`()");
     // t.init()
+    string constant;
     // 从栈顶取元素处理
     while (id_stk.size() && id_stk.top()!=attr_name->value.GetString()) {
         string id = id_stk.top();
         id_stk.pop();
         auto p_name = getPlaceByIdentifier(id).name;
+        // 常量，这里的处理基础是：1、赋值只有一个右值；2、只有常量会找不到库所ERROR
+        if (p_name == "ERROR") {
+            constant = id;
+            continue;
+        }
         // 建立弧连接，操作类型为read
         newArc(p_name, t.name, "p2t", "x");
         // 读完之后要返回
@@ -1190,7 +1193,10 @@ int CPN::po_Assignment(const Value *node) {
     Place &p_reslut = getPlaceByIdentifier(id_stk.top());
     id_stk.pop();
     newArc(p_reslut.name, t.name, "p2t", "z");
-    newArc(t.name, p_reslut.name, "t2p", "x");
+    if (constant!="")
+        newArc(t.name, p_reslut.name, "t2p", constant);
+    else
+        newArc(t.name, p_reslut.name, "t2p", "x");
 
     // 填充控制库所
     Place &p_c = newPlace("Assignment", true);
