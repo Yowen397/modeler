@@ -1,5 +1,5 @@
 编译命令如下：
-solc -o ./output/  --combined-json ast  storage.solc --overwrite
+solc -o ./output/  --combined-json ast  storage.sol --overwrite
 通过solc工具生成AST，以json格式存在
 
 另：
@@ -10,5 +10,8 @@ pip3 install solc-select
 
 
 编译其它文件
-solc -o ./output/storage/  --combined-json ast  storage.solc --overwrite
-solc -o ./output/Purchase/ --combined-json ast Purchase.solc --overwrite
+solc -o ./output/storage/  --combined-json ast  storage.sol --overwrite
+solc -o ./output/Purchase/ --combined-json ast Purchase.sol --overwrite
+solc -o ./output/Ballot/ --combined-json ast Ballot.sol --overwrite
+solc -o ./output/SimpleAution/ --combined-json ast SimpleAution.sol --overwrite
+solc -o ./output/ReceiverPays/ --combined-json ast ReceiverPays.sol --overwrite

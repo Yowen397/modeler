@@ -7,7 +7,7 @@
 #include "StateSpace.h"
 #include "common.h"
 
-const bool print_AST = false;
+const bool print_AST = true;
 std::string path_ast = "error file name";
 std::vector<Timer> timer;
 

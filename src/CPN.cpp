@@ -560,6 +560,7 @@ int CPN::pr_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "TupleExpression" ? pr_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? pr_EmitStatement(node), check = 1 : 0;
     // type_ == "ModifierInvocation" ? pr_ModifierInvocation(node), check = 1 : 0;
+    type_ == "Mapping" ? pr_Mapping(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node);
@@ -609,11 +610,20 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "TupleExpression" ? po_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? po_EmitStatement(node), check = 1 : 0;
     // type_ == "ModifierInvocation" ? po_ModifierInvocation(node), check = 1 : 0;
+    type_ == "Mapping" ? po_Mapping(node), check = 1 : 0;
 
     if (!check)
         return e_Unkonwn(type_, node, false);
     else
         return 0;
+    return 0;
+}
+
+int CPN::po_Mapping(const Value *node) {
+    return 0;
+}
+
+int CPN::pr_Mapping(const Value *node) {
     return 0;
 }
 

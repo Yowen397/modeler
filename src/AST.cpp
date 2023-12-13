@@ -296,6 +296,7 @@ int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
     str_ == "ParameterList" ? ret = po_ParameterList(node) : 0;
     str_ == "UserDefinedTypeName" ? ret = po_UserDefinedTypeName(node) : 0;
     str_ == "EnumValue" ? ret = po_EnumValue(node) : 0;
+    str_ == "Mapping" ? ret = po_Mapping(node) : 0;
 
     if (ret == -1)
         return e_Unknown(str_, node);
@@ -306,6 +307,11 @@ int AST::FunctionSelector(std::string str_, const rapidjson::Value *node) {
 int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
     // std::cerr << "Untreated node type: [" << str_ << "]" << std::endl;
     // std::cout << "---modeler exit---" << std::endl;
+    return 0;
+}
+
+int AST::po_Mapping(const rapidjson::Value *node) {
+    this->cur_typename = "map";
     return 0;
 }
 

@@ -98,4 +98,5 @@ class AST {
     int po_ParameterList(const rapidjson::Value *node);
     int po_UserDefinedTypeName(const rapidjson::Value *node);
     int po_EnumValue(const rapidjson::Value *node);
+    int po_Mapping(const rapidjson::Value *node);
 };
