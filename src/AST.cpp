@@ -2,8 +2,6 @@
 
 using namespace rapidjson;
 
-
-
 AST::~AST() {}
 
 AST::AST() {}
@@ -177,8 +175,18 @@ int AST::traverse_r(bool print_, std::ofstream &of_, rapidjson::Value *node,
         // std::cout << ++cnt << "\t";
         // std::cout << "nodeType: " << attr_type->value.GetString() << std::endl;
         if (print_) {
-            of_ << long(node) << "[label=\"" << attr_type->value.GetString()
-                << "\"]\n";
+            std::string label = attr_type->value.GetString();
+            std::string color;
+            // 输出一些节点信息
+            // if (attr_type->value.GetString() == "Identifier")
+            if (strcmp("Identifier", attr_type->value.GetString())==0)
+                label += std::string(":") + node->FindMember("name")->value.GetString(), color = "gold";
+            if (strcmp("BinaryOperation", attr_type->value.GetString())==0)
+                label += std::string(":") + node->FindMember("operator")->value.GetString(), color = "blue";
+
+            of_ << long(node) << "[label=\"" << label << "\"";
+            of_ << ",color=\"" << color << "\"";
+            of_ << "]\n";
             if (src_node)
                 of_ << (long)src_node << "->" << (long)node << std::endl;
             src_node = node;
