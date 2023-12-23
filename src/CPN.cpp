@@ -139,7 +139,9 @@ int CPN::build_topNet() {
             p.name = "global." + v.name;
         else
             p.name = v.fun + "." + v.name;
+        
         p.color = v.type; // CPN的库所颜色就是变量类型
+        
     }
     // 1.b 变量库所：函数参数、函数返回值
     for (auto &f : funs) {
@@ -189,6 +191,7 @@ int CPN::build_topNet() {
         places.back().isControl = false;
     }
 
+    this->info();
     return 0;
 }
 

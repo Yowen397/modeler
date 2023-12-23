@@ -84,7 +84,7 @@ class AST {
   private:
     /* 以下变量用于搜索语法树过程中暂存，部分信息 */
     std::string cur_fun = "";
-    std::string cur_typename = "";
+    std::stack<std::string> cur_typename;
     std::string cur_param_stage = ""; // ""->"parameters"->"return"，三阶段
 
     int EntryOperation(std::string str_, const rapidjson::Value *node);

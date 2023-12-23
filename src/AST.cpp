@@ -319,7 +319,11 @@ int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
 }
 
 int AST::po_Mapping(const rapidjson::Value *node) {
-    this->cur_typename = "map";
+    std::string map_type = this->cur_typename.top();
+    this->cur_typename.pop();
+    map_type = this->cur_typename.top() + "," + map_type;
+    this->cur_typename.pop();
+    this->cur_typename.push(map_type);
     return 0;
 }
 
@@ -349,7 +353,7 @@ int AST::po_UserDefinedTypeName(const rapidjson::Value *node) {
                   << std::endl;
         exit(-1);
     }
-    this->cur_typename = attr_name->value.GetString();
+    this->cur_typename.push(attr_name->value.GetString());
     return 0;
 }
 
@@ -382,7 +386,8 @@ int AST::po_VariableDeclaration(const rapidjson::Value *node) {
         this->vars.back().fun = this->cur_fun;
     }
     // 变量类型
-    this->vars.back().type = this->cur_typename;
+    this->vars.back().type = this->cur_typename.top();
+    this->cur_typename.pop();
 
     return 0;
 }
@@ -394,7 +399,7 @@ int AST::po_ElementaryTypeName(const rapidjson::Value*node) {
                   << std::endl;
         std::exit(-1);
     }
-    this->cur_typename = attr_name->value.GetString();
+    this->cur_typename.push(attr_name->value.GetString());
     return 0;
 }
 
