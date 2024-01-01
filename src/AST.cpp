@@ -321,7 +321,7 @@ int AST::e_Unknown(std::string str_, const rapidjson::Value * node) {
 int AST::po_Mapping(const rapidjson::Value *node) {
     std::string map_type = this->cur_typename.top();
     this->cur_typename.pop();
-    map_type = this->cur_typename.top() + "," + map_type;
+    map_type = this->cur_typename.top() + "*" + map_type;
     this->cur_typename.pop();
     this->cur_typename.push(map_type);
     return 0;

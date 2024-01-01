@@ -15,3 +15,4 @@ solc -o ./output/Purchase/ --combined-json ast Purchase.sol --overwrite
 solc -o ./output/Ballot/ --combined-json ast Ballot.sol --overwrite
 solc -o ./output/SimpleAution/ --combined-json ast SimpleAution.sol --overwrite
 solc -o ./output/ReceiverPays/ --combined-json ast ReceiverPays.sol --overwrite
+solc -o ./output/Timelock/ --combined-json ast Timelock.sol --overwrite
