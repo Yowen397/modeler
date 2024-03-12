@@ -35,7 +35,7 @@ int main(int argc, char* argv[]){
     timer.emplace_back("cpn done, next state space");
 
     StateSpace sp(&cpn);
-    // test_Storage(sp);
+    test_Storage(sp);
     
     timer.emplace_back("state space done");
     Timer::outputTime(timer);

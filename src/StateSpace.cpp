@@ -56,7 +56,7 @@ void StateSpace::generate(State *init_s) {
  * 根据弧表达式生成
 */
 string StateSpace::tokenString(const string &exp) {
-    if (exp.find("control.")!=string ::npos) {
+    if (exp.find("1`().")!=string ::npos) {
         return "C";
     }
     if (exp.find("replace.")!=string::npos) {
@@ -175,12 +175,13 @@ State *StateSpace::nextState(State *s, int t) {
  * 检查给定的token是否满足条件表达式exp
 */
 bool StateSpace::tokenCheck(const string &exp, const string &t) {
-    if (exp.find("control.") != string ::npos) {
+    if (exp.find("1`().") != string ::npos) {
         if (t.find("C") != string::npos)
             return true;
     }
-    if (exp.find("read.") != string::npos) {
+    if (exp.find("x.") != string::npos || exp.find("y.")!= string::npos) {
         // 只是读取token，一定能读取到
+        // read-->x，读取弧变成变量绑定弧。y也是绑定变量
         return true;
     }
     cerr << "tokenCheck::unknown arc expression : [" << exp << "]" << endl;
