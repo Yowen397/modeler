@@ -1529,8 +1529,9 @@ int CPN::build_User() {
             for (auto p : fun.param){
                 a_in.name += string("x") + to_string(p_cnt) + ",";
                 string p_pa_name = getPlaceByMatch(p.fun + ".param." + p.name).name;
+                // 参数赋予，要按照x1、x2的方式赋予，同样的按照z1、z2的方式消耗原有的
                 newArc(t_call.name, p_pa_name, "t2p", string("x") + to_string(p_cnt));
-                newArc(p_pa_name, t_call.name, "p2t", "z");
+                newArc(p_pa_name, t_call.name, "p2t", string("z") + to_string(p_cnt));
 
                 p_call.color += p.type + ",";
                 p_cnt++;

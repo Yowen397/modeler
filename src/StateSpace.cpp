@@ -354,8 +354,8 @@ int StateSpace::satisfyExp_singleExp(const string &token,
     string exp = expression.substr(0, expression.find_last_of('.'));
     // 分类处理弧表达式
     if (exp == "1`()")                                      // 控制弧
-        return token == "()" ? 1 : 0;           
-    if (exp.length() == 1)                                  // 单个变量绑定
+        return token == "()" ? 1 : 0;
+    if (exp.length() == 1 || exp.length() == 2)             // 单个变量绑定
         return try_bind(token, exp, var_sattisfy);
     if (exp[0] == '(' && exp[exp.length() - 1] == ')') {    // 交类型变量
         if (token[0] != '(' || token[token.length() - 1] != ')')
@@ -375,7 +375,7 @@ int StateSpace::satisfyExp_singleExp(const string &token,
         return 1;
     }
 
-    cerr << "Unrecognized arc expression [" << expression << "]" << endl;
+    cerr << "StateSpace::satisfyExp_singleExp: Unrecognized arc expression [" << expression << "]" << endl;
     exit(-1);
     return -777;
 }
@@ -569,7 +569,7 @@ int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string&
         return 0;
     }
 
-    cerr << "Unrecognized arc expression [" << exp << "]" << endl;
+    cerr << "StateSpace::addToken: Unrecognized arc expression [" << exp << "]" << endl;
     exit(-1);
     return -777;
 }
