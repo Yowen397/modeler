@@ -23,3 +23,12 @@ class Timer {
 
     static void outputTime(std::vector<Timer> &v);
 };
+
+int VmPeak();
+
+// 定义ANSI escape codes用于终端颜色输出
+constexpr auto RED = "\033[31m";      // 红色
+constexpr auto GREEN = "\033[32m";    // 绿色
+constexpr auto YELLOW = "\033[33m";   // 黄色
+constexpr auto BLUE = "\033[34m";     // 蓝色
+constexpr auto RESET = "\033[0m";     // 重置颜色

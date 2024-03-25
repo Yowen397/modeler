@@ -77,7 +77,8 @@ int CPN::draw() {
 
     outfile << "node[shape=circle]" << endl;
     for (const auto &p : places) {
-        outfile << to_quotation(p.name) << "[label=\"" << p.name << "\"";
+        outfile << to_quotation(p.name) << "[label=\"" << p.name;
+        outfile << "\\n[" << (p.isControl ? "C" : p.color) << "]\"";
         outfile << (p.isControl ? ",color=gold" : "");
         outfile << "]" << endl;
     }
@@ -115,6 +116,14 @@ Transition &CPN::getTransition(const std::string &s_) {
     }
     cerr << "\ninexistent transition name [" << s_ << "]" << endl;
     exit(-1);
+}
+
+int CPN::getIdxTransition(const std::string &s_) {
+    for (int i = 0; i < trans.size();i++) {
+        if (trans[i].name == s_)
+            return i;
+    }
+    return -1;
 }
 
 Arc &CPN::getArc(const std::string &st_, const std::string &ed_) {
@@ -171,17 +180,17 @@ int CPN::build_topNet() {
     places.back().color = "struct";
     places.back().isControl = false;
 
-    // 2 函数变迁
-    for (const auto &f : funs) {
-        trans.emplace_back();
-        auto &t = trans.back();
-        if (f.type  == SC_FUN::modifier)
-            t.name = f.name + ".m";
-        else 
-            t.name = f.name + ".f";
-        t.isSubNet = true;
-        t.isControl = true;
-    }
+    // 2 函数变迁，不再需要，理由->建模细节-部分修改原因
+    // for (const auto &f : funs) {
+    //     trans.emplace_back();
+    //     auto &t = trans.back();
+    //     if (f.type  == SC_FUN::modifier)
+    //         t.name = f.name + ".m";
+    //     else 
+    //         t.name = f.name + ".f";
+    //     t.isSubNet = true;
+    //     t.isControl = true;
+    // }
 
     // 3 enum类型库所
     for (const auto &e : enums) {
@@ -253,8 +262,11 @@ int CPN::build() {
     // 2.深搜
     traverse(root);
 
-    // 3.函数入口补充一个库所
-    build_entryPlace();
+    // 3.1函数入口补充一个库所，不再补充这个库所，用户外部调用部分取代该功能
+    // build_entryPlace();
+
+    // 3.2用户调用部分，将所有函数连在一起
+    build_User();
 
     // 4.链接前集和后集，库所和变迁都要处理
     link_();
@@ -1024,7 +1036,7 @@ int CPN::po_Return(const Value *node) {
     newArc(lastTransition, p.name, "t2p", "x");
 
     // 找到返回值库所，目前只处理单值返回的，返回值库所命名唯一
-    newArc(lastTransition, returnPlace, "t2p", "y");
+    newArc(lastTransition, returnPlace, "t2p", "x");
     newArc(returnPlace, lastTransition, "p2t", "z");
 
     // 控制流
@@ -1112,6 +1124,9 @@ int CPN::po_BinaryOperation(const Value *node) {
     // 结果库所（tmp）
     auto attr_operator = node->FindMember("operator");
     newPlace(inFunction + ".tmp." + to_string(attr_id->value.GetInt()), false);
+    places.back().color = node->FindMember("typeDescriptions")->value.
+                                FindMember("typeString")->value.
+                                GetString();
     newArc(lastTransition, lastPlace, "t2p", "x" + string(attr_operator->value.GetString()) + "y");
     newArc(lastPlace, lastTransition, "p2t", "z");
     id_stk.push("tmp." + to_string(attr_id->value.GetInt()));
@@ -1276,7 +1291,7 @@ int CPN::pr_FunctionDefinition(const Value *node) {
 
     // 构建入口控制流库所，以及对应的弧
     Place &p = newPlace(inFunction + ".in", true);
-    newArc(inFunction + ".f", p.name, "t2p", "1`()");
+    // newArc(inFunction + ".f", p.name, "t2p", "1`()");
  
     // 构建出口库所，该库所当前不需要弧连接
     outPlace = newPlace(inFunction + ".out", true).name;
@@ -1419,6 +1434,35 @@ int CPN::fun_buildRequire() {
     return 0;
 }
 
+/*
+int CPN::fun_buildRequire() {
+    // 该函数构造一个require的基本模型，简化版，通过arc expression解决判断问题
+    newTransition("require.f", 0, true, true);
+    Place &p_in = newPlace("require.in", true);
+    newArc(lastTransition, lastPlace, "t2p", "1`()"); 
+    
+    // 这部分是参数部分
+    newPlace("require.arg", false);
+    newArc(lastPlace, lastTransition, "p2t", "x");
+    newArc(lastTransition, lastPlace, "t2p", "x");
+
+    // require的出口部分
+    Place &p_out = newPlace("require.out", true);
+    newArc(lastPlace, lastTransition, "p2t", "if x=true then 1`() else empty");
+    // 构建完成之后，lastPlace就是出口库所
+
+    // 登记funs和参数信息
+    funs.emplace_back();
+    funs.back().name = "require";
+    funs.back().param.emplace_back();
+    funs.back().param.back().name = "condition";
+    funs.back().param.back().type = "bool";
+    funs.back().param.back().range = SC_VAR::RANGE::param;
+    funs.back().param.back().fun = "require";
+    return 0;
+}
+*/
+
 /**
  * 每次遇到调用transfer的时候调用此函数，单独构建transfer
  * 逻辑类似于assignment
@@ -1446,5 +1490,53 @@ int CPN::once_transfer(const Value *node) {
     newPlace("FC_transfer", true);
     newArc(lastTransition, lastPlace, "t2p", "1`()");
 
+    return 0;
+}
+
+
+/**
+ * 建模用户操作，主要步骤为找到原有的操作，实行替换
+*/
+int CPN::build_User() {
+    // 初始控制流库所
+    Place &p_init = newPlace("P.init", true);
+
+    // 每个函数最后的控制流，要回流到初始控制流
+    for (auto fun: funs) {
+        Transition &t_end = newTransition(fun.name + ".end", 0, true, false);
+        string p_out = getPlaceByMatch(fun.name+".out.c").name;
+        newArc(p_out, lastTransition, "p2t", "1`()");
+
+        newArc(lastTransition, p_init.name, "t2p", "1`()");
+    }
+
+    // 开始部分
+    for (auto fun: funs) {
+        Transition &t_call = newTransition(fun.name + ".call", 0, true, false);
+        newArc(p_init.name, t_call.name, "p2t", "1`()");
+        string p_in = getPlaceByMatch(fun.name + ".in.c").name;
+        newArc(t_call.name, p_in, "t2p", "1`()");
+
+        // 如果函数有参数
+        // call库所的弧表达式设置为形如(x1,x2,x3,x4,)
+        if (fun.param.size()!=0) {
+            Place &p_call = newPlace(fun.name + ".pcall", false);
+            Arc &a_in = newArc(lastPlace, t_call.name, "p2t", "()");
+            string tmp_suffix = a_in.name.substr(1); // 临时保留后缀（括号、弧编号）
+            a_in.name = a_in.name.substr(0, 1);
+
+            int p_cnt = 1;
+            for (auto p : fun.param){
+                a_in.name += string("x") + to_string(p_cnt) + ",";
+                string p_pa_name = getPlaceByMatch(p.fun + ".param." + p.name).name;
+                newArc(t_call.name, p_pa_name, "t2p", string("x") + to_string(p_cnt));
+                newArc(p_pa_name, t_call.name, "p2t", "z");
+
+                p_call.color += p.type + ",";
+                p_cnt++;
+            }
+            a_in.name += tmp_suffix;
+        }
+    }
     return 0;
 }

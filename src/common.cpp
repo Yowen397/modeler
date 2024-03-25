@@ -1,3 +1,6 @@
+#include <unistd.h>
+#include <string>
+
 #include "common.h"
 
 std::string Path2Filename(const std::string &path_) {
@@ -41,4 +44,11 @@ void Timer::outputTime(std::vector<Timer> &v) {
         std::cout << (v[i + 1].time - v[i].time) / 1000.0 << "ms\t, "
                   << v[i + 1].msg << std::endl;
     }
+}
+
+int VmPeak() {
+    int pid = getpid();
+    std::string cmd = "cat /proc/" + std::to_string(pid) + "/status | grep VmPeak";
+    system(cmd.c_str());
+    return 0;
 }

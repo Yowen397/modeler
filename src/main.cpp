@@ -12,6 +12,7 @@ std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
 void test_Storage(StateSpace &sp);
+void test_Storage2(StateSpace &sp);
 
 int main(int argc, char* argv[]){
     timer.emplace_back("program begin");
@@ -35,11 +36,31 @@ int main(int argc, char* argv[]){
     timer.emplace_back("cpn done, next state space");
 
     StateSpace sp(&cpn);
-    test_Storage(sp);
-    
+    test_Storage2(sp);
+    // test_Storage(sp);
+
     timer.emplace_back("state space done");
+    
+    
     Timer::outputTime(timer);
+    VmPeak();
+
     return 0;
+}
+
+void test_Storage2(StateSpace &sp) {
+    using namespace std;
+    State *s = new State();
+    // 初始状态
+    s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
+    s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,)++1`(7,8,)";
+    s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,)++1`(9,)";
+    // 变量初值
+    init_DataPlace(sp.cpn, s);
+    cout << s->getStr() << endl;
+    sp.generate(s);
+
+    return;
 }
 
 void test_Storage(StateSpace &sp) {
@@ -82,6 +103,22 @@ void test_Storage(StateSpace &sp) {
     s->tokens[p_st_n] = "1`C, ";
     s->tokens[p_param_n] = "1`9, ";  // 初始状态
     sp.generate(s);
+
+    // for (int i = 1; i <= 3000 ; i++) {
+    //     if (i%2==1) {
+    //         s2 = sp.getLastState();
+    //         s2->tokens[p_st_n2] = "1`C, ";
+    //         s2->tokens[p_param_p1] = "1`3, ";
+    //         s2->tokens[p_param_p2] = "1`4, ";
+    //         sp.generate(s2);
+    //     }
+    //     else {
+    //         s = sp.getLastState();
+    //         s->tokens[p_st_n] = "1`C, ";
+    //         s->tokens[p_param_n] = "1`5, ";
+    //         sp.generate(s);
+    //     }
+    // }
 
     return;
 }

@@ -59,7 +59,10 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "set": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "numbers": "cpp"
     },
     
 }

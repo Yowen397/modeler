@@ -84,7 +84,9 @@ class CPN {
     Place &getPlaceByMatch(const std::string &str_);
     Arc &getArc(const std::string &st_, const std::string &ed_);
 
-  protected:
+    int getIdxTransition(const std::string& s_);
+
+protected:
     int traverse(const rapidjson::Value *node_);    // 遍历，深搜，前后序，构建CPN
     int build_entryPlace();
     int build_topNet();
@@ -97,7 +99,7 @@ class CPN {
                               const bool isControl = true,
                               const bool isSubNet = false);
     Arc &newArc(const std::string &st_, const std::string &ed,
-                const std::string &dir, const std::string &name_="control");
+                const std::string &dir, const std::string &name_="1`()");
     Place &newPlace(const std::string &name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
     int removePlace(const std::string &name_);
@@ -194,4 +196,6 @@ class CPN {
     bool fun_Require = false;
     int fun_buildRequire();
     int once_transfer(const rapidjson::Value *node);
+    
+    int build_User();       // 建模用户操作
 };
