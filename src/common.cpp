@@ -41,7 +41,7 @@ void Timer::outputTime(std::vector<Timer> &v) {
     //     std::cout << t.time/1000.0 << "ms\t, " << t.msg << std::endl;
     // }
     for (int i = 0; i+1 < v.size();i++) {
-        std::cout << (v[i + 1].time - v[i].time) / 1000.0 << "ms\t, "
+        std::cout << (v[i + 1].time - v[i].time) / 1000.0 << "ms  \t\t, "
                   << v[i + 1].msg << std::endl;
     }
 }

@@ -3,7 +3,7 @@
 using namespace rapidjson;
 using namespace std;
 
-bool debug = true;
+extern bool debug;
 
 Place::Place() {}
 

@@ -13,17 +13,29 @@ string State::getStr() const {
     return ret;
 }
 
-size_t State::hash() const {
+
+size_t State::hash(const CPN*_cpn) const {
     static std::hash<string> hasher;
-    size_t h_v = hasher(getStr());
+
+    string str;
+    for (auto p : _cpn->places) {
+        auto it = tokens.find(p.name);
+        if (it != tokens.end())
+            str += p.name + ":" + it->second + "\n";
+    }
+    size_t h_v = hasher(str);
     return h_v;
+}
+
+StateSpace::StateSpace(CPN* cpn_) {
+    this->cpn = cpn_;
 }
 
 void StateSpace::generate(State *init_s) {
     queue<State *> q;
-    if (states.find(init_s->hash()) == states.end())
+    if (states.find(init_s->hash(cpn)) == states.end())
         q.push(init_s);
-    states[init_s->hash()] = init_s;
+    states[init_s->hash(cpn)] = init_s;
 
     static int state_cnt = 1;
     while (!q.empty()) {
@@ -45,7 +57,7 @@ void StateSpace::generate(State *init_s) {
             } else {
                 // 生成成功，则加入队列
                 q.push(next_s);
-                states[next_s->hash()] = next_s;
+                states[next_s->hash(cpn)] = next_s;
                 lastState = next_s;  // 这一句是历史遗留问题，能跑就别动
             }
             // cout << "check point" << endl;
@@ -473,7 +485,7 @@ unordered_map<string, string> var_NextState;  // '生成下一个状态阶段'�
 State *StateSpace::getNextState(State *cur_, Binding& b_) {
     State* s = new State();
     var_NextState.clear();
-    // 操作顺序：复制、删除消耗掉的token、写入新增的token、检查新状态合法性
+    // 操作顺序：复制、删除消耗掉的token、写入新增的token、删去空库所key值、检查新状态合法性
     // 复制
     for (auto p : cur_->tokens)
         s->tokens[p.first] = p.second;
@@ -487,9 +499,15 @@ State *StateSpace::getNextState(State *cur_, Binding& b_) {
         string place_name = cpn->places[cpn->trans[b_.t_idx].pos[i]].name;
         addToken(s->tokens[place_name], b_.t_idx, place_name);
     }
+    // 删去空库所key值
+    vector<string> del;
+    for (auto p : s->tokens) 
+        if (p.second == "")
+            del.emplace_back(p.first);
+    for (auto p : del)
+        s->tokens.erase(p);
     // 检查新增状态的合法性
-    static int repeat = 0;
-    auto H = s->hash();
+    auto H = s->hash(cpn);
     if (states.find(H) != states.end()) {
         repeat++;
         if (debug)
@@ -634,6 +652,7 @@ int StateSpace::removeToken(std::string &all_, const std::string &t_) {
 /* 向Multi-set中新增指定数量（n_缺省1）的某个token（参数t_） */
 int MultiSet::add(const std::string& t_, const int n_) {
     // 新增一定会成功，类型不匹配问题不在此处解决
+    // 该函数修改了ms的内容，所以返回之前要sort一次
     for (int i = 0; i < token.size();i++) {
         if (token[i]==t_) {
             num[i] += n_;
@@ -643,6 +662,7 @@ int MultiSet::add(const std::string& t_, const int n_) {
     }
     token.emplace_back(t_);
     num.emplace_back(n_);
+    this->sort();
     return 0;
 }
 
