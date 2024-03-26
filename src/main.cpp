@@ -62,6 +62,8 @@ void test_Storage(StateSpace &sp) {
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
     s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,)++1`(7,8,)";
     s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,)++1`(9,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,)++1`(7,8,)++9`(13,17,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,)++1`(9,)++8`(19,)";
     // 变量初值
     init_DataPlace(sp.cpn, s);
     cout << s->getStr() << endl;
@@ -71,9 +73,23 @@ void test_Storage(StateSpace &sp) {
 }
 
 void test_Purchase(StateSpace &sp) {
+    State* s = new State();
+    // 初始状态
+
+    init_DataPlace(sp.cpn, s);
+    std::cout << s->getStr() << std::endl;
+    sp.generate(s);
+
     return;
 }
 
 void test_Timelock(StateSpace &sp) {
+    State* s = new State();
+    // 初始状态
+
+    init_DataPlace(sp.cpn, s);
+    std::cout << s->getStr() << std::endl;
+    sp.generate(s);
+    
     return;
 }

@@ -37,11 +37,14 @@ void StateSpace::generate(State *init_s) {
         q.push(init_s);
     states[init_s->hash(cpn)] = init_s;
 
-    static int state_cnt = 1;
+    static int state_cnt = 0;
     while (!q.empty()) {
         vector<Binding> &bindList = getBinding(q.front());
-        if (debug) {
-            cout << "[State No." << state_cnt++ << " Processing]" << endl;
+        state_cnt++;
+        if (state_cnt % 10000 == 0 && !debug)
+            cout << "State No." << state_cnt << " Processing]" << endl;
+        else if (debug) {
+            cout << "[State No." << state_cnt << " Processing]" << endl;
             cout << q.back()->getStr();
             string tmp = "  Fireable Transition: ";
             for (auto i : bindList)
@@ -64,6 +67,8 @@ void StateSpace::generate(State *init_s) {
         }
         q.pop();
     }
+
+    cout << "Total state num [" << state_cnt << "]" << endl;
 }
 
 /**
