@@ -13,7 +13,8 @@ std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
 void test_Storage(StateSpace &sp);
-void test_Storage2(StateSpace &sp);
+void test_Purchase(StateSpace& sp);
+void test_Timelock(StateSpace& sp);
 
 int main(int argc, char* argv[]){
     timer.emplace_back("program begin");
@@ -37,8 +38,13 @@ int main(int argc, char* argv[]){
     timer.emplace_back("cpn done, next state space");
 
     StateSpace sp(&cpn);
-    test_Storage2(sp);
+    if (path_ast.find("storage") != std::string::npos)
+        test_Storage(sp);
     // test_Storage(sp);
+    if (path_ast.find("Purchase") != std::string::npos)
+        test_Purchase(sp);
+    if (path_ast.find("Timelock") != std::string::npos)
+        test_Timelock(sp);
 
     timer.emplace_back("state space done");
     
@@ -49,7 +55,7 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void test_Storage2(StateSpace &sp) {
+void test_Storage(StateSpace &sp) {
     using namespace std;
     State *s = new State();
     // 初始状态
@@ -64,62 +70,10 @@ void test_Storage2(StateSpace &sp) {
     return;
 }
 
-void test_Storage(StateSpace &sp) {
-    using namespace std;
-    State *s = new State();
-    string p_st_n = sp.cpn->getPlaceByMatch("store.start.c.").name;
-    s->tokens[p_st_n] = "1`C, ";
-    string p_param_n = sp.cpn->getPlaceByMatch("store.param.num").name;
-    s->tokens[p_param_n] = "1`5, ";  // 初始状态
-    // cout << s->getStr() << endl;
-    sp.generate(s);
+void test_Purchase(StateSpace &sp) {
+    return;
+}
 
-    State *s2 = sp.getLastState();
-    string p_st_n2 = sp.cpn->getPlaceByMatch("retrieve.start.c.").name;
-    s2->tokens[p_st_n2] = "1`C, ";
-    string p_param_p1 = sp.cpn->getPlaceByMatch("retrieve.param.p1").name;
-    string p_param_p2 = sp.cpn->getPlaceByMatch("retrieve.param.p2").name;
-    s2->tokens[p_param_p1] = "1`21, ";
-    s2->tokens[p_param_p2] = "1`22, ";
-    sp.generate(s2);
-
-    s = sp.getLastState();
-    s->tokens[p_st_n] = "1`C, ";
-    s->tokens[p_param_n] = "1`7, ";  // 初始状态
-    sp.generate(s);
-
-    s2 = sp.getLastState();
-    s2->tokens[p_st_n2] = "1`C, ";
-    s2->tokens[p_param_p1] = "1`23, ";
-    s2->tokens[p_param_p2] = "1`24, ";
-    sp.generate(s2);
-
-    s2 = sp.getLastState();
-    s2->tokens[p_st_n2] = "1`C, ";
-    s2->tokens[p_param_p1] = "1`25, ";
-    s2->tokens[p_param_p2] = "1`26, ";
-    sp.generate(s2);
-
-    s = sp.getLastState();
-    s->tokens[p_st_n] = "1`C, ";
-    s->tokens[p_param_n] = "1`9, ";  // 初始状态
-    sp.generate(s);
-
-    // for (int i = 1; i <= 3000 ; i++) {
-    //     if (i%2==1) {
-    //         s2 = sp.getLastState();
-    //         s2->tokens[p_st_n2] = "1`C, ";
-    //         s2->tokens[p_param_p1] = "1`3, ";
-    //         s2->tokens[p_param_p2] = "1`4, ";
-    //         sp.generate(s2);
-    //     }
-    //     else {
-    //         s = sp.getLastState();
-    //         s->tokens[p_st_n] = "1`C, ";
-    //         s->tokens[p_param_n] = "1`5, ";
-    //         sp.generate(s);
-    //     }
-    // }
-
+void test_Timelock(StateSpace &sp) {
     return;
 }
