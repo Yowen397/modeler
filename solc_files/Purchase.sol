@@ -17,14 +17,14 @@ contract Purchase {
     //     _;
     // }
 
-    /// 只有买方可以调用这个函数。
-    error OnlyBuyer();
-    /// 只有卖方可以调用这个函数。
-    error OnlySeller();
-    /// 在当前状态下不能调用该函数。
-    error InvalidState();
-    /// 提供的值必须是偶数。
-    error ValueNotEven();
+    // /// 只有买方可以调用这个函数。
+    // error OnlyBuyer();
+    // /// 只有卖方可以调用这个函数。
+    // error OnlySeller();
+    // /// 在当前状态下不能调用该函数。
+    // error InvalidState();
+    // /// 提供的值必须是偶数。
+    // error ValueNotEven();
 
     // modifier onlyBuyer() {
     //     if (msg.sender != buyer)
@@ -44,10 +44,10 @@ contract Purchase {
     //     _;
     // }
 
-    event Aborted();
-    event PurchaseConfirmed();
-    event ItemReceived();
-    event SellerRefunded();
+    // event Aborted();
+    // event PurchaseConfirmed();
+    // event ItemReceived();
+    // event SellerRefunded();
 
     // 确保 `msg.value` 是一个偶数。
     // 如果是奇数，除法会截断。
@@ -55,20 +55,16 @@ contract Purchase {
     constructor() payable {
         seller = payable(msg.sender);
         value = msg.value / 2;
-        if ((2 * value) != msg.value)
-            revert ValueNotEven();
+        require((2 * value) == msg.value);
     }
 
     /// 终止购买并收回 ether。
     /// 只能由卖方在合同锁定前能调用。
     function abort() external
     {
-        if (msg.sender != seller)
-            revert OnlySeller();
-        if (state != 0)
-            revert InvalidState();
+        require(msg.sender == seller);
+        require(state == 0);
 
-        emit Aborted();
         state = 3;
         // 我们在这里直接使用 `transfer`。
         // 它可以安全地重入。
@@ -82,11 +78,9 @@ contract Purchase {
     /// Ether 将被锁住，直到调用 confirmReceived。
     function confirmPurchase() external payable
     {
-        if (state != 0)
-            revert InvalidState();
+        require(state == 0);
         require(msg.value == (2 * value));
 
-        emit PurchaseConfirmed();
         buyer = payable(msg.sender);
         state = 1;
     }
@@ -95,11 +89,9 @@ contract Purchase {
     /// 这将释放锁定的 ether。
     function confirmReceived() external
     {
-        if (msg.sender != buyer)
-            revert OnlyBuyer();
-        if (state != 1)
-            revert InvalidState();
-        emit ItemReceived();
+        require(msg.sender == buyer);
+        require(state == 1);
+        
         // 首先改变状态是很重要的，否则的话，
         // 下面使用 `send` 调用的合约可以在这里再次调用。
         state = 2;
@@ -111,11 +103,9 @@ contract Purchase {
     /// 即退还卖家锁定的资金。
     function refundSeller() external
     {
-        if (msg.sender != seller)
-            revert OnlySeller();
-        if (state != 2)
-            revert InvalidState();
-        emit SellerRefunded();
+        require(msg.sender == seller);
+        require(state == 2);
+
         // 首先改变状态是很重要的，否则的话，
         // 下面使用 `send` 调用的合约可以在这里再次调用。
         state = 3;

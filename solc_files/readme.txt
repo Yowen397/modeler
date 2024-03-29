@@ -16,3 +16,4 @@ solc -o ./output/Ballot/ --combined-json ast Ballot.sol --overwrite
 solc -o ./output/SimpleAution/ --combined-json ast SimpleAution.sol --overwrite
 solc -o ./output/ReceiverPays/ --combined-json ast ReceiverPays.sol --overwrite
 solc -o ./output/Timelock/ --combined-json ast Timelock.sol --overwrite
+solc -o ./output/SafeMath/ --combined-json ast SafeMath.sol --overwrite

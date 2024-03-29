@@ -35,7 +35,7 @@ class SC_VAR {
 
 class SC_FUN {
   public:
-    enum TYPE { function, error, modifier, event };
+    enum TYPE { function, error, modifier, event, internal };
 
     std::string name;
     TYPE type = function;

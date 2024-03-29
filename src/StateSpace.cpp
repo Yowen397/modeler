@@ -391,6 +391,8 @@ int StateSpace::satisfyExp_singleExp(const string &token,
         }
         return 1;
     }
+    if (exp == "True" || exp == "False")
+        return exp == token ? 1 : 0;
 
     cerr << "StateSpace::satisfyExp_singleExp: Unrecognized arc expression [" << expression << "]" << endl;
     exit(-1);
@@ -457,6 +459,8 @@ int init_DataPlace(CPN *cpn, State *s) {
 
         if (p.color == "uint256")
             s->tokens[p.name] = "1`0";
+        if (p.color == "bool")
+            s->tokens[p.name] = "1`False";
     }
     return 0;
 }
@@ -536,7 +540,8 @@ inline void checkExpInVar(const string &e_) {
 // 判断是否为二元操作, +-*/
 inline bool isBinaryOp(const string &e_) {
     if (e_.find('+') != string::npos || e_.find('-') != string::npos 
-        || e_.find('*') != string::npos || e_.find('/') != string::npos)
+        || e_.find('*') != string::npos || e_.find('/') != string::npos
+        || e_.find('>') != string::npos || e_.find('<') != string::npos)
         return true;
     return false;
 }
@@ -545,22 +550,30 @@ inline bool isBinaryOp(const string &e_) {
 inline void calcExp_Bin(MultiSet &ms, const string &exp) {
     /* 目前二元运算只接受 ‘+’ ‘-’ ‘*’ ‘/’ 这四种，【也仅针对数值】 */
     int i = 0;
-    while (exp[i] != '+' && exp[i] != '-' && exp[i] != '*' && exp[i] != '/')
+    while (exp[i] != '+' && exp[i] != '-' && exp[i] != '*' && exp[i] != '/'
+            && exp[i] != '<'&& exp[i] != '>' && exp[i] != '&'&& exp[i] != '|')
         i++;
-    char op = exp[i];
+    string op;
+    op += exp[i];
+    if (exp[i+1]=='='||exp[i+1]=='&'|| exp[i+1]=='|')
+        op += exp[i + 1];
 
     string opL = exp.substr(0, i);  // 左操作数
     string opR = exp.substr(i + 1); // 右操作数
     int opL_i = atoi(var_NextState[opL].c_str()), opR_i = atoi(var_NextState[opR].c_str());
     string res;
-    if (op == '+')
+    if (op == "+")
         res = to_string(opL_i + opR_i);
-    else if (op == '-')
+    else if (op == "-")
         res = to_string(opL_i - opR_i);
-    else if (op == '*')
+    else if (op == "*")
         res = to_string(opL_i * opR_i);
-    else if (op == '/')
+    else if (op == "/")
         res = to_string(opL_i / opR_i);
+    else if (op == "<")
+        res = opL_i < opR_i ? "True" : "False";
+    else if (op == ">")
+        res = opL_i > opR_i ? "True" : "False";
 
     ms.add(res);
 }
@@ -588,6 +601,11 @@ int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string&
     }
     if (isBinaryOp(exp)) {                          // 二元运算，根据绑定进行运算
         calcExp_Bin(ms, exp);
+        all_ = ms.str();
+        return 0;
+    }
+    if (exp == "True" || exp == "False") {
+        ms.add(exp);
         all_ = ms.str();
         return 0;
     }

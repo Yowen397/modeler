@@ -348,6 +348,9 @@ Place &CPN::getPlaceByIdentifier(const string &id_) {
     size_t pos;
     // 从所有库所中查找，先查找函数内作用域的(排除全局变量)
     for (auto &p : places) {
+        // 先排除本函数以外的
+        if (p.name.find(inFunction + '.') == string::npos)
+            continue;
         // 排除控制库所
         if (p.name.find(".c.") != string::npos)
             continue;
@@ -355,15 +358,17 @@ Place &CPN::getPlaceByIdentifier(const string &id_) {
         if (p.name.find("global.") != string::npos)
             continue;
         // 变量名匹配
-        if ((pos = p.name.find(id_)) != string::npos &&
+        if ((pos = p.name.rfind(id_)) != string::npos &&
             pos + id_.size() == p.name.size() && p.name[pos - 1] == '.')
             return p;
     }
     // 全局变量
     for (auto &p : places) {
+        if (p.name.find("global.") == string::npos)
+            continue;
         if (p.name.find(".c.") != string::npos)
             continue;
-        if ((pos = p.name.find(id_)) != string::npos &&
+        if ((pos = p.name.rfind(id_)) != string::npos &&
             pos + id_.size() == p.name.size() && p.name[pos - 1] == '.')
             return p;
     }
@@ -902,47 +907,39 @@ int CPN::po_FunctionCall(const Value *node) {
     string call_name = id_stk.top();
     id_stk.pop();
     this->preBuildFun(call_name);                           // 预购建函数
-    string t_call_name = getTransitionByMatch(call_name + ".f").name;
-
-    // if (this->revert_call) {
-    //     newArc(lastPlace, t_call_name, "p2t");
-    //     this->revert_call = false;
-    //     return 0;
-    // }
 
     // 至此，需要调用的函数已经存在CPN模型
     // 首先构建控制流，先构造function call的模板，再嵌入函数调用
-    string t_fcall_name = newTransition("FunctionCallA", attr_id->value.GetInt()).name;
-    newArc(p_before_name, lastTransition, "p2t", "1`()");            
-    string p_block_name = newPlace("FunctionCallB", true).name;
-    string p_call_name = newPlace("FunctionCallC", true).name;  // 两条arc分开
-    newArc(lastTransition, p_block_name, "t2p", "1`()");
-    newArc(lastTransition, p_call_name, "t2p", "1`()");
-    newTransition("FunctionCall", attr_id->value.GetInt(), true);
-    newArc(p_block_name, lastTransition, "p2t", "1`()");
-    newPlace("FunctionCall", true);                 // lastPlace
-    newArc(lastTransition, lastPlace, "t2p", "1`()");
+    string t_pass_name = newTransition("FCpassPara", attr_id->value.GetInt()).name;
+    newArc(p_before_name, t_pass_name, "p2t", "1`()");            
+    string p_block_name = newPlace("FCBlock", true).name;   // 阻塞
+    newArc(t_pass_name, p_block_name, "t2p", "1`()");
+    string t_fc_name = newTransition("FunctionCall", 
+                    attr_id->value.GetInt(), true).name;    // 控制流收束
+    newArc(p_block_name, t_fc_name, "p2t", "1`()");
+    string p_fc_name = newPlace("FunctionCall", true).name; // 语句出口库所
+    newArc(t_fc_name, p_fc_name, "t2p", "1`()");
 
-    newArc(p_call_name, t_call_name, "p2t", "1`()");
+    string p_in_name = getPlaceByMatch(call_name + ".in.c.").name;
+    newArc(t_pass_name, p_in_name, "t2p", "1`()");
     string p_out_name = getPlaceByMatch(call_name + ".out.c.").name;
     newArc(p_out_name, lastTransition, "p2t", "1`()");
 
 
-    // 数据流的读取变量按x1,x2,x3，写入变量按y1,y2,y3，消耗原有的变量按z1,z2,z3
-    int p_cnt = 1;
+    // 数据流的读取变量按x1,x2,x3，消耗原有的变量按z1,z2,z3
     // 数据流，入参和返回
     SC_FUN &f = getFun(call_name);
     int i = 0;
     while (!id_stk.empty() && i < f.param.size()) {
         // 读取操作
         string pname = getPlaceByIdentifier(id_stk.top()).name;
-        newArc(pname, t_fcall_name, "p2t", "x" + to_string(p_cnt));
-        newArc(t_fcall_name, pname, "t2p", "x" + to_string(p_cnt));
+        newArc(pname, t_pass_name, "p2t", "x" + to_string(i + 1));
+        newArc(t_pass_name, pname, "t2p", "x" + to_string(i + 1));
 
         // 赋值给参数place
         pname = getPlaceByMatch(call_name + ".param." + f.param[i].name).name;
-        newArc(t_fcall_name, pname, "t2p", "y" + to_string(p_cnt));
-        newArc(pname, t_fcall_name, "p2t", "z" + to_string(p_cnt));
+        newArc(t_pass_name, pname, "t2p", "x" + to_string(i + 1));
+        newArc(pname, t_pass_name, "p2t", "z" + to_string(i + 1));
         id_stk.pop();
         i++;
     }
@@ -1401,24 +1398,23 @@ int CPN::preBuildFun(const string &f_name) {
 */
 int CPN::fun_buildRequire() {
     // 构造一个require函数的模型
-    newTransition("require.f", 0, true, true);
     Place &p_in = newPlace("require.in", true);
-    newArc(lastTransition, lastPlace, "t2p", "1`()");                       // 连接入口t和入口p
-    Place &p_arg = newPlace("require.param.condition", false);      // 条件参数
+    string p_arg_name = newPlace("require.param.condition", false).name;    // 条件参数
+    getPlaceByMatch(p_arg_name).color = "bool";
 
     // 错误出口，直接控制流锁死
     newTransition("requireF", 0, true, false);
     newArc(p_in.name, lastTransition, "p2t", "1`()");
-    newArc(p_arg.name, lastTransition, "p2t", "x");
-    newArc(lastTransition, p_arg.name, "t2p", "x");
+    newArc(p_arg_name, lastTransition, "p2t", "False");
+    newArc(lastTransition, p_arg_name, "t2p", "False");
     newPlace("requireF", true);                                     // 错误控制流终点
     newArc(lastTransition, lastPlace, "t2p", "1`()");
 
     // 正确出口
     newTransition("requireT", 0, true, false);
     newArc(p_in.name, lastTransition, "p2t", "1`()");
-    newArc(p_arg.name, lastTransition, "p2t", "x");
-    newArc(lastTransition, p_arg.name, "t2p", "x");
+    newArc(p_arg_name, lastTransition, "p2t", "True");
+    newArc(lastTransition, p_arg_name, "t2p", "True");
     newPlace("require.out", true);
     newArc(lastTransition, lastPlace, "t2p", "1`()");
     // 构建完成之后，lastPlace就是出口库所
@@ -1426,6 +1422,7 @@ int CPN::fun_buildRequire() {
     // 登记funs和参数信息
     funs.emplace_back();
     funs.back().name = "require";
+    funs.back().type = SC_FUN::TYPE::internal;
     funs.back().param.emplace_back();
     funs.back().param.back().name = "condition";
     funs.back().param.back().type = "bool";
@@ -1503,6 +1500,8 @@ int CPN::build_User() {
 
     // 每个函数最后的控制流，要回流到初始控制流
     for (auto fun: funs) {
+        if (fun.type == SC_FUN::internal)
+            continue;
         Transition &t_end = newTransition(fun.name + ".end", 0, true, false);
         string p_out = getPlaceByMatch(fun.name+".out.c").name;
         newArc(p_out, lastTransition, "p2t", "1`()");
@@ -1512,6 +1511,8 @@ int CPN::build_User() {
 
     // 开始部分
     for (auto fun: funs) {
+        if (fun.type == SC_FUN::internal)
+            continue;
         Transition &t_call = newTransition(fun.name + ".call", 0, true, false);
         newArc(p_init.name, t_call.name, "p2t", "1`()");
         string p_in = getPlaceByMatch(fun.name + ".in.c").name;

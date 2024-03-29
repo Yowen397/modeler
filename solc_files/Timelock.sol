@@ -18,11 +18,11 @@ contract Timelock {
     /*
       @require Requires the unlock time have not been set and msg.sender to be equal to contract owner
     */
-    function unlock() public {
+    function unlock(uint256 timestamp) public {
 
         require(msg.sender == owner);
         require(unlockTime == 0);
-        unlockTime = block.timestamp + oneWeek;
+        unlockTime = timestamp + oneWeek;
 
     }
 
@@ -31,11 +31,11 @@ contract Timelock {
       @param token The ERC20 token contract being transfered out of the contract
       @param amount The amount of said ERC20 token
     */
-    function withdraw(uint256 amount) public {
+    function withdraw(uint256 amount, uint256 timestamp) public {
 
         require(msg.sender == owner);
         require(unlockTime != 0);
-        require(unlockTime <= block.timestamp);
+        require(unlockTime <= timestamp);
         payable(owner).transfer(amount);
         // IERC20(token).transfer(msg.sender, amount);
 
