@@ -8,7 +8,7 @@
 #include "common.h"
 
 const bool print_AST = false;
-bool debug = true;
+bool debug = false;
 std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
@@ -102,7 +102,9 @@ void test_SafeMath(StateSpace &sp) {
     // 初始状态
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
     s->tokens[sp.cpn->getPlaceByMatch("add.pcall").name] = "1`(23,29,)";
-    // s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(10,7,)";
+    s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(10,7,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("add.pcall").name] = "1`(23,29,)++4`(1,5,)++10`(7,123,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(7,10,)++10`(3,2,)++7`(56,55,)";
 
     init_DataPlace(sp.cpn, s);
     std::cout << s->getStr() << std::endl;

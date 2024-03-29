@@ -5,7 +5,7 @@ contract SafeMath {
     function add(uint256 a, uint256 b) public {
         result = a+b;
         require(result>a);
-        // require(result>b);
+        require(result>b);
     }
     function sub(uint256 a, uint256 b) public {
         require(a>b);
