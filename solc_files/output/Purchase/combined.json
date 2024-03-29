@@ -11,10 +11,10 @@
                 "absolutePath": "Purchase.sol",
                 "exportedSymbols": {
                     "Purchase": [
-                        163
+                        134
                     ]
                 },
-                "id": 164,
+                "id": 135,
                 "license": "GPL-3.0",
                 "nodeType": "SourceUnit",
                 "nodes": [
@@ -36,9 +36,9 @@
                         "contractDependencies": [],
                         "contractKind": "contract",
                         "fullyImplemented": true,
-                        "id": 163,
+                        "id": 134,
                         "linearizedBaseContracts": [
-                            163
+                            134
                         ],
                         "name": "Purchase",
                         "nameLocation": "69:8:0",
@@ -52,7 +52,7 @@
                                 "name": "value",
                                 "nameLocation": "96:5:0",
                                 "nodeType": "VariableDeclaration",
-                                "scope": 163,
+                                "scope": 134,
                                 "src": "84:17:0",
                                 "stateVariable": true,
                                 "storageLocation": "default",
@@ -80,7 +80,7 @@
                                 "name": "seller",
                                 "nameLocation": "130:6:0",
                                 "nodeType": "VariableDeclaration",
-                                "scope": 163,
+                                "scope": 134,
                                 "src": "107:29:0",
                                 "stateVariable": true,
                                 "storageLocation": "default",
@@ -109,7 +109,7 @@
                                 "name": "buyer",
                                 "nameLocation": "165:5:0",
                                 "nodeType": "VariableDeclaration",
-                                "scope": 163,
+                                "scope": 134,
                                 "src": "142:28:0",
                                 "stateVariable": true,
                                 "storageLocation": "default",
@@ -138,7 +138,7 @@
                                 "name": "state",
                                 "nameLocation": "403:5:0",
                                 "nodeType": "VariableDeclaration",
-                                "scope": 163,
+                                "scope": 134,
                                 "src": "391:21:0",
                                 "stateVariable": true,
                                 "storageLocation": "default",
@@ -176,390 +176,9 @@
                             },
                             {
                                 "body": {
-                                    "id": 38,
+                                    "id": 41,
                                     "nodeType": "Block",
-                                    "src": "1496:119:0",
-                                    "statements": [
-                                        {
-                                            "expression": {
-                                                "id": 19,
-                                                "isConstant": false,
-                                                "isLValue": false,
-                                                "isPure": false,
-                                                "lValueRequested": false,
-                                                "leftHandSide": {
-                                                    "id": 13,
-                                                    "name": "seller",
-                                                    "nodeType": "Identifier",
-                                                    "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 5,
-                                                    "src": "1506:6:0",
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_address_payable",
-                                                        "typeString": "address payable"
-                                                    }
-                                                },
-                                                "nodeType": "Assignment",
-                                                "operator": "=",
-                                                "rightHandSide": {
-                                                    "arguments": [
-                                                        {
-                                                            "expression": {
-                                                                "id": 16,
-                                                                "name": "msg",
-                                                                "nodeType": "Identifier",
-                                                                "overloadedDeclarations": [],
-                                                                "referencedDeclaration": -15,
-                                                                "src": "1523:3:0",
-                                                                "typeDescriptions": {
-                                                                    "typeIdentifier": "t_magic_message",
-                                                                    "typeString": "msg"
-                                                                }
-                                                            },
-                                                            "id": 17,
-                                                            "isConstant": false,
-                                                            "isLValue": false,
-                                                            "isPure": false,
-                                                            "lValueRequested": false,
-                                                            "memberLocation": "1527:6:0",
-                                                            "memberName": "sender",
-                                                            "nodeType": "MemberAccess",
-                                                            "src": "1523:10:0",
-                                                            "typeDescriptions": {
-                                                                "typeIdentifier": "t_address",
-                                                                "typeString": "address"
-                                                            }
-                                                        }
-                                                    ],
-                                                    "expression": {
-                                                        "argumentTypes": [
-                                                            {
-                                                                "typeIdentifier": "t_address",
-                                                                "typeString": "address"
-                                                            }
-                                                        ],
-                                                        "id": 15,
-                                                        "isConstant": false,
-                                                        "isLValue": false,
-                                                        "isPure": true,
-                                                        "lValueRequested": false,
-                                                        "nodeType": "ElementaryTypeNameExpression",
-                                                        "src": "1515:8:0",
-                                                        "typeDescriptions": {
-                                                            "typeIdentifier": "t_type$_t_address_payable_$",
-                                                            "typeString": "type(address payable)"
-                                                        },
-                                                        "typeName": {
-                                                            "id": 14,
-                                                            "name": "address",
-                                                            "nodeType": "ElementaryTypeName",
-                                                            "src": "1515:8:0",
-                                                            "stateMutability": "payable",
-                                                            "typeDescriptions": {}
-                                                        }
-                                                    },
-                                                    "id": 18,
-                                                    "isConstant": false,
-                                                    "isLValue": false,
-                                                    "isPure": false,
-                                                    "kind": "typeConversion",
-                                                    "lValueRequested": false,
-                                                    "nameLocations": [],
-                                                    "names": [],
-                                                    "nodeType": "FunctionCall",
-                                                    "src": "1515:19:0",
-                                                    "tryCall": false,
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_address_payable",
-                                                        "typeString": "address payable"
-                                                    }
-                                                },
-                                                "src": "1506:28:0",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_address_payable",
-                                                    "typeString": "address payable"
-                                                }
-                                            },
-                                            "id": 20,
-                                            "nodeType": "ExpressionStatement",
-                                            "src": "1506:28:0"
-                                        },
-                                        {
-                                            "expression": {
-                                                "id": 26,
-                                                "isConstant": false,
-                                                "isLValue": false,
-                                                "isPure": false,
-                                                "lValueRequested": false,
-                                                "leftHandSide": {
-                                                    "id": 21,
-                                                    "name": "value",
-                                                    "nodeType": "Identifier",
-                                                    "overloadedDeclarations": [],
-                                                    "referencedDeclaration": 3,
-                                                    "src": "1544:5:0",
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_uint256",
-                                                        "typeString": "uint256"
-                                                    }
-                                                },
-                                                "nodeType": "Assignment",
-                                                "operator": "=",
-                                                "rightHandSide": {
-                                                    "commonType": {
-                                                        "typeIdentifier": "t_uint256",
-                                                        "typeString": "uint256"
-                                                    },
-                                                    "id": 25,
-                                                    "isConstant": false,
-                                                    "isLValue": false,
-                                                    "isPure": false,
-                                                    "lValueRequested": false,
-                                                    "leftExpression": {
-                                                        "expression": {
-                                                            "id": 22,
-                                                            "name": "msg",
-                                                            "nodeType": "Identifier",
-                                                            "overloadedDeclarations": [],
-                                                            "referencedDeclaration": -15,
-                                                            "src": "1552:3:0",
-                                                            "typeDescriptions": {
-                                                                "typeIdentifier": "t_magic_message",
-                                                                "typeString": "msg"
-                                                            }
-                                                        },
-                                                        "id": 23,
-                                                        "isConstant": false,
-                                                        "isLValue": false,
-                                                        "isPure": false,
-                                                        "lValueRequested": false,
-                                                        "memberLocation": "1556:5:0",
-                                                        "memberName": "value",
-                                                        "nodeType": "MemberAccess",
-                                                        "src": "1552:9:0",
-                                                        "typeDescriptions": {
-                                                            "typeIdentifier": "t_uint256",
-                                                            "typeString": "uint256"
-                                                        }
-                                                    },
-                                                    "nodeType": "BinaryOperation",
-                                                    "operator": "/",
-                                                    "rightExpression": {
-                                                        "hexValue": "32",
-                                                        "id": 24,
-                                                        "isConstant": false,
-                                                        "isLValue": false,
-                                                        "isPure": true,
-                                                        "kind": "number",
-                                                        "lValueRequested": false,
-                                                        "nodeType": "Literal",
-                                                        "src": "1564:1:0",
-                                                        "typeDescriptions": {
-                                                            "typeIdentifier": "t_rational_2_by_1",
-                                                            "typeString": "int_const 2"
-                                                        },
-                                                        "value": "2"
-                                                    },
-                                                    "src": "1552:13:0",
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_uint256",
-                                                        "typeString": "uint256"
-                                                    }
-                                                },
-                                                "src": "1544:21:0",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "id": 27,
-                                            "nodeType": "ExpressionStatement",
-                                            "src": "1544:21:0"
-                                        },
-                                        {
-                                            "expression": {
-                                                "arguments": [
-                                                    {
-                                                        "commonType": {
-                                                            "typeIdentifier": "t_uint256",
-                                                            "typeString": "uint256"
-                                                        },
-                                                        "id": 35,
-                                                        "isConstant": false,
-                                                        "isLValue": false,
-                                                        "isPure": false,
-                                                        "lValueRequested": false,
-                                                        "leftExpression": {
-                                                            "components": [
-                                                                {
-                                                                    "commonType": {
-                                                                        "typeIdentifier": "t_uint256",
-                                                                        "typeString": "uint256"
-                                                                    },
-                                                                    "id": 31,
-                                                                    "isConstant": false,
-                                                                    "isLValue": false,
-                                                                    "isPure": false,
-                                                                    "lValueRequested": false,
-                                                                    "leftExpression": {
-                                                                        "hexValue": "32",
-                                                                        "id": 29,
-                                                                        "isConstant": false,
-                                                                        "isLValue": false,
-                                                                        "isPure": true,
-                                                                        "kind": "number",
-                                                                        "lValueRequested": false,
-                                                                        "nodeType": "Literal",
-                                                                        "src": "1584:1:0",
-                                                                        "typeDescriptions": {
-                                                                            "typeIdentifier": "t_rational_2_by_1",
-                                                                            "typeString": "int_const 2"
-                                                                        },
-                                                                        "value": "2"
-                                                                    },
-                                                                    "nodeType": "BinaryOperation",
-                                                                    "operator": "*",
-                                                                    "rightExpression": {
-                                                                        "id": 30,
-                                                                        "name": "value",
-                                                                        "nodeType": "Identifier",
-                                                                        "overloadedDeclarations": [],
-                                                                        "referencedDeclaration": 3,
-                                                                        "src": "1588:5:0",
-                                                                        "typeDescriptions": {
-                                                                            "typeIdentifier": "t_uint256",
-                                                                            "typeString": "uint256"
-                                                                        }
-                                                                    },
-                                                                    "src": "1584:9:0",
-                                                                    "typeDescriptions": {
-                                                                        "typeIdentifier": "t_uint256",
-                                                                        "typeString": "uint256"
-                                                                    }
-                                                                }
-                                                            ],
-                                                            "id": 32,
-                                                            "isConstant": false,
-                                                            "isInlineArray": false,
-                                                            "isLValue": false,
-                                                            "isPure": false,
-                                                            "lValueRequested": false,
-                                                            "nodeType": "TupleExpression",
-                                                            "src": "1583:11:0",
-                                                            "typeDescriptions": {
-                                                                "typeIdentifier": "t_uint256",
-                                                                "typeString": "uint256"
-                                                            }
-                                                        },
-                                                        "nodeType": "BinaryOperation",
-                                                        "operator": "==",
-                                                        "rightExpression": {
-                                                            "expression": {
-                                                                "id": 33,
-                                                                "name": "msg",
-                                                                "nodeType": "Identifier",
-                                                                "overloadedDeclarations": [],
-                                                                "referencedDeclaration": -15,
-                                                                "src": "1598:3:0",
-                                                                "typeDescriptions": {
-                                                                    "typeIdentifier": "t_magic_message",
-                                                                    "typeString": "msg"
-                                                                }
-                                                            },
-                                                            "id": 34,
-                                                            "isConstant": false,
-                                                            "isLValue": false,
-                                                            "isPure": false,
-                                                            "lValueRequested": false,
-                                                            "memberLocation": "1602:5:0",
-                                                            "memberName": "value",
-                                                            "nodeType": "MemberAccess",
-                                                            "src": "1598:9:0",
-                                                            "typeDescriptions": {
-                                                                "typeIdentifier": "t_uint256",
-                                                                "typeString": "uint256"
-                                                            }
-                                                        },
-                                                        "src": "1583:24:0",
-                                                        "typeDescriptions": {
-                                                            "typeIdentifier": "t_bool",
-                                                            "typeString": "bool"
-                                                        }
-                                                    }
-                                                ],
-                                                "expression": {
-                                                    "argumentTypes": [
-                                                        {
-                                                            "typeIdentifier": "t_bool",
-                                                            "typeString": "bool"
-                                                        }
-                                                    ],
-                                                    "id": 28,
-                                                    "name": "require",
-                                                    "nodeType": "Identifier",
-                                                    "overloadedDeclarations": [
-                                                        -18,
-                                                        -18
-                                                    ],
-                                                    "referencedDeclaration": -18,
-                                                    "src": "1575:7:0",
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
-                                                        "typeString": "function (bool) pure"
-                                                    }
-                                                },
-                                                "id": 36,
-                                                "isConstant": false,
-                                                "isLValue": false,
-                                                "isPure": false,
-                                                "kind": "functionCall",
-                                                "lValueRequested": false,
-                                                "nameLocations": [],
-                                                "names": [],
-                                                "nodeType": "FunctionCall",
-                                                "src": "1575:33:0",
-                                                "tryCall": false,
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_tuple$__$",
-                                                    "typeString": "tuple()"
-                                                }
-                                            },
-                                            "id": 37,
-                                            "nodeType": "ExpressionStatement",
-                                            "src": "1575:33:0"
-                                        }
-                                    ]
-                                },
-                                "id": 39,
-                                "implemented": true,
-                                "kind": "constructor",
-                                "modifiers": [],
-                                "name": "",
-                                "nameLocation": "-1:-1:-1",
-                                "nodeType": "FunctionDefinition",
-                                "parameters": {
-                                    "id": 11,
-                                    "nodeType": "ParameterList",
-                                    "parameters": [],
-                                    "src": "1485:2:0"
-                                },
-                                "returnParameters": {
-                                    "id": 12,
-                                    "nodeType": "ParameterList",
-                                    "parameters": [],
-                                    "src": "1496:0:0"
-                                },
-                                "scope": 163,
-                                "src": "1474:141:0",
-                                "stateMutability": "payable",
-                                "virtual": false,
-                                "visibility": "public"
-                            },
-                            {
-                                "body": {
-                                    "id": 70,
-                                    "nodeType": "Block",
-                                    "src": "1744:346:0",
+                                    "src": "1759:346:0",
                                     "statements": [
                                         {
                                             "expression": {
@@ -569,33 +188,33 @@
                                                             "typeIdentifier": "t_address",
                                                             "typeString": "address"
                                                         },
-                                                        "id": 47,
+                                                        "id": 18,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
                                                             "expression": {
-                                                                "id": 44,
+                                                                "id": 15,
                                                                 "name": "msg",
                                                                 "nodeType": "Identifier",
                                                                 "overloadedDeclarations": [],
                                                                 "referencedDeclaration": -15,
-                                                                "src": "1762:3:0",
+                                                                "src": "1777:3:0",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_magic_message",
                                                                     "typeString": "msg"
                                                                 }
                                                             },
-                                                            "id": 45,
+                                                            "id": 16,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": false,
                                                             "lValueRequested": false,
-                                                            "memberLocation": "1766:6:0",
+                                                            "memberLocation": "1781:6:0",
                                                             "memberName": "sender",
                                                             "nodeType": "MemberAccess",
-                                                            "src": "1762:10:0",
+                                                            "src": "1777:10:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address",
                                                                 "typeString": "address"
@@ -604,18 +223,18 @@
                                                         "nodeType": "BinaryOperation",
                                                         "operator": "==",
                                                         "rightExpression": {
-                                                            "id": 46,
+                                                            "id": 17,
                                                             "name": "seller",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 5,
-                                                            "src": "1776:6:0",
+                                                            "src": "1791:6:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address_payable",
                                                                 "typeString": "address payable"
                                                             }
                                                         },
-                                                        "src": "1762:20:0",
+                                                        "src": "1777:20:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -629,7 +248,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 43,
+                                                    "id": 14,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -637,13 +256,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "1754:7:0",
+                                                    "src": "1769:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 48,
+                                                "id": 19,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -652,16 +271,16 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "1754:29:0",
+                                                "src": "1769:29:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 49,
+                                            "id": 20,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "1754:29:0"
+                                            "src": "1769:29:0"
                                         },
                                         {
                                             "expression": {
@@ -671,18 +290,18 @@
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
                                                         },
-                                                        "id": 53,
+                                                        "id": 24,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
-                                                            "id": 51,
+                                                            "id": 22,
                                                             "name": "state",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 10,
-                                                            "src": "1801:5:0",
+                                                            "src": "1816:5:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
@@ -692,21 +311,21 @@
                                                         "operator": "==",
                                                         "rightExpression": {
                                                             "hexValue": "30",
-                                                            "id": 52,
+                                                            "id": 23,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": true,
                                                             "kind": "number",
                                                             "lValueRequested": false,
                                                             "nodeType": "Literal",
-                                                            "src": "1810:1:0",
+                                                            "src": "1825:1:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_rational_0_by_1",
                                                                 "typeString": "int_const 0"
                                                             },
                                                             "value": "0"
                                                         },
-                                                        "src": "1801:10:0",
+                                                        "src": "1816:10:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -720,7 +339,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 50,
+                                                    "id": 21,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -728,13 +347,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "1793:7:0",
+                                                    "src": "1808:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 54,
+                                                "id": 25,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -743,31 +362,31 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "1793:19:0",
+                                                "src": "1808:19:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 55,
+                                            "id": 26,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "1793:19:0"
+                                            "src": "1808:19:0"
                                         },
                                         {
                                             "expression": {
-                                                "id": 58,
+                                                "id": 29,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
                                                 "lValueRequested": false,
                                                 "leftHandSide": {
-                                                    "id": 56,
+                                                    "id": 27,
                                                     "name": "state",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
                                                     "referencedDeclaration": 10,
-                                                    "src": "1823:5:0",
+                                                    "src": "1838:5:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_uint256",
                                                         "typeString": "uint256"
@@ -777,29 +396,29 @@
                                                 "operator": "=",
                                                 "rightHandSide": {
                                                     "hexValue": "33",
-                                                    "id": 57,
+                                                    "id": 28,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": true,
                                                     "kind": "number",
                                                     "lValueRequested": false,
                                                     "nodeType": "Literal",
-                                                    "src": "1831:1:0",
+                                                    "src": "1846:1:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_rational_3_by_1",
                                                         "typeString": "int_const 3"
                                                     },
                                                     "value": "3"
                                                 },
-                                                "src": "1823:9:0",
+                                                "src": "1838:9:0",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
                                                     "typeString": "uint256"
                                                 }
                                             },
-                                            "id": 59,
+                                            "id": 30,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "1823:9:0"
+                                            "src": "1838:9:0"
                                         },
                                         {
                                             "expression": {
@@ -808,14 +427,14 @@
                                                         "expression": {
                                                             "arguments": [
                                                                 {
-                                                                    "id": 65,
+                                                                    "id": 36,
                                                                     "name": "this",
                                                                     "nodeType": "Identifier",
                                                                     "overloadedDeclarations": [],
                                                                     "referencedDeclaration": -28,
-                                                                    "src": "2069:4:0",
+                                                                    "src": "2084:4:0",
                                                                     "typeDescriptions": {
-                                                                        "typeIdentifier": "t_contract$_Purchase_$163",
+                                                                        "typeIdentifier": "t_contract$_Purchase_$134",
                                                                         "typeString": "contract Purchase"
                                                                     }
                                                                 }
@@ -823,30 +442,30 @@
                                                             "expression": {
                                                                 "argumentTypes": [
                                                                     {
-                                                                        "typeIdentifier": "t_contract$_Purchase_$163",
+                                                                        "typeIdentifier": "t_contract$_Purchase_$134",
                                                                         "typeString": "contract Purchase"
                                                                     }
                                                                 ],
-                                                                "id": 64,
+                                                                "id": 35,
                                                                 "isConstant": false,
                                                                 "isLValue": false,
                                                                 "isPure": true,
                                                                 "lValueRequested": false,
                                                                 "nodeType": "ElementaryTypeNameExpression",
-                                                                "src": "2061:7:0",
+                                                                "src": "2076:7:0",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_type$_t_address_$",
                                                                     "typeString": "type(address)"
                                                                 },
                                                                 "typeName": {
-                                                                    "id": 63,
+                                                                    "id": 34,
                                                                     "name": "address",
                                                                     "nodeType": "ElementaryTypeName",
-                                                                    "src": "2061:7:0",
+                                                                    "src": "2076:7:0",
                                                                     "typeDescriptions": {}
                                                                 }
                                                             },
-                                                            "id": 66,
+                                                            "id": 37,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": false,
@@ -855,22 +474,22 @@
                                                             "nameLocations": [],
                                                             "names": [],
                                                             "nodeType": "FunctionCall",
-                                                            "src": "2061:13:0",
+                                                            "src": "2076:13:0",
                                                             "tryCall": false,
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address",
                                                                 "typeString": "address"
                                                             }
                                                         },
-                                                        "id": 67,
+                                                        "id": 38,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
-                                                        "memberLocation": "2075:7:0",
+                                                        "memberLocation": "2090:7:0",
                                                         "memberName": "balance",
                                                         "nodeType": "MemberAccess",
-                                                        "src": "2061:21:0",
+                                                        "src": "2076:21:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
@@ -885,32 +504,32 @@
                                                         }
                                                     ],
                                                     "expression": {
-                                                        "id": 60,
+                                                        "id": 31,
                                                         "name": "seller",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
                                                         "referencedDeclaration": 5,
-                                                        "src": "2045:6:0",
+                                                        "src": "2060:6:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_address_payable",
                                                             "typeString": "address payable"
                                                         }
                                                     },
-                                                    "id": 62,
+                                                    "id": 33,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": false,
                                                     "lValueRequested": false,
-                                                    "memberLocation": "2052:8:0",
+                                                    "memberLocation": "2067:8:0",
                                                     "memberName": "transfer",
                                                     "nodeType": "MemberAccess",
-                                                    "src": "2045:15:0",
+                                                    "src": "2060:15:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_transfer_nonpayable$_t_uint256_$returns$__$",
                                                         "typeString": "function (uint256)"
                                                     }
                                                 },
-                                                "id": 68,
+                                                "id": 39,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -919,56 +538,56 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2045:38:0",
+                                                "src": "2060:38:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 69,
+                                            "id": 40,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2045:38:0"
+                                            "src": "2060:38:0"
                                         }
                                     ]
                                 },
                                 "documentation": {
-                                    "id": 40,
+                                    "id": 11,
                                     "nodeType": "StructuredDocumentation",
-                                    "src": "1621:88:0",
+                                    "src": "1636:88:0",
                                     "text": "\u7ec8\u6b62\u8d2d\u4e70\u5e76\u6536\u56de ether\u3002\n \u53ea\u80fd\u7531\u5356\u65b9\u5728\u5408\u540c\u9501\u5b9a\u524d\u80fd\u8c03\u7528\u3002"
                                 },
                                 "functionSelector": "35a063b4",
-                                "id": 71,
+                                "id": 42,
                                 "implemented": true,
                                 "kind": "function",
                                 "modifiers": [],
                                 "name": "abort",
-                                "nameLocation": "1723:5:0",
+                                "nameLocation": "1738:5:0",
                                 "nodeType": "FunctionDefinition",
                                 "parameters": {
-                                    "id": 41,
+                                    "id": 12,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "1728:2:0"
+                                    "src": "1743:2:0"
                                 },
                                 "returnParameters": {
-                                    "id": 42,
+                                    "id": 13,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "1744:0:0"
+                                    "src": "1759:0:0"
                                 },
-                                "scope": 163,
-                                "src": "1714:376:0",
+                                "scope": 134,
+                                "src": "1729:376:0",
                                 "stateMutability": "nonpayable",
                                 "virtual": false,
                                 "visibility": "external"
                             },
                             {
                                 "body": {
-                                    "id": 103,
+                                    "id": 74,
                                     "nodeType": "Block",
-                                    "src": "2283:136:0",
+                                    "src": "2298:136:0",
                                     "statements": [
                                         {
                                             "expression": {
@@ -978,18 +597,18 @@
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
                                                         },
-                                                        "id": 78,
+                                                        "id": 49,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
-                                                            "id": 76,
+                                                            "id": 47,
                                                             "name": "state",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 10,
-                                                            "src": "2301:5:0",
+                                                            "src": "2316:5:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
@@ -999,21 +618,21 @@
                                                         "operator": "==",
                                                         "rightExpression": {
                                                             "hexValue": "30",
-                                                            "id": 77,
+                                                            "id": 48,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": true,
                                                             "kind": "number",
                                                             "lValueRequested": false,
                                                             "nodeType": "Literal",
-                                                            "src": "2310:1:0",
+                                                            "src": "2325:1:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_rational_0_by_1",
                                                                 "typeString": "int_const 0"
                                                             },
                                                             "value": "0"
                                                         },
-                                                        "src": "2301:10:0",
+                                                        "src": "2316:10:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -1027,7 +646,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 75,
+                                                    "id": 46,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -1035,13 +654,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "2293:7:0",
+                                                    "src": "2308:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 79,
+                                                "id": 50,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1050,16 +669,16 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2293:19:0",
+                                                "src": "2308:19:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 80,
+                                            "id": 51,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2293:19:0"
+                                            "src": "2308:19:0"
                                         },
                                         {
                                             "expression": {
@@ -1069,33 +688,33 @@
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
                                                         },
-                                                        "id": 88,
+                                                        "id": 59,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
                                                             "expression": {
-                                                                "id": 82,
+                                                                "id": 53,
                                                                 "name": "msg",
                                                                 "nodeType": "Identifier",
                                                                 "overloadedDeclarations": [],
                                                                 "referencedDeclaration": -15,
-                                                                "src": "2330:3:0",
+                                                                "src": "2345:3:0",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_magic_message",
                                                                     "typeString": "msg"
                                                                 }
                                                             },
-                                                            "id": 83,
+                                                            "id": 54,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": false,
                                                             "lValueRequested": false,
-                                                            "memberLocation": "2334:5:0",
+                                                            "memberLocation": "2349:5:0",
                                                             "memberName": "value",
                                                             "nodeType": "MemberAccess",
-                                                            "src": "2330:9:0",
+                                                            "src": "2345:9:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
@@ -1110,21 +729,21 @@
                                                                         "typeIdentifier": "t_uint256",
                                                                         "typeString": "uint256"
                                                                     },
-                                                                    "id": 86,
+                                                                    "id": 57,
                                                                     "isConstant": false,
                                                                     "isLValue": false,
                                                                     "isPure": false,
                                                                     "lValueRequested": false,
                                                                     "leftExpression": {
                                                                         "hexValue": "32",
-                                                                        "id": 84,
+                                                                        "id": 55,
                                                                         "isConstant": false,
                                                                         "isLValue": false,
                                                                         "isPure": true,
                                                                         "kind": "number",
                                                                         "lValueRequested": false,
                                                                         "nodeType": "Literal",
-                                                                        "src": "2344:1:0",
+                                                                        "src": "2359:1:0",
                                                                         "typeDescriptions": {
                                                                             "typeIdentifier": "t_rational_2_by_1",
                                                                             "typeString": "int_const 2"
@@ -1134,38 +753,38 @@
                                                                     "nodeType": "BinaryOperation",
                                                                     "operator": "*",
                                                                     "rightExpression": {
-                                                                        "id": 85,
+                                                                        "id": 56,
                                                                         "name": "value",
                                                                         "nodeType": "Identifier",
                                                                         "overloadedDeclarations": [],
                                                                         "referencedDeclaration": 3,
-                                                                        "src": "2348:5:0",
+                                                                        "src": "2363:5:0",
                                                                         "typeDescriptions": {
                                                                             "typeIdentifier": "t_uint256",
                                                                             "typeString": "uint256"
                                                                         }
                                                                     },
-                                                                    "src": "2344:9:0",
+                                                                    "src": "2359:9:0",
                                                                     "typeDescriptions": {
                                                                         "typeIdentifier": "t_uint256",
                                                                         "typeString": "uint256"
                                                                     }
                                                                 }
                                                             ],
-                                                            "id": 87,
+                                                            "id": 58,
                                                             "isConstant": false,
                                                             "isInlineArray": false,
                                                             "isLValue": false,
                                                             "isPure": false,
                                                             "lValueRequested": false,
                                                             "nodeType": "TupleExpression",
-                                                            "src": "2343:11:0",
+                                                            "src": "2358:11:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
                                                             }
                                                         },
-                                                        "src": "2330:24:0",
+                                                        "src": "2345:24:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -1179,7 +798,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 81,
+                                                    "id": 52,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -1187,13 +806,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "2322:7:0",
+                                                    "src": "2337:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 89,
+                                                "id": 60,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1202,31 +821,31 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2322:33:0",
+                                                "src": "2337:33:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 90,
+                                            "id": 61,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2322:33:0"
+                                            "src": "2337:33:0"
                                         },
                                         {
                                             "expression": {
-                                                "id": 97,
+                                                "id": 68,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
                                                 "lValueRequested": false,
                                                 "leftHandSide": {
-                                                    "id": 91,
+                                                    "id": 62,
                                                     "name": "buyer",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
                                                     "referencedDeclaration": 7,
-                                                    "src": "2366:5:0",
+                                                    "src": "2381:5:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_address_payable",
                                                         "typeString": "address payable"
@@ -1238,26 +857,26 @@
                                                     "arguments": [
                                                         {
                                                             "expression": {
-                                                                "id": 94,
+                                                                "id": 65,
                                                                 "name": "msg",
                                                                 "nodeType": "Identifier",
                                                                 "overloadedDeclarations": [],
                                                                 "referencedDeclaration": -15,
-                                                                "src": "2382:3:0",
+                                                                "src": "2397:3:0",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_magic_message",
                                                                     "typeString": "msg"
                                                                 }
                                                             },
-                                                            "id": 95,
+                                                            "id": 66,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": false,
                                                             "lValueRequested": false,
-                                                            "memberLocation": "2386:6:0",
+                                                            "memberLocation": "2401:6:0",
                                                             "memberName": "sender",
                                                             "nodeType": "MemberAccess",
-                                                            "src": "2382:10:0",
+                                                            "src": "2397:10:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address",
                                                                 "typeString": "address"
@@ -1271,27 +890,27 @@
                                                                 "typeString": "address"
                                                             }
                                                         ],
-                                                        "id": 93,
+                                                        "id": 64,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": true,
                                                         "lValueRequested": false,
                                                         "nodeType": "ElementaryTypeNameExpression",
-                                                        "src": "2374:8:0",
+                                                        "src": "2389:8:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_type$_t_address_payable_$",
                                                             "typeString": "type(address payable)"
                                                         },
                                                         "typeName": {
-                                                            "id": 92,
+                                                            "id": 63,
                                                             "name": "address",
                                                             "nodeType": "ElementaryTypeName",
-                                                            "src": "2374:8:0",
+                                                            "src": "2389:8:0",
                                                             "stateMutability": "payable",
                                                             "typeDescriptions": {}
                                                         }
                                                     },
-                                                    "id": 96,
+                                                    "id": 67,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": false,
@@ -1300,37 +919,37 @@
                                                     "nameLocations": [],
                                                     "names": [],
                                                     "nodeType": "FunctionCall",
-                                                    "src": "2374:19:0",
+                                                    "src": "2389:19:0",
                                                     "tryCall": false,
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_address_payable",
                                                         "typeString": "address payable"
                                                     }
                                                 },
-                                                "src": "2366:27:0",
+                                                "src": "2381:27:0",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_address_payable",
                                                     "typeString": "address payable"
                                                 }
                                             },
-                                            "id": 98,
+                                            "id": 69,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2366:27:0"
+                                            "src": "2381:27:0"
                                         },
                                         {
                                             "expression": {
-                                                "id": 101,
+                                                "id": 72,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
                                                 "lValueRequested": false,
                                                 "leftHandSide": {
-                                                    "id": 99,
+                                                    "id": 70,
                                                     "name": "state",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
                                                     "referencedDeclaration": 10,
-                                                    "src": "2403:5:0",
+                                                    "src": "2418:5:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_uint256",
                                                         "typeString": "uint256"
@@ -1340,69 +959,69 @@
                                                 "operator": "=",
                                                 "rightHandSide": {
                                                     "hexValue": "31",
-                                                    "id": 100,
+                                                    "id": 71,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": true,
                                                     "kind": "number",
                                                     "lValueRequested": false,
                                                     "nodeType": "Literal",
-                                                    "src": "2411:1:0",
+                                                    "src": "2426:1:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_rational_1_by_1",
                                                         "typeString": "int_const 1"
                                                     },
                                                     "value": "1"
                                                 },
-                                                "src": "2403:9:0",
+                                                "src": "2418:9:0",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
                                                     "typeString": "uint256"
                                                 }
                                             },
-                                            "id": 102,
+                                            "id": 73,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2403:9:0"
+                                            "src": "2418:9:0"
                                         }
                                     ]
                                 },
                                 "documentation": {
-                                    "id": 72,
+                                    "id": 43,
                                     "nodeType": "StructuredDocumentation",
-                                    "src": "2096:134:0",
+                                    "src": "2111:134:0",
                                     "text": "\u4e70\u65b9\u786e\u8ba4\u8d2d\u4e70\u3002\n \u4ea4\u6613\u5fc5\u987b\u5305\u62ec `2 * value` ether\u3002\n Ether \u5c06\u88ab\u9501\u4f4f\uff0c\u76f4\u5230\u8c03\u7528 confirmReceived\u3002"
                                 },
                                 "functionSelector": "d6960697",
-                                "id": 104,
+                                "id": 75,
                                 "implemented": true,
                                 "kind": "function",
                                 "modifiers": [],
                                 "name": "confirmPurchase",
-                                "nameLocation": "2244:15:0",
+                                "nameLocation": "2259:15:0",
                                 "nodeType": "FunctionDefinition",
                                 "parameters": {
-                                    "id": 73,
+                                    "id": 44,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "2259:2:0"
+                                    "src": "2274:2:0"
                                 },
                                 "returnParameters": {
-                                    "id": 74,
+                                    "id": 45,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "2283:0:0"
+                                    "src": "2298:0:0"
                                 },
-                                "scope": 163,
-                                "src": "2235:184:0",
+                                "scope": 134,
+                                "src": "2250:184:0",
                                 "stateMutability": "payable",
                                 "virtual": false,
                                 "visibility": "external"
                             },
                             {
                                 "body": {
-                                    "id": 131,
+                                    "id": 102,
                                     "nodeType": "Block",
-                                    "src": "2561:274:0",
+                                    "src": "2576:274:0",
                                     "statements": [
                                         {
                                             "expression": {
@@ -1412,33 +1031,33 @@
                                                             "typeIdentifier": "t_address",
                                                             "typeString": "address"
                                                         },
-                                                        "id": 112,
+                                                        "id": 83,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
                                                             "expression": {
-                                                                "id": 109,
+                                                                "id": 80,
                                                                 "name": "msg",
                                                                 "nodeType": "Identifier",
                                                                 "overloadedDeclarations": [],
                                                                 "referencedDeclaration": -15,
-                                                                "src": "2579:3:0",
+                                                                "src": "2594:3:0",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_magic_message",
                                                                     "typeString": "msg"
                                                                 }
                                                             },
-                                                            "id": 110,
+                                                            "id": 81,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": false,
                                                             "lValueRequested": false,
-                                                            "memberLocation": "2583:6:0",
+                                                            "memberLocation": "2598:6:0",
                                                             "memberName": "sender",
                                                             "nodeType": "MemberAccess",
-                                                            "src": "2579:10:0",
+                                                            "src": "2594:10:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address",
                                                                 "typeString": "address"
@@ -1447,18 +1066,18 @@
                                                         "nodeType": "BinaryOperation",
                                                         "operator": "==",
                                                         "rightExpression": {
-                                                            "id": 111,
+                                                            "id": 82,
                                                             "name": "buyer",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 7,
-                                                            "src": "2593:5:0",
+                                                            "src": "2608:5:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address_payable",
                                                                 "typeString": "address payable"
                                                             }
                                                         },
-                                                        "src": "2579:19:0",
+                                                        "src": "2594:19:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -1472,7 +1091,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 108,
+                                                    "id": 79,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -1480,13 +1099,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "2571:7:0",
+                                                    "src": "2586:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 113,
+                                                "id": 84,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1495,16 +1114,16 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2571:28:0",
+                                                "src": "2586:28:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 114,
+                                            "id": 85,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2571:28:0"
+                                            "src": "2586:28:0"
                                         },
                                         {
                                             "expression": {
@@ -1514,18 +1133,18 @@
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
                                                         },
-                                                        "id": 118,
+                                                        "id": 89,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
-                                                            "id": 116,
+                                                            "id": 87,
                                                             "name": "state",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 10,
-                                                            "src": "2617:5:0",
+                                                            "src": "2632:5:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
@@ -1535,21 +1154,21 @@
                                                         "operator": "==",
                                                         "rightExpression": {
                                                             "hexValue": "31",
-                                                            "id": 117,
+                                                            "id": 88,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": true,
                                                             "kind": "number",
                                                             "lValueRequested": false,
                                                             "nodeType": "Literal",
-                                                            "src": "2626:1:0",
+                                                            "src": "2641:1:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_rational_1_by_1",
                                                                 "typeString": "int_const 1"
                                                             },
                                                             "value": "1"
                                                         },
-                                                        "src": "2617:10:0",
+                                                        "src": "2632:10:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -1563,7 +1182,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 115,
+                                                    "id": 86,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -1571,13 +1190,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "2609:7:0",
+                                                    "src": "2624:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 119,
+                                                "id": 90,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1586,31 +1205,31 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2609:19:0",
+                                                "src": "2624:19:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 120,
+                                            "id": 91,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2609:19:0"
+                                            "src": "2624:19:0"
                                         },
                                         {
                                             "expression": {
-                                                "id": 123,
+                                                "id": 94,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
                                                 "lValueRequested": false,
                                                 "leftHandSide": {
-                                                    "id": 121,
+                                                    "id": 92,
                                                     "name": "state",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
                                                     "referencedDeclaration": 10,
-                                                    "src": "2787:5:0",
+                                                    "src": "2802:5:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_uint256",
                                                         "typeString": "uint256"
@@ -1620,40 +1239,40 @@
                                                 "operator": "=",
                                                 "rightHandSide": {
                                                     "hexValue": "32",
-                                                    "id": 122,
+                                                    "id": 93,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": true,
                                                     "kind": "number",
                                                     "lValueRequested": false,
                                                     "nodeType": "Literal",
-                                                    "src": "2795:1:0",
+                                                    "src": "2810:1:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_rational_2_by_1",
                                                         "typeString": "int_const 2"
                                                     },
                                                     "value": "2"
                                                 },
-                                                "src": "2787:9:0",
+                                                "src": "2802:9:0",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
                                                     "typeString": "uint256"
                                                 }
                                             },
-                                            "id": 124,
+                                            "id": 95,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2787:9:0"
+                                            "src": "2802:9:0"
                                         },
                                         {
                                             "expression": {
                                                 "arguments": [
                                                     {
-                                                        "id": 128,
+                                                        "id": 99,
                                                         "name": "value",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
                                                         "referencedDeclaration": 3,
-                                                        "src": "2822:5:0",
+                                                        "src": "2837:5:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
@@ -1668,32 +1287,32 @@
                                                         }
                                                     ],
                                                     "expression": {
-                                                        "id": 125,
+                                                        "id": 96,
                                                         "name": "buyer",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
                                                         "referencedDeclaration": 7,
-                                                        "src": "2807:5:0",
+                                                        "src": "2822:5:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_address_payable",
                                                             "typeString": "address payable"
                                                         }
                                                     },
-                                                    "id": 127,
+                                                    "id": 98,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": false,
                                                     "lValueRequested": false,
-                                                    "memberLocation": "2813:8:0",
+                                                    "memberLocation": "2828:8:0",
                                                     "memberName": "transfer",
                                                     "nodeType": "MemberAccess",
-                                                    "src": "2807:14:0",
+                                                    "src": "2822:14:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_transfer_nonpayable$_t_uint256_$returns$__$",
                                                         "typeString": "function (uint256)"
                                                     }
                                                 },
-                                                "id": 129,
+                                                "id": 100,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1702,56 +1321,56 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2807:21:0",
+                                                "src": "2822:21:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 130,
+                                            "id": 101,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2807:21:0"
+                                            "src": "2822:21:0"
                                         }
                                     ]
                                 },
                                 "documentation": {
-                                    "id": 105,
+                                    "id": 76,
                                     "nodeType": "StructuredDocumentation",
-                                    "src": "2425:91:0",
+                                    "src": "2440:91:0",
                                     "text": "\u786e\u8ba4\u60a8\uff08\u4e70\u65b9\uff09\u5df2\u7ecf\u6536\u5230\u4e86\u8be5\u7269\u54c1\u3002\n \u8fd9\u5c06\u91ca\u653e\u9501\u5b9a\u7684 ether\u3002"
                                 },
                                 "functionSelector": "73fac6f0",
-                                "id": 132,
+                                "id": 103,
                                 "implemented": true,
                                 "kind": "function",
                                 "modifiers": [],
                                 "name": "confirmReceived",
-                                "nameLocation": "2530:15:0",
+                                "nameLocation": "2545:15:0",
                                 "nodeType": "FunctionDefinition",
                                 "parameters": {
-                                    "id": 106,
+                                    "id": 77,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "2545:2:0"
+                                    "src": "2560:2:0"
                                 },
                                 "returnParameters": {
-                                    "id": 107,
+                                    "id": 78,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "2561:0:0"
+                                    "src": "2576:0:0"
                                 },
-                                "scope": 163,
-                                "src": "2521:314:0",
+                                "scope": 134,
+                                "src": "2536:314:0",
                                 "stateMutability": "nonpayable",
                                 "virtual": false,
                                 "visibility": "external"
                             },
                             {
                                 "body": {
-                                    "id": 161,
+                                    "id": 132,
                                     "nodeType": "Block",
-                                    "src": "2956:272:0",
+                                    "src": "2971:272:0",
                                     "statements": [
                                         {
                                             "expression": {
@@ -1761,33 +1380,33 @@
                                                             "typeIdentifier": "t_address",
                                                             "typeString": "address"
                                                         },
-                                                        "id": 140,
+                                                        "id": 111,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
                                                             "expression": {
-                                                                "id": 137,
+                                                                "id": 108,
                                                                 "name": "msg",
                                                                 "nodeType": "Identifier",
                                                                 "overloadedDeclarations": [],
                                                                 "referencedDeclaration": -15,
-                                                                "src": "2974:3:0",
+                                                                "src": "2989:3:0",
                                                                 "typeDescriptions": {
                                                                     "typeIdentifier": "t_magic_message",
                                                                     "typeString": "msg"
                                                                 }
                                                             },
-                                                            "id": 138,
+                                                            "id": 109,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": false,
                                                             "lValueRequested": false,
-                                                            "memberLocation": "2978:6:0",
+                                                            "memberLocation": "2993:6:0",
                                                             "memberName": "sender",
                                                             "nodeType": "MemberAccess",
-                                                            "src": "2974:10:0",
+                                                            "src": "2989:10:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address",
                                                                 "typeString": "address"
@@ -1796,18 +1415,18 @@
                                                         "nodeType": "BinaryOperation",
                                                         "operator": "==",
                                                         "rightExpression": {
-                                                            "id": 139,
+                                                            "id": 110,
                                                             "name": "seller",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 5,
-                                                            "src": "2988:6:0",
+                                                            "src": "3003:6:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_address_payable",
                                                                 "typeString": "address payable"
                                                             }
                                                         },
-                                                        "src": "2974:20:0",
+                                                        "src": "2989:20:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -1821,7 +1440,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 136,
+                                                    "id": 107,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -1829,13 +1448,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "2966:7:0",
+                                                    "src": "2981:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 141,
+                                                "id": 112,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1844,16 +1463,16 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "2966:29:0",
+                                                "src": "2981:29:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 142,
+                                            "id": 113,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "2966:29:0"
+                                            "src": "2981:29:0"
                                         },
                                         {
                                             "expression": {
@@ -1863,18 +1482,18 @@
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
                                                         },
-                                                        "id": 146,
+                                                        "id": 117,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
-                                                            "id": 144,
+                                                            "id": 115,
                                                             "name": "state",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 10,
-                                                            "src": "3013:5:0",
+                                                            "src": "3028:5:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
@@ -1884,21 +1503,21 @@
                                                         "operator": "==",
                                                         "rightExpression": {
                                                             "hexValue": "32",
-                                                            "id": 145,
+                                                            "id": 116,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": true,
                                                             "kind": "number",
                                                             "lValueRequested": false,
                                                             "nodeType": "Literal",
-                                                            "src": "3022:1:0",
+                                                            "src": "3037:1:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_rational_2_by_1",
                                                                 "typeString": "int_const 2"
                                                             },
                                                             "value": "2"
                                                         },
-                                                        "src": "3013:10:0",
+                                                        "src": "3028:10:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_bool",
                                                             "typeString": "bool"
@@ -1912,7 +1531,7 @@
                                                             "typeString": "bool"
                                                         }
                                                     ],
-                                                    "id": 143,
+                                                    "id": 114,
                                                     "name": "require",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [
@@ -1920,13 +1539,13 @@
                                                         -18
                                                     ],
                                                     "referencedDeclaration": -18,
-                                                    "src": "3005:7:0",
+                                                    "src": "3020:7:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                                                         "typeString": "function (bool) pure"
                                                     }
                                                 },
-                                                "id": 147,
+                                                "id": 118,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -1935,31 +1554,31 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "3005:19:0",
+                                                "src": "3020:19:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 148,
+                                            "id": 119,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "3005:19:0"
+                                            "src": "3020:19:0"
                                         },
                                         {
                                             "expression": {
-                                                "id": 151,
+                                                "id": 122,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
                                                 "lValueRequested": false,
                                                 "leftHandSide": {
-                                                    "id": 149,
+                                                    "id": 120,
                                                     "name": "state",
                                                     "nodeType": "Identifier",
                                                     "overloadedDeclarations": [],
                                                     "referencedDeclaration": 10,
-                                                    "src": "3175:5:0",
+                                                    "src": "3190:5:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_uint256",
                                                         "typeString": "uint256"
@@ -1969,29 +1588,29 @@
                                                 "operator": "=",
                                                 "rightHandSide": {
                                                     "hexValue": "33",
-                                                    "id": 150,
+                                                    "id": 121,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": true,
                                                     "kind": "number",
                                                     "lValueRequested": false,
                                                     "nodeType": "Literal",
-                                                    "src": "3183:1:0",
+                                                    "src": "3198:1:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_rational_3_by_1",
                                                         "typeString": "int_const 3"
                                                     },
                                                     "value": "3"
                                                 },
-                                                "src": "3175:9:0",
+                                                "src": "3190:9:0",
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_uint256",
                                                     "typeString": "uint256"
                                                 }
                                             },
-                                            "id": 152,
+                                            "id": 123,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "3175:9:0"
+                                            "src": "3190:9:0"
                                         },
                                         {
                                             "expression": {
@@ -2001,21 +1620,21 @@
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
                                                         },
-                                                        "id": 158,
+                                                        "id": 129,
                                                         "isConstant": false,
                                                         "isLValue": false,
                                                         "isPure": false,
                                                         "lValueRequested": false,
                                                         "leftExpression": {
                                                             "hexValue": "33",
-                                                            "id": 156,
+                                                            "id": 127,
                                                             "isConstant": false,
                                                             "isLValue": false,
                                                             "isPure": true,
                                                             "kind": "number",
                                                             "lValueRequested": false,
                                                             "nodeType": "Literal",
-                                                            "src": "3211:1:0",
+                                                            "src": "3226:1:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_rational_3_by_1",
                                                                 "typeString": "int_const 3"
@@ -2025,18 +1644,18 @@
                                                         "nodeType": "BinaryOperation",
                                                         "operator": "*",
                                                         "rightExpression": {
-                                                            "id": 157,
+                                                            "id": 128,
                                                             "name": "value",
                                                             "nodeType": "Identifier",
                                                             "overloadedDeclarations": [],
                                                             "referencedDeclaration": 3,
-                                                            "src": "3215:5:0",
+                                                            "src": "3230:5:0",
                                                             "typeDescriptions": {
                                                                 "typeIdentifier": "t_uint256",
                                                                 "typeString": "uint256"
                                                             }
                                                         },
-                                                        "src": "3211:9:0",
+                                                        "src": "3226:9:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_uint256",
                                                             "typeString": "uint256"
@@ -2051,32 +1670,32 @@
                                                         }
                                                     ],
                                                     "expression": {
-                                                        "id": 153,
+                                                        "id": 124,
                                                         "name": "seller",
                                                         "nodeType": "Identifier",
                                                         "overloadedDeclarations": [],
                                                         "referencedDeclaration": 5,
-                                                        "src": "3195:6:0",
+                                                        "src": "3210:6:0",
                                                         "typeDescriptions": {
                                                             "typeIdentifier": "t_address_payable",
                                                             "typeString": "address payable"
                                                         }
                                                     },
-                                                    "id": 155,
+                                                    "id": 126,
                                                     "isConstant": false,
                                                     "isLValue": false,
                                                     "isPure": false,
                                                     "lValueRequested": false,
-                                                    "memberLocation": "3202:8:0",
+                                                    "memberLocation": "3217:8:0",
                                                     "memberName": "transfer",
                                                     "nodeType": "MemberAccess",
-                                                    "src": "3195:15:0",
+                                                    "src": "3210:15:0",
                                                     "typeDescriptions": {
                                                         "typeIdentifier": "t_function_transfer_nonpayable$_t_uint256_$returns$__$",
                                                         "typeString": "function (uint256)"
                                                     }
                                                 },
-                                                "id": 159,
+                                                "id": 130,
                                                 "isConstant": false,
                                                 "isLValue": false,
                                                 "isPure": false,
@@ -2085,59 +1704,59 @@
                                                 "nameLocations": [],
                                                 "names": [],
                                                 "nodeType": "FunctionCall",
-                                                "src": "3195:26:0",
+                                                "src": "3210:26:0",
                                                 "tryCall": false,
                                                 "typeDescriptions": {
                                                     "typeIdentifier": "t_tuple$__$",
                                                     "typeString": "tuple()"
                                                 }
                                             },
-                                            "id": 160,
+                                            "id": 131,
                                             "nodeType": "ExpressionStatement",
-                                            "src": "3195:26:0"
+                                            "src": "3210:26:0"
                                         }
                                     ]
                                 },
                                 "documentation": {
-                                    "id": 133,
+                                    "id": 104,
                                     "nodeType": "StructuredDocumentation",
-                                    "src": "2841:73:0",
+                                    "src": "2856:73:0",
                                     "text": "\u8be5\u529f\u80fd\u4e3a\u5356\u5bb6\u9000\u6b3e\uff0c\n \u5373\u9000\u8fd8\u5356\u5bb6\u9501\u5b9a\u7684\u8d44\u91d1\u3002"
                                 },
                                 "functionSelector": "c7981b1b",
-                                "id": 162,
+                                "id": 133,
                                 "implemented": true,
                                 "kind": "function",
                                 "modifiers": [],
                                 "name": "refundSeller",
-                                "nameLocation": "2928:12:0",
+                                "nameLocation": "2943:12:0",
                                 "nodeType": "FunctionDefinition",
                                 "parameters": {
-                                    "id": 134,
+                                    "id": 105,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "2940:2:0"
+                                    "src": "2955:2:0"
                                 },
                                 "returnParameters": {
-                                    "id": 135,
+                                    "id": 106,
                                     "nodeType": "ParameterList",
                                     "parameters": [],
-                                    "src": "2956:0:0"
+                                    "src": "2971:0:0"
                                 },
-                                "scope": 163,
-                                "src": "2919:309:0",
+                                "scope": 134,
+                                "src": "2934:309:0",
                                 "stateMutability": "nonpayable",
                                 "virtual": false,
                                 "visibility": "external"
                             }
                         ],
-                        "scope": 164,
-                        "src": "60:3170:0",
+                        "scope": 135,
+                        "src": "60:3185:0",
                         "usedErrors": [],
                         "usedEvents": []
                     }
                 ],
-                "src": "36:3194:0"
+                "src": "36:3209:0"
             },
             "id": 0
         }

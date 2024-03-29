@@ -52,11 +52,11 @@ contract Purchase {
     // 确保 `msg.value` 是一个偶数。
     // 如果是奇数，除法会截断。
     // 通过乘法检查它不是一个奇数。
-    constructor() payable {
-        seller = payable(msg.sender);
-        value = msg.value / 2;
-        require((2 * value) == msg.value);
-    }
+    // constructor() payable {
+    //     seller = payable(msg.sender);
+    //     value = msg.value / 2;
+    //     require((2 * value) == msg.value);
+    // }
 
     /// 终止购买并收回 ether。
     /// 只能由卖方在合同锁定前能调用。
