@@ -7,8 +7,8 @@
 #include "StateSpace.h"
 #include "common.h"
 
-const bool print_AST = false;
-bool debug = false;
+const bool print_AST = true;
+bool debug = true;
 std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
@@ -78,6 +78,10 @@ void test_Storage(StateSpace &sp) {
 void test_Purchase(StateSpace &sp) {
     State* s = new State();
     // 初始状态
+    s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
+    s->tokens[sp.cpn->getPlaceByMatch("global.seller").name] = "1`0x00AA";
+    s->tokens[sp.cpn->getPlaceByMatch("global.buyer").name] = "1`0x00AB";
+
 
     init_DataPlace(sp.cpn, s);
     std::cout << s->getStr() << std::endl;

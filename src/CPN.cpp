@@ -172,12 +172,12 @@ int CPN::build_topNet() {
     // 1.c 全局变量msg
     places.emplace_back();
     places.back().name = "global.msg";
-    places.back().color = "struct";
+    places.back().color = "address,uint256,";
     places.back().isControl = false;
     // 1.d 全局变量this
     places.emplace_back();
     places.back().name = "global.this";
-    places.back().color = "struct";
+    places.back().color = "address,uint256,";
     places.back().isControl = false;
 
     // 2 函数变迁，不再需要，理由->建模细节-部分修改原因

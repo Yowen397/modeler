@@ -69,6 +69,7 @@ void StateSpace::generate(State *init_s) {
     }
 
     cout << "Total state num [" << state_cnt << "]" << endl;
+    cout << "Total repeat num [" << repeat << "]" << endl;
 }
 
 /**
@@ -541,25 +542,28 @@ inline void checkExpInVar(const string &e_) {
 inline bool isBinaryOp(const string &e_) {
     if (e_.find('+') != string::npos || e_.find('-') != string::npos 
         || e_.find('*') != string::npos || e_.find('/') != string::npos
-        || e_.find('>') != string::npos || e_.find('<') != string::npos)
+        || e_.find('>') != string::npos || e_.find('<') != string::npos
+        || e_.find("==") != string::npos)
         return true;
     return false;
 }
 
 // 解析二元运算表达式，并且按照运算规则得出结果，修改ms
 inline void calcExp_Bin(MultiSet &ms, const string &exp) {
-    /* 目前二元运算只接受 ‘+’ ‘-’ ‘*’ ‘/’ 这四种，【也仅针对数值】 */
+    /* 目前二元运算只接受 ‘+’ ‘-’ ‘*’ ‘/’ 这四种(已扩充)，【也仅针对数值】 */
     int i = 0;
     while (exp[i] != '+' && exp[i] != '-' && exp[i] != '*' && exp[i] != '/'
-            && exp[i] != '<'&& exp[i] != '>' && exp[i] != '&'&& exp[i] != '|')
+            && exp[i] != '<'&& exp[i] != '>' && exp[i] != '&'&& exp[i] != '|'
+            && exp[i] != '=')
         i++;
     string op;
     op += exp[i];
     if (exp[i+1]=='='||exp[i+1]=='&'|| exp[i+1]=='|')
         op += exp[i + 1];
 
-    string opL = exp.substr(0, i);  // 左操作数
-    string opR = exp.substr(i + 1); // 右操作数
+    string opL = exp.substr(0, i);              // 左操作数
+    string opR = exp.substr(i + op.length());   // 右操作数
+    string opL_s = var_NextState[opL], opR_s = var_NextState[opR];
     int opL_i = atoi(var_NextState[opL].c_str()), opR_i = atoi(var_NextState[opR].c_str());
     string res;
     if (op == "+")
@@ -574,6 +578,17 @@ inline void calcExp_Bin(MultiSet &ms, const string &exp) {
         res = opL_i < opR_i ? "True" : "False";
     else if (op == ">")
         res = opL_i > opR_i ? "True" : "False";
+    else if (op == "==")                            // 区分不同类型的相等判别
+        if (opL_s == "True" || opL_s == "False")
+            res = opL_s == opR_s ? "True" : "False";
+        else if (opL_s.find("0x") != string::npos)
+            res = opL_s == opR_s ? "True" : "False";
+        else
+            res = opL_i == opR_i ? "True" : "False";
+    else if (op == "<=")
+        res = opL_i <= opR_i ? "True" : "False";
+    else if (op == ">=")
+        res = opL_i >= opR_i ? "True" : "False";
 
     ms.add(res);
 }
