@@ -80,8 +80,8 @@ void test_Purchase(StateSpace &sp) {
     // 初始状态
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
     s->tokens[sp.cpn->getPlaceByMatch("global.seller").name] = "1`0x00AA";
-    s->tokens[sp.cpn->getPlaceByMatch("global.buyer").name] = "1`0x00AB";
-
+    s->tokens[sp.cpn->getPlaceByMatch("global.buyer").name] = "1`0x00AA";
+    s->tokens[sp.cpn->getPlaceByMatch("global.state").name] = "1`0";
 
     init_DataPlace(sp.cpn, s);
     std::cout << s->getStr() << std::endl;

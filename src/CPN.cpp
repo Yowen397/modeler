@@ -1096,10 +1096,11 @@ int CPN::po_BinaryOperation(const Value *node) {
     op_stk.pop();
     newArc(lastPlace, lastTransition, "p2t", "1`()");
     // 左值和右值存放在id_stk
+    string opL = "", opR = "";
     // 右值
     Place &right = getPlaceByIdentifier(id_stk.top());
-    id_stk.pop();
     if (right.name=="ERROR"){
+        opR = id_stk.top();
         if (debug)
             cout << "right value is Literal" << endl; // 找不到，说明是常量
     }
@@ -1107,10 +1108,11 @@ int CPN::po_BinaryOperation(const Value *node) {
         newArc(right.name, lastTransition, "p2t", "y");
         newArc(lastTransition, right.name, "t2p", "y");
     }
+    id_stk.pop();
     // 左值
     Place &left = getPlaceByIdentifier(id_stk.top());
-    id_stk.pop();
     if (left.name=="ERROR"){
+        opL = id_stk.top();
         if (debug)
             cout << "left value is Literal" << endl; // 找不到，说明是常量
     }
@@ -1118,13 +1120,16 @@ int CPN::po_BinaryOperation(const Value *node) {
         newArc(left.name, lastTransition, "p2t", "x");
         newArc(lastTransition, left.name, "t2p", "x");
     }
+    id_stk.pop();
     // 结果库所（tmp）
     auto attr_operator = node->FindMember("operator");
     newPlace(inFunction + ".tmp." + to_string(attr_id->value.GetInt()), false);
     places.back().color = node->FindMember("typeDescriptions")->value.
                                 FindMember("typeString")->value.
                                 GetString();
-    newArc(lastTransition, lastPlace, "t2p", "x" + string(attr_operator->value.GetString()) + "y");
+    opL = opL == "" ? "x" : opL;
+    opR = opR == "" ? "y" : opR;
+    newArc(lastTransition, lastPlace, "t2p", opL + string(attr_operator->value.GetString()) + opR);
     newArc(lastPlace, lastTransition, "p2t", "z");
     id_stk.push("tmp." + to_string(attr_id->value.GetInt()));
     // 填充控制库所
