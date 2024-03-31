@@ -177,6 +177,11 @@ int CPN::build_topNet() {
     // 1.d 全局变量this
     places.emplace_back();
     places.back().name = "global.this";
+    places.back().color = "uint256,";
+    places.back().isControl = false;
+    // 1.e 全部用户信息，地址×余额
+    places.emplace_back();
+    places.back().name = "global.ALLUSERS";
     places.back().color = "address,uint256,";
     places.back().isControl = false;
 
@@ -244,7 +249,6 @@ void CPN::link_() {
             for (j = 0; j < places.size(); j++)
                 if (places[j].name == a.st)
                     break;
-            std::cout << "arc: " << a.st << "-->" << a.ed << std::endl;
             trans[i].pre.emplace_back(j);
             places[j].pos.emplace_back(i);
         }
@@ -343,8 +347,13 @@ int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
 }
 
 
-
-Place &CPN::getPlaceByIdentifier(const string &id_) {
+/**
+ * 通过标识符名称在当前作用域内查找对应的库所，
+ * 参数first代表是否只取输入的第一个字符到'.'为止，例如msg.sender取msg
+*/
+Place &CPN::getPlaceByIdentifier(string id_, bool first) {
+    if (first) 
+        id_ = id_.substr(0, id_.find('.'));
     size_t pos;
     // 从所有库所中查找，先查找函数内作用域的(排除全局变量)
     for (auto &p : places) {
@@ -799,27 +808,8 @@ int CPN::mid_IfStatement(const Value *node) {
 
     // false 部分
     if (node->FindMember("falseBody")==node->MemberEnd()) {
-        // 没有false
-        // string t_c_name = newTransition("IfStatementC", id, true).name;
-        // newArc(p_con_c_name, t_c_name, "p2t");
-        // newArc(p_con_name, t_c_name, "p2t", "read");
-        // newArc(t_c_name, p_con_name, "t2p", "replace");
-        // newArc(t_c_name, p_if_name, "t2p");
-
         newArc(t_if_name, p_c_if_name, "t2p", "if x=false then 1`() else empty");
     } else {
-        // 有false
-        // string t_c_name = newTransition("IfStatementC", id, true).name;
-        // newArc(p_con_c_name, t_c_name, "p2t");
-        // newArc(p_con_name, t_c_name, "p2t", "read");
-        // newArc(t_c_name, p_con_name, "t2p", "replace");
-        // newPlace("IfStatementC", true);
-        // newArc(t_c_name, lastPlace, "t2p");
-        // this->traverse(&node->FindMember("falseBody")->value);
-        // string t_d_name = newTransition("IfStatementD", id, true).name;
-        // newArc(lastPlace, lastTransition, "p2t");
-        // newArc(t_d_name, p_if_name, "t2p");
-
         auto p_c_false_name = newPlace("IfStatementCFalse", true).name;
         newArc(t_if_name, p_c_false_name, "t2p", "if x=false then 1`() else empty");
         this->traverse(&node->FindMember("falseBody")->value);
@@ -836,6 +826,9 @@ int CPN::po_MemberAccess(const Value *node) {
     
     if (membername == "transfer")
         this->is_transfer = true;
+
+    // memberName_stk.push(membername);
+    id_stk.top() = id_stk.top() + "." + membername;
 
     if (debug)
         cout << "use member [" << membername << "] of [" << id_stk.top() << "] "
@@ -1088,6 +1081,17 @@ int CPN::po_Block(const Value *node) {
     return 0;
 }
 
+// 偷工减料处理
+std::string CPN::genArcExpById(const Place& p_, const std::string& id_, 
+                                const std::string BaseChar_) {
+    string ret = BaseChar_;
+    if (id_ == "msg.sender")
+        ret += "1";
+    else if (id_ == "msg.value")
+        ret += "2";
+    return ret;
+}
+
 int CPN::po_BinaryOperation(const Value *node) {
     // 二元运算的处理，暂且为先加
     // 先生成一个变迁
@@ -1098,27 +1102,31 @@ int CPN::po_BinaryOperation(const Value *node) {
     // 左值和右值存放在id_stk
     string opL = "", opR = "";
     // 右值
-    Place &right = getPlaceByIdentifier(id_stk.top());
+    Place &right = getPlaceByIdentifier(id_stk.top(), true);
     if (right.name=="ERROR"){
         opR = id_stk.top();
         if (debug)
             cout << "right value is Literal" << endl; // 找不到，说明是常量
     }
     else{
-        newArc(right.name, lastTransition, "p2t", "y");
-        newArc(lastTransition, right.name, "t2p", "y");
+        string exp = genArcExpByPlace(right, "y");
+        newArc(right.name, lastTransition, "p2t", exp);
+        newArc(lastTransition, right.name, "t2p", exp);
+        opR = genArcExpById(right, id_stk.top(), "y");
     }
     id_stk.pop();
     // 左值
-    Place &left = getPlaceByIdentifier(id_stk.top());
+    Place &left = getPlaceByIdentifier(id_stk.top(), true);
     if (left.name=="ERROR"){
         opL = id_stk.top();
         if (debug)
             cout << "left value is Literal" << endl; // 找不到，说明是常量
     }
     else{
-        newArc(left.name, lastTransition, "p2t", "x");
-        newArc(lastTransition, left.name, "t2p", "x");
+        string exp = genArcExpByPlace(left, "x");
+        newArc(left.name, lastTransition, "p2t", exp);
+        newArc(lastTransition, left.name, "t2p", exp);
+        opL = genArcExpById(left, id_stk.top(), "x");
     }
     id_stk.pop();
     // 结果库所（tmp）
@@ -1466,31 +1474,88 @@ int CPN::fun_buildRequire() {
 */
 
 /**
+ * 通过一个库所的color构造出符合它的弧表达式类型，BaseChar为构造的基础字符
+*/
+string CPN::genArcExpByPlace(const Place& p_, const std::string BaseChar_) {
+    string ret;
+    int pos = p_.color.find(',', 0);
+
+    // 非交类型库所
+    if (pos == string::npos)
+        return BaseChar_;
+    // 交类型
+    int i = 1;
+    ret += "(";
+    while (1) {
+        ret += BaseChar_ + to_string(i) + ",";
+        pos = p_.color.find(',', pos + 1);
+        if (pos == string::npos)
+            break;
+        i++;
+    }
+    ret += ")";
+    return ret;
+}
+
+// 判断一个表达式是否为常量数值
+inline bool isConstNum(const string& exp_) {
+    int n = atoi(exp_.c_str());
+    if (exp_ == to_string(n))
+        return true;
+    return false;
+}
+
+/**
  * 每次遇到调用transfer的时候调用此函数，单独构建transfer
  * 逻辑类似于assignment
 */
 int CPN::once_transfer(const Value *node) {
     this->is_transfer = false;
-
     int id = node->FindMember("id")->value.GetInt();
-    newTransition("FC_transfer",id, true);
-    newArc(lastPlace, lastTransition, "p2t", "1`()");
 
-    // 写入逻辑
-    string p_w_name = getPlaceByIdentifier(id_stk.top()).name;
-    id_stk.pop();
-    newArc(lastTransition, p_w_name, "t2p", "x");
-    newArc(p_w_name, lastTransition, "p2t", "z");
+    // 控制流继续
+    Transition& t = newTransition("Transfer", id, true);
+    newArc(lastPlace, t.name, "p2t", "1`()");
 
-    // 读取逻辑
-    string p_r_name = getPlaceByIdentifier(id_stk.top()).name;
+    // 转入账户
+    Place& p_income = getPlaceByIdentifier(id_stk.top(), true);
     id_stk.pop();
-    newArc(p_r_name, lastTransition, "p2t", "x");
-    newArc(lastTransition, p_r_name, "t2p", "x");
+    newArc(t.name, p_income.name, "t2p", "x1");     // 用x1绑定了转入账户的地址
+    newArc(p_income.name, t.name, "p2t", "x1");
+    Place& p_au = getPlaceByIdentifier("ALLUSERS");
+    string exp = genArcExpByPlace(p_au, "x");       // 这样x1就是第一个参数：地址
+    newArc(p_au.name, t.name, "p2t", exp);          // 用x消耗
+    newArc(t.name, p_au.name, "t2p", "(x1,x2+y,)");             // 转入账户还没写金额增加
+
+    // 转出金额
+    if (id_stk.top() == "this.balance") {
+        // 全额转出，调用自身（特殊建模处理）
+        newArc("global.this", t.name, "p2t", "y");
+        newArc(t.name, "global.this", "t2p", "0"); // 调用this.balance全额转出的情况
+    }
+    else if (isConstNum(id_stk.top())) {
+        // 常数
+        newArc("global.this", t.name, "p2t", "y");
+        string tmp_ = "y-" + id_stk.top();
+        newArc(t.name, "global.this", "t2p", tmp_);
+
+        // 常数要更新转入账户的金额
+        removeArc(t.name, p_au.name);
+        newArc(t.name, p_au.name, "t2p", "(x1,x2+" + id_stk.top() + ",)");
+    } else {
+        // 其它库所数据
+        string p_pay_name = getPlaceByIdentifier(id_stk.top()).name;
+        newArc(t.name, p_pay_name, "t2p", "y");     // 其它额度，则需要修改this.balance
+        newArc(p_pay_name, t.name, "p2t", "y");
+        string p_this_name = getPlace("global.this").name;
+        newArc(p_this_name, t.name, "p2t", "z");    // 纯消耗
+        newArc(t.name, p_this_name, "t2p", "z-y");
+    }
+    id_stk.pop();
 
     // 控制流收尾
-    newPlace("FC_transfer", true);
-    newArc(lastTransition, lastPlace, "t2p", "1`()");
+    newPlace("Transfer", true);
+    newArc(t.name, lastPlace, "t2p", "1`()");
 
     return 0;
 }
@@ -1523,27 +1588,34 @@ int CPN::build_User() {
         string p_in = getPlaceByMatch(fun.name + ".in.c").name;
         newArc(t_call.name, p_in, "t2p", "1`()");
 
+        string p_call_name = newPlace(fun.name + ".pcall", false).name;
+        string arcExp = "(";
         // 如果函数有参数
         // call库所的弧表达式设置为形如(x1,x2,x3,x4,)
+        int p_cnt = 1;
         if (fun.param.size()!=0) {
-            Place &p_call = newPlace(fun.name + ".pcall", false);
-            Arc &a_in = newArc(lastPlace, t_call.name, "p2t", "()");
-            string tmp_suffix = a_in.name.substr(1); // 临时保留后缀（括号、弧编号）
-            a_in.name = a_in.name.substr(0, 1);
-
-            int p_cnt = 1;
             for (auto p : fun.param){
-                a_in.name += string("x") + to_string(p_cnt) + ",";
+                arcExp += string("x") + to_string(p_cnt) + ",";
                 string p_pa_name = getPlaceByMatch(p.fun + ".param." + p.name).name;
                 // 参数赋予，要按照x1、x2的方式赋予，同样的按照z1、z2的方式消耗原有的
                 newArc(t_call.name, p_pa_name, "t2p", string("x") + to_string(p_cnt));
                 newArc(p_pa_name, t_call.name, "p2t", string("z") + to_string(p_cnt));
 
-                p_call.color += p.type + ",";
+                getPlace(p_call_name).color += p.type + ",";
                 p_cnt++;
             }
-            a_in.name += tmp_suffix;
         }
+        // 不管有没有参数，在此处增加相关描述，msg信息[address,uint256]，对应地址、金额
+        string tmp_x = string("x") + to_string(p_cnt) + ",x" + to_string(p_cnt + 1) + ",";
+        string tmp_z = string("z") + to_string(p_cnt) + ",z" + to_string(p_cnt + 1) + ",";
+        arcExp += tmp_x;
+        string p_msg_name = getPlace("global.msg").name;
+        newArc(t_call.name, p_msg_name, "t2p", string("(") + tmp_x + ")");
+        newArc(p_msg_name, t_call.name, "p2t", string("(") + tmp_z + ")");
+        getPlace(p_call_name).color += "address,uint256,";
+
+        arcExp += ")";
+        newArc(p_call_name, t_call.name, "p2t", arcExp);
     }
     return 0;
 }

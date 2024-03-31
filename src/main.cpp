@@ -8,7 +8,7 @@
 #include "common.h"
 
 const bool print_AST = true;
-bool debug = true;
+bool debug = false;
 std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
@@ -63,10 +63,12 @@ void test_Storage(StateSpace &sp) {
     State *s = new State();
     // 初始状态
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
-    s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,)++2`(7,8,)";
-    s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,)++1`(9,)";
-    // s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,)++1`(7,8,)++9`(13,17,)";
-    // s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,)++2`(9,)++8`(19,)";
+    s->tokens[sp.cpn->getPlaceByMatch("global.this").name] = "1`0";
+    s->tokens[sp.cpn->getPlaceByMatch("global.msg").name] = "1`(0x0000,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,0x000A,0,)++2`(7,8,0x000A,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,0x000A,0,)++1`(9,0x000A,0,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("retrieve.pcall").name] = "2`(3,4,0x000A,0,)++1`(7,8,0x000A,0,)++9`(13,17,0x000A,0,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,0x000A,0,)++2`(9,0x000A,0,)++8`(19,0x000A,0,)";
     // 变量初值
     init_DataPlace(sp.cpn, s);
     cout << s->getStr() << endl;
@@ -80,8 +82,12 @@ void test_Purchase(StateSpace &sp) {
     // 初始状态
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
     s->tokens[sp.cpn->getPlaceByMatch("global.seller").name] = "1`0x00AA";
-    s->tokens[sp.cpn->getPlaceByMatch("global.buyer").name] = "1`0x00AA";
+    s->tokens[sp.cpn->getPlaceByMatch("global.buyer").name] = "1`0x00BB";
     s->tokens[sp.cpn->getPlaceByMatch("global.state").name] = "1`0";
+    s->tokens[sp.cpn->getPlaceByMatch("global.this").name] = "1`20";
+    s->tokens[sp.cpn->getPlaceByMatch("global.msg").name] = "1`(0x0000,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("global.ALLUSERS").name] = "1`(0x00AA,100,)++1`(0x00BB,200,)";
+    s->tokens[sp.cpn->getPlaceByMatch("abort.pcall").name] = "1`(0x00AA,0,)";
 
     init_DataPlace(sp.cpn, s);
     std::cout << s->getStr() << std::endl;
@@ -105,10 +111,12 @@ void test_SafeMath(StateSpace &sp) {
     State* s = new State();
     // 初始状态
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
-    s->tokens[sp.cpn->getPlaceByMatch("add.pcall").name] = "1`(23,29,)";
-    s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(10,7,)";
-    // s->tokens[sp.cpn->getPlaceByMatch("add.pcall").name] = "1`(23,29,)++4`(1,5,)++10`(7,123,)";
-    // s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(7,10,)++10`(3,2,)++7`(56,55,)";
+    s->tokens[sp.cpn->getPlaceByMatch("global.this").name] = "1`20";
+    s->tokens[sp.cpn->getPlaceByMatch("global.msg").name] = "1`(0x0000,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("add.pcall").name] = "1`(23,29,0x000A,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(10,7,0x000A,0,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("add.pcall").name] = "1`(23,29,0x000A,0,)++4`(1,5,0x000A,0,)++10`(7,123,0x000A,0,)";
+    // s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(7,10,0x000A,0,)++10`(3,2,0x000A,0,)++7`(56,55,0x000A,0,)";
 
     init_DataPlace(sp.cpn, s);
     std::cout << s->getStr() << std::endl;

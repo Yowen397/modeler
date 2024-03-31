@@ -21,8 +21,7 @@ contract Purchase {
     /// 只能由卖方在合同锁定前能调用。
     function abort() external
     {
-        // require(msg.sender == seller);
-        require(buyer == seller);
+        require(msg.sender == seller);
         require(state == 0);
 
         state = 3;
@@ -36,40 +35,40 @@ contract Purchase {
     /// 买方确认购买。
     /// 交易必须包括 `2 * value` ether。
     /// Ether 将被锁住，直到调用 confirmReceived。
-    // function confirmPurchase() external payable
-    // {
-    //     require(state == 0);
-    //     require(msg.value == (2 * value));
+    function confirmPurchase() external payable
+    {
+        require(state == 0);
+        require(msg.value == (2 * value));
 
-    //     buyer = payable(msg.sender);
-    //     state = 1;
-    // }
+        buyer = payable(msg.sender);
+        state = 1;
+    }
 
     /// 确认您（买方）已经收到了该物品。
     /// 这将释放锁定的 ether。
-    // function confirmReceived() external
-    // {
-    //     require(msg.sender == buyer);
-    //     require(state == 1);
+    function confirmReceived() external
+    {
+        require(msg.sender == buyer);
+        require(state == 1);
         
-    //     // 首先改变状态是很重要的，否则的话，
-    //     // 下面使用 `send` 调用的合约可以在这里再次调用。
-    //     state = 2;
+        // 首先改变状态是很重要的，否则的话，
+        // 下面使用 `send` 调用的合约可以在这里再次调用。
+        state = 2;
 
-    //     buyer.transfer(value);
-    // }
+        buyer.transfer(value);
+    }
 
     /// 该功能为卖家退款，
     /// 即退还卖家锁定的资金。
-    // function refundSeller() external
-    // {
-    //     require(msg.sender == seller);
-    //     require(state == 2);
+    function refundSeller() external
+    {
+        require(msg.sender == seller);
+        require(state == 2);
 
-    //     // 首先改变状态是很重要的，否则的话，
-    //     // 下面使用 `send` 调用的合约可以在这里再次调用。
-    //     state = 3;
+        // 首先改变状态是很重要的，否则的话，
+        // 下面使用 `send` 调用的合约可以在这里再次调用。
+        state = 3;
 
-    //     seller.transfer(3 * value);
-    // }
+        seller.transfer(3 * value);
+    }
 }

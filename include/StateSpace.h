@@ -75,6 +75,7 @@ protected:
   static int removeToken(std::string &all_, const std::string &t_);
   int bindVar(const std::string& p_, const int t_idx_, const std::string& t_);
   int addToken(std::string& all_, const int t_idx_, const std::string& p_);
+  std::string addToken_tuple(const std::string& exp);
 
   protected:
   /* 一些记录信息用的变量 */

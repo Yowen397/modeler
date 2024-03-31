@@ -80,7 +80,7 @@ class CPN {
     Place &getPlace(const std::string &s_);
     Transition &getTransition(const std::string &s_);
     Transition &getTransitionByMatch(const std::string &str_);
-    Place &getPlaceByIdentifier(const std::string &id_);
+    Place &getPlaceByIdentifier(std::string id_, bool first = false);
     Place &getPlaceByMatch(const std::string &str_);
     Arc &getArc(const std::string &st_, const std::string &ed_);
 
@@ -105,8 +105,11 @@ protected:
     int removePlace(const std::string &name_);
     int removeArc(const std::string &st_, const std::string &ed_);
     int mid_IfStatement(const rapidjson::Value *node);
+    std::string genArcExpByPlace(const Place& p_, const std::string BaseChar_);
+    std::string genArcExpById(const Place& p_, const std::string& id_, const std::string BaseChar_);
     // 一次性标记
     bool is_transfer = false;
+    std::stack<std::string> memberName_stk;  // 结构成员名
     int BlockDepth = 0;
     bool need_out = false;
     // 标识符相关

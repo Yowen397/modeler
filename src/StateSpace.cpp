@@ -6,6 +6,8 @@ using namespace std;
 
 extern bool debug;
 
+inline bool isConstNum(const string& exp_);
+
 string State::getStr() const {
     string ret;
     for (const auto &t: tokens)
@@ -564,7 +566,8 @@ inline void calcExp_Bin(MultiSet &ms, const string &exp) {
     string opL = exp.substr(0, i);              // 左操作数
     string opR = exp.substr(i + op.length());   // 右操作数
     string opL_s = var_NextState[opL], opR_s = var_NextState[opR];
-    int opL_i = atoi(var_NextState[opL].c_str()), opR_i = atoi(var_NextState[opR].c_str());
+    int opL_i = isConstNum(opL) ? atoi(opL.c_str()) : atoi(opL_s.c_str());
+    int opR_i = isConstNum(opR) ? atoi(opR.c_str()) : atoi(opR_s.c_str());
     string res;
     if (op == "+")
         res = to_string(opL_i + opR_i);
@@ -593,6 +596,23 @@ inline void calcExp_Bin(MultiSet &ms, const string &exp) {
     ms.add(res);
 }
 
+// 判断一个表达式是否为变量标识符
+inline bool isVarIdentifier(const string& exp_) {
+    if (exp_.length() > 2)  
+        return false;       // 变量只接受长度为2最多，字母+数字
+    if (exp_.find_first_of("xyzw") == string::npos)
+        return false;       // 变量起始字符为xyzw中的一个
+    return true;
+}
+
+// 判断一个表达式是否为常量数值
+inline bool isConstNum(const string& exp_) {
+    int n = atoi(exp_.c_str());
+    if (exp_ == to_string(n))
+        return true;
+    return false;
+}
+
 /**
  * 在库所（字符串all_）中新增token，根据弧（由变迁t_idx_指向库所p_）表达式新增
 */
@@ -603,24 +623,35 @@ int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string&
     MultiSet ms;
     parse_MultiSet(ms, all_);
 
-    if (exp == "1`()"){                             // 控制弧，输出控制流token
+    if (exp == "1`()"){                                 // 控制弧，输出控制流token
         ms.add("()");
         all_ = ms.str();
         return 0;
     }
-    if (exp.length() == 1 || exp.length() == 2) {   // 变量，直接从绑定集合找到并输出
+    if (exp[0] == '(' && exp[exp.length() - 1] == ')') {// 交类型生成，（先判断交类型，避免进入二元运算）
+        string token = addToken_tuple(exp);
+        ms.add(token);
+        all_ = ms.str();
+        return 0;
+    }
+    if (isConstNum(exp)) {                              // 常量
+        ms.add(exp);
+        all_ = ms.str();
+        return 0;
+    }
+    if (isVarIdentifier(exp)) {                         // 变量，直接从绑定集合找到并输出
         checkExpInVar(exp);
         ms.add(var_NextState[exp]);
         all_ = ms.str();
         return 0;
     }
-    if (isBinaryOp(exp)) {                          // 二元运算，根据绑定进行运算
-        calcExp_Bin(ms, exp);
+    if (exp == "True" || exp == "False") {              // Bool类型直接输出
+        ms.add(exp);
         all_ = ms.str();
         return 0;
     }
-    if (exp == "True" || exp == "False") {
-        ms.add(exp);
+    if (isBinaryOp(exp)) {                              // 二元运算，根据绑定进行运算
+        calcExp_Bin(ms, exp);
         all_ = ms.str();
         return 0;
     }
@@ -628,6 +659,37 @@ int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string&
     cerr << "StateSpace::addToken: Unrecognized arc expression [" << exp << "]" << endl;
     exit(-1);
     return -777;
+}
+
+/**
+ * 根据弧表达式和var_NextState中的情况来生成下一个token的字符串
+*/
+string StateSpace::addToken_tuple(const string& exp) {
+    // 检查输入
+    if (exp[0]!='('||exp[exp.length()-1]!=')') {
+        cerr << "StateSpace::addToken_tuple: Input error, input expression is [" << exp << "]" << endl;
+        exit(-1);
+    }
+    string ret = "(";
+    int pos = 1;
+    while (pos < exp.length() - 1) {
+        string var = exp.substr(pos, exp.find(",", pos) - pos);
+        if (isBinaryOp(var)) {
+            MultiSet ms;
+            calcExp_Bin(ms, var);
+            ret += ms.str() + ",";
+        } else {
+            if (var_NextState.find(var) == var_NextState.end()) {
+                cerr << "StateSpace::addToken_tuple: Unknown var name [" << var << "]" << endl;
+                exit(-1);
+            }
+            ret += var_NextState[var] + ",";
+        }
+
+        pos = exp.find(",", pos + 1) + 1;
+    }
+    ret += ")";
+    return ret;
 }
 
 /**
@@ -651,8 +713,10 @@ int StateSpace::bindVar(const std::string& p_, const int t_idx_, const std::stri
             cerr << "StateSpace::bindVar: Type mismatch for arc expression[" << exp << "] and token[" << t_ << "]" << endl;
             exit(-1);
         }
-        int Lt = 1, Rt = t_.find_first_of(',', Lt);
-        int Lv = 1, Rv = exp.find_first_of(',', Lv);
+        int Lt = 1;
+        int Rt = t_.find_first_of(',', Lt);
+        int Lv = 1;
+        int Rv = exp.find_first_of(',', Lv);
         while (Rt != string::npos && Rv != string::npos) {
             string t = t_.substr(Lt, Rt - Lt);
             string v = exp.substr(Lv, Rv - Lv);
