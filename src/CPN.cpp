@@ -5,6 +5,8 @@ using namespace std;
 
 extern bool debug;
 
+bool isConstNum(const string& exp_);
+
 Place::Place() {}
 
 Place::~Place() {}
@@ -352,8 +354,13 @@ int CPN::e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,
  * 参数first代表是否只取输入的第一个字符到'.'为止，例如msg.sender取msg
 */
 Place &CPN::getPlaceByIdentifier(string id_, bool first) {
-    if (first) 
-        id_ = id_.substr(0, id_.find('.'));
+    // if (first && (id_.find("msg") != string::npos || id_.find("this") != string::npos))
+    //     id_ = id_.substr(0, id_.find('.'));
+    if (first && id_.find('.') != string::npos) {
+        string postfix = id_.substr(id_.find('.') + 1);
+        if (!isConstNum(postfix) && first)
+            id_ = id_.substr(0, id_.find('.'));
+    }
     size_t pos;
     // 从所有库所中查找，先查找函数内作用域的(排除全局变量)
     for (auto &p : places) {
@@ -1207,21 +1214,22 @@ int CPN::po_Assignment(const Value *node) {
     Transition &t = newTransition("Assignment", attr_id->value.GetInt(), true, false);
     newArc(lastPlace, t.name, "p2t", "1`()");
     // t.init()
-    string constant;
+    string constant, id;
     // 从栈顶取元素处理
     while (id_stk.size() && id_stk.top()!=attr_name->value.GetString()) {
-        string id = id_stk.top();
+        id = id_stk.top();
         id_stk.pop();
-        auto p_name = getPlaceByIdentifier(id).name;
         // 常量，这里的处理基础是：1、赋值只有一个右值；2、只有常量会找不到库所ERROR
-        if (p_name == "ERROR") {
+        if (isConstNum(id)) {
             constant = id;
             continue;
         }
+        auto p_name = getPlaceByIdentifier(id, true).name;
+        string exp_x = genArcExpByPlace(getPlace(p_name), "x");
         // 建立弧连接，操作类型为read
-        newArc(p_name, t.name, "p2t", "x");
+        newArc(p_name, t.name, "p2t", exp_x);
         // 读完之后要返回
-        newArc(t.name, p_name, "t2p", "x");
+        newArc(t.name, p_name, "t2p", exp_x);
     }
     // 最后处理表达式左值
     if (id_stk.empty()||(id_stk.top()!=attr_name->value.GetString())) {
@@ -1233,8 +1241,10 @@ int CPN::po_Assignment(const Value *node) {
     newArc(p_reslut.name, t.name, "p2t", "z");
     if (constant!="")
         newArc(t.name, p_reslut.name, "t2p", constant);
-    else
-        newArc(t.name, p_reslut.name, "t2p", "x");
+    else {
+        string tmp_x = genArcExpById(p_reslut, id, "x");
+        newArc(t.name, p_reslut.name, "t2p", tmp_x);
+    }
 
     // 填充控制库所
     Place &p_c = newPlace("Assignment", true);
@@ -1300,7 +1310,7 @@ int CPN::pr_FunctionDefinition(const Value *node) {
     this->need_out = true;
 
     // 构建入口控制流库所，以及对应的弧
-    Place &p = newPlace(inFunction + ".in", true);
+    string p_in_name = newPlace(inFunction + ".in", true).name;
     // newArc(inFunction + ".f", p.name, "t2p", "1`()");
  
     // 构建出口库所，该库所当前不需要弧连接
@@ -1309,7 +1319,7 @@ int CPN::pr_FunctionDefinition(const Value *node) {
     // cout << "DEBUG::arcs st[" << getTransition(a.st).name << "]" << endl;
     // cout << "DEBUG::arcs ed[" << getPlace(a.ed).name << "]" << endl;
 
-    lastPlace = p.name;
+    lastPlace = p_in_name;
     lastTransition = inFunction + ".f";
     // 暂时只处理单个返回值(若有返回值)
     if (getFun(inFunction).param_ret.size())
@@ -1616,6 +1626,12 @@ int CPN::build_User() {
 
         arcExp += ")";
         newArc(p_call_name, t_call.name, "p2t", arcExp);
+
+        // 还需要对应修改带有金额的调用，这种情况用户余额要修改
+        string tmp_w = string("x") + to_string(p_cnt) + ",w" + to_string(p_cnt + 1) + ",";
+        tmp_x = string("x") + to_string(p_cnt) + ",w" + to_string(p_cnt + 1) + "-x" + to_string(p_cnt + 1) + ",";
+        newArc("global.ALLUSERS", t_call.name, "p2t", string("(") + tmp_w + ")");
+        newArc(t_call.name, "global.ALLUSERS", "t2p", string("(") + tmp_x + ")");
     }
     return 0;
 }

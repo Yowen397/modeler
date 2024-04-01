@@ -677,7 +677,12 @@ string StateSpace::addToken_tuple(const string& exp) {
         if (isBinaryOp(var)) {
             MultiSet ms;
             calcExp_Bin(ms, var);
-            ret += ms.str() + ",";
+            // 计算过后确定只有一个token
+            if (ms.num.size()!=1 || ms.num[0]!=1) {
+                cerr << "StateSpace::addToken_tuple: calc multi set failed" << endl;
+                exit(-1);
+            }
+            ret += ms.token[0] + ",";
         } else {
             if (var_NextState.find(var) == var_NextState.end()) {
                 cerr << "StateSpace::addToken_tuple: Unknown var name [" << var << "]" << endl;

@@ -8,7 +8,7 @@
 #include "common.h"
 
 const bool print_AST = true;
-bool debug = false;
+bool debug = true;
 std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
@@ -81,6 +81,7 @@ void test_Purchase(StateSpace &sp) {
     State* s = new State();
     // 初始状态
     s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
+    s->tokens[sp.cpn->getPlaceByMatch("global.value").name] = "1`10";
     s->tokens[sp.cpn->getPlaceByMatch("global.seller").name] = "1`0x00AA";
     s->tokens[sp.cpn->getPlaceByMatch("global.buyer").name] = "1`0x00BB";
     s->tokens[sp.cpn->getPlaceByMatch("global.state").name] = "1`0";
@@ -88,6 +89,10 @@ void test_Purchase(StateSpace &sp) {
     s->tokens[sp.cpn->getPlaceByMatch("global.msg").name] = "1`(0x0000,0,)";
     s->tokens[sp.cpn->getPlaceByMatch("global.ALLUSERS").name] = "1`(0x00AA,100,)++1`(0x00BB,200,)";
     s->tokens[sp.cpn->getPlaceByMatch("abort.pcall").name] = "1`(0x00AA,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("confirmPurchase.pcall").name] = "1`(0x00BB,20,)";
+    s->tokens[sp.cpn->getPlaceByMatch("confirmReceived.pcall").name] = "1`(0x00BB,00,)";
+    s->tokens[sp.cpn->getPlaceByMatch("refundSeller.pcall").name] = "1`(0x00AA,00,)";
+    
 
     init_DataPlace(sp.cpn, s);
     std::cout << s->getStr() << std::endl;

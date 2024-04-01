@@ -38,7 +38,9 @@ contract Purchase {
     function confirmPurchase() external payable
     {
         require(state == 0);
-        require(msg.value == (2 * value));
+        uint256 V;
+        V = 2 * value;
+        require(msg.value == V);
 
         buyer = payable(msg.sender);
         state = 1;
@@ -69,6 +71,8 @@ contract Purchase {
         // 下面使用 `send` 调用的合约可以在这里再次调用。
         state = 3;
 
-        seller.transfer(3 * value);
+        uint256 V ;
+        V = 3 * value;
+        seller.transfer(V);
     }
 }
