@@ -642,7 +642,7 @@ int CPN::po_selector(const std::string &type_, const rapidjson::Value *node) {
     type_ == "RevertStatement" ? po_RevertStatement(node), check = 1 : 0;
     type_ == "IfStatement" ? po_IfStatement(node), check = 1 : 0;
     type_ == "EventDefinition" ? po_EventDefinition(node), check = 1 : 0;
-    type_ == "ElementaryTypeNameExpression" ? pr_ElementaryTypeNameExpression(node), check = 1 : 0;
+    type_ == "ElementaryTypeNameExpression" ? po_ElementaryTypeNameExpression(node), check = 1 : 0;
     type_ == "TupleExpression" ? po_TupleExpression(node), check = 1 : 0;
     type_ == "EmitStatement" ? po_EmitStatement(node), check = 1 : 0;
     // type_ == "ModifierInvocation" ? po_ModifierInvocation(node), check = 1 : 0;
