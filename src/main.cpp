@@ -72,7 +72,7 @@ void test_Storage(StateSpace &sp) {
     // s->tokens[sp.cpn->getPlaceByMatch("store.pcall").name] = "2`(5,0x000A,0,)++2`(9,0x000A,0,)++8`(19,0x000A,0,)";
     // 变量初值
     init_DataPlace(sp.cpn, s);
-    cout << s->getStr() << endl;
+    cout << s->getStr(sp.cpn) << endl;
     sp.generate(s);
 
     return;
@@ -99,7 +99,7 @@ void test_Purchase(StateSpace &sp) {
     // s->tokens[sp.cpn->getPlaceByMatch("refundSeller.pcall").name] = "2`(0x00AA,00,)";
 
     init_DataPlace(sp.cpn, s);
-    std::cout << s->getStr() << std::endl;
+    std::cout << s->getStr(sp.cpn) << std::endl;
     sp.generate(s);
 
     return;
@@ -110,7 +110,7 @@ void test_Timelock(StateSpace &sp) {
     // 初始状态
 
     init_DataPlace(sp.cpn, s);
-    std::cout << s->getStr() << std::endl;
+    std::cout << s->getStr(sp.cpn) << std::endl;
     sp.generate(s);
     
     return;
@@ -129,7 +129,7 @@ void test_SafeMath(StateSpace &sp) {
     // s->tokens[sp.cpn->getPlaceByMatch("sub.pcall").name] = "1`(7,10,0x000A,0,)++10`(3,2,0x000A,0,)++7`(56,55,0x000A,0,)";
 
     init_DataPlace(sp.cpn, s);
-    std::cout << s->getStr() << std::endl;
+    std::cout << s->getStr(sp.cpn) << std::endl;
     sp.generate(s);
     
     return;

@@ -8,10 +8,15 @@ extern bool debug;
 
 inline bool isConstNum(const string& exp_);
 
-string State::getStr() const {
+string State::getStr(const CPN*_cpn) const {
     string ret;
-    for (const auto &t: tokens)
-        ret += t.first + ": \t" + t.second + "\n";
+    // for (const auto &t: tokens)
+    //     ret += t.first + ": \t" + t.second + "\n";
+    for (auto p : _cpn->places) {
+        auto it = tokens.find(p.name);
+        if (it != tokens.end())
+            ret += p.name + ":" + it->second + "\n";
+    }
     return ret;
 }
 
@@ -47,7 +52,7 @@ void StateSpace::generate(State *init_s) {
             cout << "State No." << state_cnt << " Processing]" << endl;
         else if (debug) {
             cout << "[State No." << state_cnt << " Processing]" << endl;
-            cout << q.back()->getStr();
+            cout << q.back()->getStr(cpn);
             string tmp = "  Fireable Transition: ";
             for (auto i : bindList)
                 tmp += cpn->trans[i.t_idx].name + ", ";

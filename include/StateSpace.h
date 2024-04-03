@@ -6,11 +6,16 @@
 #include <vector>
 #include "CPN.h"
 
+class Tokens{
+  public:
+
+};
+
 class State {
   public:
     std::unordered_map<std::string, std::string> tokens;
 
-    std::string getStr() const;
+    std::string getStr(const CPN*_cpn) const;
     std::size_t hash(const CPN*_cpn) const;
 
 };
