@@ -162,9 +162,10 @@ State *StateSpace::nextState(State *s, int t) {
     consume.clear();
     // 先复制，再修改token
     State *ret = new State();
+    ret->tokens = s->tokens;
     cur_State = ret;
-    for (auto it : s->tokens)
-        ret->tokens[it.first] = it.second;
+    // for (auto it : s->tokens)
+    //     ret->tokens[it.first] = it.second;
     // 修改，消耗
     for (auto j : cpn->trans[t].pre) {
         string arc_exp =
@@ -255,28 +256,28 @@ bool StateSpace::isFireable(State *s, int t) {
     return true;
 }
 
-vector<int> &StateSpace::getFireable(State *s) {
-    static vector<int> list;
-    list.clear();
+// vector<int> &StateSpace::getFireable(State *s) {
+//     static vector<int> list;
+//     list.clear();
 
-    // 可能发生的变迁(前集库所中含有token)
-    set<int> uncheck_trans;
-    for (auto &p : s->tokens) {
-        // cout << p.first << ":" << p.second << endl;
-        auto &place = cpn->getPlace(p.first);
-        for (auto t:place.pos)
-            uncheck_trans.insert(t);
-    }
+//     // 可能发生的变迁(前集库所中含有token)
+//     set<int> uncheck_trans;
+//     for (auto &p : s->tokens) {
+//         // cout << p.first << ":" << p.second << endl;
+//         auto &place = cpn->getPlace(p.first);
+//         for (auto t:place.pos)
+//             uncheck_trans.insert(t);
+//     }
 
-    // 可以发生的变迁
-    for (auto i: uncheck_trans) {
-        // cout << t << ", " << cpn->trans[t].name << endl;
-        if (isFireable(s, i))
-            list.emplace_back(i);
-    }
+//     // 可以发生的变迁
+//     for (auto i: uncheck_trans) {
+//         // cout << t << ", " << cpn->trans[t].name << endl;
+//         if (isFireable(s, i))
+//             list.emplace_back(i);
+//     }
 
-    return list;
-}
+//     return list;
+// }
 
 vector<Binding> &StateSpace::getBinding(State *s) {
     static vector<Binding> list;  // 设计为static
@@ -284,6 +285,7 @@ vector<Binding> &StateSpace::getBinding(State *s) {
 
     // 可能发生的变迁(前集【控制流】库所中含有token)
     set<int> uncheck_trans;
+#ifndef USE_TOKENS
     for (auto &p : s->tokens) {
         // cout << p.first << ":" << p.second << endl;
         auto &place = cpn->getPlace(p.first);
@@ -294,8 +296,21 @@ vector<Binding> &StateSpace::getBinding(State *s) {
         for (auto t:place.pos)
             uncheck_trans.insert(t);
     }
+#else
+    for (auto p : cpn->places) {
+        if (!p.isControl)
+            continue;
+        auto it = s->tokens.find(p.name);
+        if (it == s->tokens.end())
+            continue;
+        if (it->second == "")
+            continue;
+        for (auto t : p.pos)
+            uncheck_trans.insert(t);
+    }
+#endif
 
-    
+
 
     // 查找可以发生的绑定，包括变量
     // 思路：将每种可能的绑定列出来，然后查找它的可行性
@@ -519,9 +534,19 @@ State *StateSpace::getNextState(State *cur_, Binding& b_) {
     }
     // 删去空库所key值
     vector<string> del;
-    for (auto p : s->tokens) 
+#ifndef USE_TOKENS
+    for (auto p : s->tokens)
         if (p.second == "")
             del.emplace_back(p.first);
+#else
+    for (auto p : cpn->places) {
+        auto it = s->tokens.find(p.name);
+        if (it == s->tokens.end())
+            continue;
+        if (it->second == "")
+            del.emplace_back(it->first);
+    }
+#endif
     for (auto p : del)
         s->tokens.erase(p);
     // 检查新增状态的合法性

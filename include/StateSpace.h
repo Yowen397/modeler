@@ -4,19 +4,35 @@
 #include <unordered_map>
 #include <set>
 #include <vector>
+#include <list>
 #include "CPN.h"
 
-class Tokens{
-  public:
+// #define USE_TOKENS
 
+typedef std::pair<std::string, std::string> MarkingP;
+typedef std::unordered_map<std::string, std::string> MarkingALL;
+class Tokens {
+public:
+    MarkingALL* base = nullptr;
+    std::list<MarkingP> L;
+
+    MarkingP* find(const std::string& p_) const;
+    MarkingP* end() const;
+    void erase(const std::string& p_);
+    void erase(MarkingP* m_);
+    Tokens& operator=(const Tokens& b_);
+    std::string& operator[](const std::string& p_);
 };
 
 class State {
   public:
+#ifndef USE_TOKENS
     // “半”全记录
     std::unordered_map<std::string, std::string> tokens;
+#else
     // 优化存储
-    // Tokens tokens;
+    Tokens tokens;
+#endif
 
     std::string getStr(const CPN*_cpn) const;
     std::size_t hash(const CPN*_cpn) const;
@@ -57,7 +73,7 @@ public:
   void generate(State *);
 
 protected:
-  std::vector<int> &getFireable(State *);
+  // std::vector<int> &getFireable(State *);
   std::vector<Binding> &getBinding(State *);
 private:
   bool isFireable(State *s, int t);  // 旧版，被取代
