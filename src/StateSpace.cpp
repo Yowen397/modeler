@@ -504,8 +504,9 @@ State *StateSpace::getNextState(State *cur_, Binding& b_) {
     var_NextState.clear();
     // 操作顺序：复制、删除消耗掉的token、写入新增的token、删去空库所key值、检查新状态合法性
     // 复制
-    for (auto p : cur_->tokens)
-        s->tokens[p.first] = p.second;
+    s->tokens = cur_->tokens;
+    // for (auto p : cur_->tokens)
+    //     s->tokens[p.first] = p.second;
     // 删除消耗掉的token，并且将消耗的token与弧表达式绑定
     for (int i = 0; i < b_.place.size();i++) {
         removeToken(s->tokens[b_.place[i]], b_.token[i]);

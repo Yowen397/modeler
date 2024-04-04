@@ -13,11 +13,14 @@ class Tokens{
 
 class State {
   public:
+    // “半”全记录
     std::unordered_map<std::string, std::string> tokens;
+    // 优化存储
+    // Tokens tokens;
 
     std::string getStr(const CPN*_cpn) const;
     std::size_t hash(const CPN*_cpn) const;
-
+    static int copy(State*);
 };
 
 class Binding{
