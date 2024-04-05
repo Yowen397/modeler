@@ -52,7 +52,7 @@ void StateSpace::generate(State *init_s) {
             cout << "State No." << state_cnt << " Processing]" << endl;
         else if (debug) {
             cout << "[State No." << state_cnt << " Processing]" << endl;
-            cout << q.back()->getStr(cpn);
+            cout << q.front()->getStr(cpn);
             string tmp = "  Fireable Transition: ";
             for (auto i : bindList)
                 tmp += cpn->trans[i.t_idx].name + ", ";
@@ -82,179 +82,179 @@ void StateSpace::generate(State *init_s) {
 /**
  * 根据弧表达式生成
 */
-string StateSpace::tokenString(const string &exp) {
-    if (exp.find("1`().")!=string ::npos) {
-        return "C";
-    }
-    if (exp.find("replace.")!=string::npos) {
-        string token;
-        auto it = consume.find(cur_place);
-        if (it == consume.end()) {
-            cerr << "tokenString::place[" << cur_place << "] consume nothing."
-                 << endl;
-            exit(-1);
-        }
-        token = it->second;
-        return token;
-    }
-    if (exp.find("assign.") != string::npos && cur_tran.find("Assignment.") != string::npos) {
-        // assign类型只需找到read那一个不属于C类型的token即可
-        cur_State->tokens[cur_place] = "";
-        for (auto &it : consume)
-            if (it.first.find(".c.") == string::npos)
-                return it.second; // 非控制库所，返回
-    }
-    if (exp.find("write.")!=string::npos && cur_tran.find("Return.")!=string::npos) {
-        // return
-        // write类型需要清空当前库所
-        for (auto &it : consume)
-            if (it.first.find(".c.") == string::npos)
-                return it.second; // 非控制库所，返回
-    }
-    if (exp.find("write.")!=string::npos && cur_tran.find("+.") != string::npos) {
-        // +
-        string ret;
-        for (auto &it : consume)
-            if (it.first.find(".c.") == string::npos)
-                ret = to_string(atoi(ret.c_str()) + atoi(it.second.c_str()));
-        return ret;
-    }
-    cerr << "tokenString::unknown arc expression : [" << exp << "], ";
-    cerr << "transition name is [" << cur_tran << "]" << endl;
-    exit(-1);
-}
+// string StateSpace::tokenString(const string &exp) {
+//     if (exp.find("1`().")!=string ::npos) {
+//         return "C";
+//     }
+//     if (exp.find("replace.")!=string::npos) {
+//         string token;
+//         auto it = consume.find(cur_place);
+//         if (it == consume.end()) {
+//             cerr << "tokenString::place[" << cur_place << "] consume nothing."
+//                  << endl;
+//             exit(-1);
+//         }
+//         token = it->second;
+//         return token;
+//     }
+//     if (exp.find("assign.") != string::npos && cur_tran.find("Assignment.") != string::npos) {
+//         // assign类型只需找到read那一个不属于C类型的token即可
+//         cur_State->tokens[cur_place] = "";
+//         for (auto &it : consume)
+//             if (it.first.find(".c.") == string::npos)
+//                 return it.second; // 非控制库所，返回
+//     }
+//     if (exp.find("write.")!=string::npos && cur_tran.find("Return.")!=string::npos) {
+//         // return
+//         // write类型需要清空当前库所
+//         for (auto &it : consume)
+//             if (it.first.find(".c.") == string::npos)
+//                 return it.second; // 非控制库所，返回
+//     }
+//     if (exp.find("write.")!=string::npos && cur_tran.find("+.") != string::npos) {
+//         // +
+//         string ret;
+//         for (auto &it : consume)
+//             if (it.first.find(".c.") == string::npos)
+//                 ret = to_string(atoi(ret.c_str()) + atoi(it.second.c_str()));
+//         return ret;
+//     }
+//     cerr << "tokenString::unknown arc expression : [" << exp << "], ";
+//     cerr << "transition name is [" << cur_tran << "]" << endl;
+//     exit(-1);
+// }
 
 /**
  * 执行弧表达式，修改token，仅处理消耗token的部分
  */
-void StateSpace::executeExp(string &tokens, const string &exp) {
-    int i = 0, j = tokens.find(", ", 0);
-    // i---j之间代表一个（或多个相同的）token
-    while (j != string::npos) {
-        size_t k = tokens.find('`', i);
-        string token = tokens.substr(k + 1, j - k - 1);
-        int num = atoi(tokens.substr(i, k - i).c_str());
-        // cout << num << "##" << token << endl;
-        if (tokenCheck(exp, token)) {
-            // 选择碰到的第一个token执行
-            // 消耗token
-            if (num == 1) {
-                tokens = tokens.substr(0, i) + tokens.substr(j);
-                if (tokens.length() == 2)
-                    tokens = "";
-            } else {
-                tokens =
-                    tokens.substr(0, i) + to_string(num - 1) + tokens.substr(k);   
-            }
-            consume[cur_place] = token; // 记录消耗掉的token
-            return;
-        }
-        i = j + 2;
-        j = tokens.find(", ", i);
-    }
-}
+// void StateSpace::executeExp(string &tokens, const string &exp) {
+//     int i = 0, j = tokens.find(", ", 0);
+//     // i---j之间代表一个（或多个相同的）token
+//     while (j != string::npos) {
+//         size_t k = tokens.find('`', i);
+//         string token = tokens.substr(k + 1, j - k - 1);
+//         int num = atoi(tokens.substr(i, k - i).c_str());
+//         // cout << num << "##" << token << endl;
+//         if (tokenCheck(exp, token)) {
+//             // 选择碰到的第一个token执行
+//             // 消耗token
+//             if (num == 1) {
+//                 tokens = tokens.substr(0, i) + tokens.substr(j);
+//                 if (tokens.length() == 2)
+//                     tokens = "";
+//             } else {
+//                 tokens =
+//                     tokens.substr(0, i) + to_string(num - 1) + tokens.substr(k);   
+//             }
+//             consume[cur_place] = token; // 记录消耗掉的token
+//             return;
+//         }
+//         i = j + 2;
+//         j = tokens.find(", ", i);
+//     }
+// }
 
 /**
  * 根据当前状态和变迁，生成下一个状态
 */
-State *StateSpace::nextState(State *s, int t) {
-    cur_tran = cpn->trans[t].name;
-    consume.clear();
-    // 先复制，再修改token
-    State *ret = new State();
-    ret->tokens = s->tokens;
-    cur_State = ret;
-    // for (auto it : s->tokens)
-    //     ret->tokens[it.first] = it.second;
-    // 修改，消耗
-    for (auto j : cpn->trans[t].pre) {
-        string arc_exp =
-            cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
+// State *StateSpace::nextState(State *s, int t) {
+//     cur_tran = cpn->trans[t].name;
+//     consume.clear();
+//     // 先复制，再修改token
+//     State *ret = new State();
+//     ret->tokens = s->tokens;
+//     cur_State = ret;
+//     // for (auto it : s->tokens)
+//     //     ret->tokens[it.first] = it.second;
+//     // 修改，消耗
+//     for (auto j : cpn->trans[t].pre) {
+//         string arc_exp =
+//             cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
 
-        cur_place = cpn->places[j].name;
-        auto it = ret->tokens.find(cur_place);
-        executeExp(it->second, arc_exp);
-        if (it->second == "")
-            ret->tokens.erase(it);
-    }
-    // 修改，输出
-    for (auto j : cpn->trans[t].pos) {
-        string arc_exp =
-            cpn->getArc(cpn->trans[t].name, cpn->places[j].name).name;
+//         cur_place = cpn->places[j].name;
+//         auto it = ret->tokens.find(cur_place);
+//         executeExp(it->second, arc_exp);
+//         if (it->second == "")
+//             ret->tokens.erase(it);
+//     }
+//     // 修改，输出
+//     for (auto j : cpn->trans[t].pos) {
+//         string arc_exp =
+//             cpn->getArc(cpn->trans[t].name, cpn->places[j].name).name;
 
-        cur_place = cpn->places[j].name;
-        auto it = ret->tokens.find(cur_place);
-        if (it == ret->tokens.end()) 
-            ret->tokens[cpn->places[j].name] = "";
-        it = ret->tokens.find(cpn->places[j].name);
-        // executeExp(it->second, arc_exp, true);
-        if (arc_exp.find("write.")!=string::npos)
-            it->second = "1`" + tokenString(arc_exp) + ", ";
-        else
-            it->second += "1`" + tokenString(arc_exp) + ", ";
+//         cur_place = cpn->places[j].name;
+//         auto it = ret->tokens.find(cur_place);
+//         if (it == ret->tokens.end()) 
+//             ret->tokens[cpn->places[j].name] = "";
+//         it = ret->tokens.find(cpn->places[j].name);
+//         // executeExp(it->second, arc_exp, true);
+//         if (arc_exp.find("write.")!=string::npos)
+//             it->second = "1`" + tokenString(arc_exp) + ", ";
+//         else
+//             it->second += "1`" + tokenString(arc_exp) + ", ";
 
-    }
-    cur_place = "error:cur_place";
-    cur_tran = "error:cur_tran";
-    return ret;
-}
+//     }
+//     cur_place = "error:cur_place";
+//     cur_tran = "error:cur_tran";
+//     return ret;
+// }
 
 /**
  * 检查给定的token是否满足条件表达式exp
 */
-bool StateSpace::tokenCheck(const string &exp, const string &t) {
-    if (exp.find("1`().") != string ::npos) {
-        if (t.find("C") != string::npos)
-            return true;
-    }
-    if (exp.find("x.") != string::npos || exp.find("y.")!= string::npos) {
-        // 只是读取token，一定能读取到
-        // read-->x，读取弧变成变量绑定弧。y也是绑定变量
-        return true;
-    }
-    cerr << "tokenCheck::unknown arc expression : [" << exp << "]" << endl;
-    exit(-1);
-}
+// bool StateSpace::tokenCheck(const string &exp, const string &t) {
+//     if (exp.find("1`().") != string ::npos) {
+//         if (t.find("C") != string::npos)
+//             return true;
+//     }
+//     if (exp.find("x.") != string::npos || exp.find("y.")!= string::npos) {
+//         // 只是读取token，一定能读取到
+//         // read-->x，读取弧变成变量绑定弧。y也是绑定变量
+//         return true;
+//     }
+//     cerr << "tokenCheck::unknown arc expression : [" << exp << "]" << endl;
+//     exit(-1);
+// }
 
 /**
  * 判断tokens满足弧表达式
 */
-bool StateSpace::satisfyExp(const string &exp, const string &tokens) {
-    int i = 0, j = tokens.find(", ", 0);
-    // i---j之间代表一个（或多个相同的）token
-    while (j != string::npos) {
-        size_t k = tokens.find('`', i);
-        string token = tokens.substr(k + 1, j - k - 1);
-        int num = atoi(tokens.substr(i, k - i).c_str());
-        // cout << num << "##" << token << endl;
-        if (tokenCheck(exp, token))
-            return true;
+// bool StateSpace::satisfyExp(const string &exp, const string &tokens) {
+//     int i = 0, j = tokens.find(", ", 0);
+//     // i---j之间代表一个（或多个相同的）token
+//     while (j != string::npos) {
+//         size_t k = tokens.find('`', i);
+//         string token = tokens.substr(k + 1, j - k - 1);
+//         int num = atoi(tokens.substr(i, k - i).c_str());
+//         // cout << num << "##" << token << endl;
+//         if (tokenCheck(exp, token))
+//             return true;
 
-        i = j + 2;
-        j = tokens.find(", ", i);
-    }
-    return false;
-}
+//         i = j + 2;
+//         j = tokens.find(", ", i);
+//     }
+//     return false;
+// }
 
 /**
  * 判断变迁可发生
 */
-bool StateSpace::isFireable(State *s, int t) {
-    for (auto j : cpn->trans[t].pre) {
-        string arc_exp =
-            cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
+// bool StateSpace::isFireable(State *s, int t) {
+//     for (auto j : cpn->trans[t].pre) {
+//         string arc_exp =
+//             cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
         
         
-        auto it = s->tokens.find(cpn->places[j].name);
-        if (it == s->tokens.end())
-            return false;  // 没有token直接不可发生
-        // cout << arc_exp << "->>";
-        // cout << it->second << endl;
-        if (!satisfyExp(arc_exp, it->second))
-            return false;
-    }
-    return true;
-}
+//         auto it = s->tokens.find(cpn->places[j].name);
+//         if (it == s->tokens.end())
+//             return false;  // 没有token直接不可发生
+//         // cout << arc_exp << "->>";
+//         // cout << it->second << endl;
+//         if (!satisfyExp(arc_exp, it->second))
+//             return false;
+//     }
+//     return true;
+// }
 
 // vector<int> &StateSpace::getFireable(State *s) {
 //     static vector<int> list;
@@ -485,6 +485,9 @@ int init_DataPlace(CPN *cpn, State *s) {
         if (p.color == "bool")
             s->tokens[p.name] = "1`False";
     }
+#ifdef USE_TOKENS
+    s->tokens.shrink_to_fit(cpn);
+#endif
     return 0;
 }
 
@@ -557,6 +560,10 @@ State *StateSpace::getNextState(State *cur_, Binding& b_) {
             cout << "Repeat state, ignored.   Total repeat [" << repeat << "]" << endl;
         return nullptr;
     }
+#ifdef USE_TOKENS
+    // 合法状态需要重新调整内存
+    s->tokens.shrink_to_fit(cpn);
+#endif
 
     return s;
 }
@@ -850,4 +857,149 @@ void MultiSet::sort() {
                 token[j] = tmp_s;
             }
         }
+}
+
+/**
+ * 根据库所名查找其包含的Token字符串
+ * p_       库所名
+ * return   一个pair指针，ret->second就是库所内的Token
+ */
+MarkingP *Tokens::find(const std::string& p_) const{
+    static MarkingP tmp_mp; // 临时用来保存查找值的变量
+    // 查找是否存在某个库所的值，基于查找速度的原则，顺序为base->V【不能基于速度】
+    // 顺序：V->base，原则：基于最新、正确的值
+    // 首先从V查找
+    for (int i = 0; i < V.size(); i++) {
+        if (V[i].first == p_){
+            tmp_mp.first = V[i].first;
+            tmp_mp.second = V[i].second;
+            return &tmp_mp;
+        }
+    }
+    // 其次从base查找
+    auto it = base->find(p_);
+    if (it!=base->end())    {
+        tmp_mp.first = it->first;
+        tmp_mp.second = it->second;
+        return &tmp_mp;
+    }
+    // 都没找到
+    return _ErrorM;
+}
+
+/**
+ * 返回空指针，用来代指不存在的库所-token
+*/
+MarkingP *Tokens::end() const {
+    return _ErrorM;
+}
+
+/**
+ * 根据输入的字符串从当前状态中清除一个库所-token
+ */
+void Tokens::erase(const string& p_) {
+    // 先尝试从MarkingALL删除
+    auto it = base->find(p_);
+    if (it != base->end()) {
+        base->erase(it->first);
+        return;
+    }
+
+    // 如果MarkingALL中没有，那么尝试从MarkingP中删除
+    auto it2 = V.begin();
+    while (it2->first != p_)
+        it2++;
+    if (it2 == V.end()) {
+        cerr << "Tokens::erase: failed to locate place [" << p_ << "]" << endl;
+        exit(-1);
+    }
+    V.erase(it2);
+}
+
+/**
+ * 根据给定的MarkingP，从当前状态清除这个库所-token
+*/
+void Tokens::erase(MarkingP *m_) {
+    // 先尝试从MarkingALL删除
+    auto it = base->find(m_->first);
+    if (it != base->end()) {
+        base->erase(it->first);
+        return;
+    }
+
+    // 如果MarkingALL中没有，那么尝试从MarkingP中删除
+    auto it2 = V.begin();
+    while (it2->first != m_->first)
+        it2++;
+    if (it2 == V.end()) {
+        cerr << "Tokens::erase: failed to locate place [" << m_->first << "]" << endl;
+        exit(-1);
+    }
+    V.erase(it2);
+}
+
+/**
+ * 重载‘=’赋值
+*/
+Tokens &Tokens::operator=(const Tokens &src_) {
+    this->base = src_.base;
+    this->V = src_.V;
+    return *this;
+}
+
+/**
+ * 重新调整STL容器容量，
+ * 实际上是调整内部的L，并且重新判断精简状态和普通状态
+*/
+void Tokens::shrink_to_fit(CPN *cpn_) {
+    V.shrink_to_fit();
+    
+    string P_init = cpn_->getPlaceByMatch("P.init.c.").name;
+    // auto mp = this->find(P_init);
+    int j;
+    for (j = 0; j < V.size(); j++) {
+        if (V[j].first == P_init)
+            break;
+    }
+    if (j == V.size())
+        return; // 如果在V中没有找到init库所
+    // 创建一个新的base，并将现有base与V合并塞入，如果重复则以V为准(修改过)
+    MarkingALL *tmp_base = this->base;
+    this->base = new MarkingALL;
+    *this->base = *tmp_base;
+    for (int i = 0; i < V.size(); i++) {
+        auto it = base->find(V[i].first);
+        if (it != base->end()) {
+            (*base)[V[i].first] = V[i].second;  // 重复时以此覆盖
+        }else {
+            (*base)[V[i].first] = V[i].second;  // 不重复则直接塞入
+        }
+    }
+    V.clear();
+    V.shrink_to_fit();              // 合并后清空V
+}
+
+/**
+ * 重载[]
+ * 根据参数库所名，返回对应的token的字符串的引用
+*/
+string& Tokens::operator[](const std::string& p_) {
+    if (!base)
+        base = new MarkingALL;
+    // !!!不可用思路!!! 基于速度考虑，先检查是否已有，再考虑是否插入【这个是不行的，不能修改基础的MarkingALL】
+
+    // 直接在V中查找是否有，有则塞进去，若没有也是一次全新的引用值，本质是修改行为，应该记录在V中，最后合并时以V为准
+    for (int i = 0; i < V.size(); i++) {
+        if (V[i].first == p_)
+            return V[i].second;
+    }
+    auto it = base->find(p_);
+    if (it != base->end()) {
+        V.emplace_back(MarkingP(it->first, it->second));
+        return V[V.size() - 1].second;
+    }
+    // 不存在则插入空token
+    V.emplace_back(MarkingP(p_, ""));
+    return V[V.size() - 1].second;
+
 }

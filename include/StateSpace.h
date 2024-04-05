@@ -7,21 +7,28 @@
 #include <list>
 #include "CPN.h"
 
-// #define USE_TOKENS
+#define USE_TOKENS
 
 typedef std::pair<std::string, std::string> MarkingP;
 typedef std::unordered_map<std::string, std::string> MarkingALL;
 class Tokens {
 public:
     MarkingALL* base = nullptr;
-    std::list<MarkingP> L;
+    std::vector<MarkingP> V;
 
+    constexpr static MarkingP* _ErrorM = nullptr;
     MarkingP* find(const std::string& p_) const;
     MarkingP* end() const;
     void erase(const std::string& p_);
     void erase(MarkingP* m_);
-    Tokens& operator=(const Tokens& b_);
+    Tokens& operator=(const Tokens& src_) ;
+
+
+    /*%%% 以下两个函数在new一个MarkingALL对象时会造成内存泄漏，需要编写析构来解决 %%%*/
     std::string& operator[](const std::string& p_);
+    void shrink_to_fit(CPN *cpn_);
+
+  private:
 };
 
 class State {
@@ -76,12 +83,12 @@ protected:
   // std::vector<int> &getFireable(State *);
   std::vector<Binding> &getBinding(State *);
 private:
-  bool isFireable(State *s, int t);  // 旧版，被取代
-  bool satisfyExp(const std::string &exp, const std::string &tokens);  // 旧版，被取代
-  State *nextState(State *s, int t);  // 旧版，被取代
-  void executeExp(std::string &tokens, const std::string &exp);  // 旧版，被取代
-  std::string tokenString(const std::string &exp);  // 旧版，被取代
-  bool tokenCheck(const std::string &exp, const std::string &token);  // 旧版，被取代
+  // bool isFireable(State *s, int t);  // 旧版，被取代
+  // bool satisfyExp(const std::string &exp, const std::string &tokens);  // 旧版，被取代
+  // State *nextState(State *s, int t);  // 旧版，被取代
+  // void executeExp(std::string &tokens, const std::string &exp);  // 旧版，被取代
+  // std::string tokenString(const std::string &exp);  // 旧版，被取代
+  // bool tokenCheck(const std::string &exp, const std::string &token);  // 旧版，被取代
 protected:
   int checkBindings(std::vector<Binding> &list,
                     const std::vector<std::vector<std::string>> &optional_list,
