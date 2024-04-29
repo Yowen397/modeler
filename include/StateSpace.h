@@ -44,6 +44,12 @@ class State {
     std::string getStr(const CPN*_cpn) const;
     std::size_t hash(const CPN*_cpn) const;
     static int copy(State*);
+
+    State() = default;
+    virtual ~State() = default;
+
+    std::vector<State*> predecessorNodes;
+    std::vector<State*> subsequentNodes;
 };
 
 class Binding{

@@ -65,9 +65,12 @@ void StateSpace::generate(State *init_s) {
             if (next_s == nullptr) {
                 delete next_s;
             } else {
-                // 生成成功，则加入队列
+                // 生成成功，则加入队列、哈希表
                 q.push(next_s);
                 states[next_s->hash(cpn)] = next_s;
+                // 维护前继和后继关系
+                q.front()->subsequentNodes.emplace_back(next_s);
+                next_s->predecessorNodes.emplace_back(q.front());
                 lastState = next_s;  // 这一句是历史遗留问题，能跑就别动
             }
             // cout << "check point" << endl;
