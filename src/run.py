@@ -23,7 +23,7 @@ if __name__ == "__main__":
         
         cmd += output_dir+"/"+basename_without_ext+"/combined.json "
         
-        cmd += " 1>> record.txt 2> error.txt"
+        cmd += " 1>> record.txt 2>> error.txt"
         print(cmd)
         os.system(cmd)
     

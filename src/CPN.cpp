@@ -1026,15 +1026,17 @@ int CPN::po_Return(const Value *node) {
     newTransition("Return", attr_id->value.GetInt());
     newArc(lastPlace, lastTransition, "p2t", "1`()");
 
-    // 返回值来源
-    Place &p = getPlaceByIdentifier(id_stk.top());
-    id_stk.pop();
-    newArc(p.name, lastTransition, "p2t", "x");
-    newArc(lastTransition, p.name, "t2p", "x");
+    if (this->returnPlace != "") {
+        // 返回值来源
+        Place& p = getPlaceByIdentifier(id_stk.top());
+        id_stk.pop();
+        newArc(p.name, lastTransition, "p2t", "x");
+        newArc(lastTransition, p.name, "t2p", "x");
 
-    // 找到返回值库所，目前只处理单值返回的，返回值库所命名唯一
-    newArc(lastTransition, returnPlace, "t2p", "x");
-    newArc(returnPlace, lastTransition, "p2t", "z");
+        // 找到返回值库所，目前只处理单值返回的，返回值库所命名唯一
+        newArc(lastTransition, returnPlace, "t2p", "x");
+        newArc(returnPlace, lastTransition, "p2t", "z");
+    }
 
     // 控制流
     newArc(lastTransition, outPlace, "t2p", "1`()");
