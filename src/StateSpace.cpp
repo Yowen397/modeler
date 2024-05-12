@@ -1,15 +1,16 @@
 #include "StateSpace.h"
 
 #include <sstream>
+#include <regex>
 
-using namespace std;
+using std::cerr, std::cout, std::endl;
 
 extern bool debug;
 
-inline bool isConstNum(const string& exp_);
+inline bool isConstNum(const std::string& exp_);
 
-string State::getStr(const CPN*_cpn) const {
-    string ret;
+std::string State::getStr(const CPN*_cpn) const {
+    std::string ret;
     // for (const auto &t: tokens)
     //     ret += t.first + ": \t" + t.second + "\n";
     for (auto p : _cpn->places) {
@@ -22,9 +23,9 @@ string State::getStr(const CPN*_cpn) const {
 
 
 size_t State::hash(const CPN*_cpn) const {
-    static std::hash<string> hasher;
+    static std::hash<std::string> hasher;
 
-    string str;
+    std::string str;
     for (auto p : _cpn->places) {
         auto it = tokens.find(p.name);
         if (it != tokens.end())
@@ -39,21 +40,21 @@ StateSpace::StateSpace(CPN* cpn_) {
 }
 
 void StateSpace::generate(State *init_s) {
-    queue<State *> q;
+    std::queue<State *> q;
     if (states.find(init_s->hash(cpn)) == states.end())
         q.push(init_s);
     states[init_s->hash(cpn)] = init_s;
 
     static int state_cnt = 0;
     while (!q.empty()) {
-        vector<Binding> &bindList = getBinding(q.front());
+        std::vector<Binding> &bindList = getBinding(q.front());
         state_cnt++;
         if (state_cnt % 10000 == 0 && !debug)
             cout << "State No." << state_cnt << " Processing]" << endl;
         else if (debug) {
             cout << "[State No." << state_cnt << " Processing]" << endl;
             cout << q.front()->getStr(cpn);
-            string tmp = "  Fireable Transition: ";
+            std::string tmp = "  Fireable Transition: ";
             for (auto i : bindList)
                 tmp += cpn->trans[i.t_idx].name + ", ";
             cout << BLUE << tmp << RESET << endl
@@ -85,12 +86,12 @@ void StateSpace::generate(State *init_s) {
 /**
  * 根据弧表达式生成
 */
-// string StateSpace::tokenString(const string &exp) {
-//     if (exp.find("1`().")!=string ::npos) {
+// std::string StateSpace::tokenString(const std::string &exp) {
+//     if (exp.find("1`().")!=std::string ::npos) {
 //         return "C";
 //     }
-//     if (exp.find("replace.")!=string::npos) {
-//         string token;
+//     if (exp.find("replace.")!=std::string::npos) {
+//         std::string token;
 //         auto it = consume.find(cur_place);
 //         if (it == consume.end()) {
 //             cerr << "tokenString::place[" << cur_place << "] consume nothing."
@@ -100,25 +101,25 @@ void StateSpace::generate(State *init_s) {
 //         token = it->second;
 //         return token;
 //     }
-//     if (exp.find("assign.") != string::npos && cur_tran.find("Assignment.") != string::npos) {
+//     if (exp.find("assign.") != std::string::npos && cur_tran.find("Assignment.") != std::string::npos) {
 //         // assign类型只需找到read那一个不属于C类型的token即可
 //         cur_State->tokens[cur_place] = "";
 //         for (auto &it : consume)
-//             if (it.first.find(".c.") == string::npos)
+//             if (it.first.find(".c.") == std::string::npos)
 //                 return it.second; // 非控制库所，返回
 //     }
-//     if (exp.find("write.")!=string::npos && cur_tran.find("Return.")!=string::npos) {
+//     if (exp.find("write.")!=std::string::npos && cur_tran.find("Return.")!=std::string::npos) {
 //         // return
 //         // write类型需要清空当前库所
 //         for (auto &it : consume)
-//             if (it.first.find(".c.") == string::npos)
+//             if (it.first.find(".c.") == std::string::npos)
 //                 return it.second; // 非控制库所，返回
 //     }
-//     if (exp.find("write.")!=string::npos && cur_tran.find("+.") != string::npos) {
+//     if (exp.find("write.")!=std::string::npos && cur_tran.find("+.") != std::string::npos) {
 //         // +
-//         string ret;
+//         std::string ret;
 //         for (auto &it : consume)
-//             if (it.first.find(".c.") == string::npos)
+//             if (it.first.find(".c.") == std::string::npos)
 //                 ret = to_string(atoi(ret.c_str()) + atoi(it.second.c_str()));
 //         return ret;
 //     }
@@ -130,12 +131,12 @@ void StateSpace::generate(State *init_s) {
 /**
  * 执行弧表达式，修改token，仅处理消耗token的部分
  */
-// void StateSpace::executeExp(string &tokens, const string &exp) {
+// void StateSpace::executeExp(std::string &tokens, const std::string &exp) {
 //     int i = 0, j = tokens.find(", ", 0);
 //     // i---j之间代表一个（或多个相同的）token
-//     while (j != string::npos) {
+//     while (j != std::string::npos) {
 //         size_t k = tokens.find('`', i);
-//         string token = tokens.substr(k + 1, j - k - 1);
+//         std::string token = tokens.substr(k + 1, j - k - 1);
 //         int num = atoi(tokens.substr(i, k - i).c_str());
 //         // cout << num << "##" << token << endl;
 //         if (tokenCheck(exp, token)) {
@@ -171,7 +172,7 @@ void StateSpace::generate(State *init_s) {
 //     //     ret->tokens[it.first] = it.second;
 //     // 修改，消耗
 //     for (auto j : cpn->trans[t].pre) {
-//         string arc_exp =
+//         std::string arc_exp =
 //             cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
 
 //         cur_place = cpn->places[j].name;
@@ -182,7 +183,7 @@ void StateSpace::generate(State *init_s) {
 //     }
 //     // 修改，输出
 //     for (auto j : cpn->trans[t].pos) {
-//         string arc_exp =
+//         std::string arc_exp =
 //             cpn->getArc(cpn->trans[t].name, cpn->places[j].name).name;
 
 //         cur_place = cpn->places[j].name;
@@ -191,7 +192,7 @@ void StateSpace::generate(State *init_s) {
 //             ret->tokens[cpn->places[j].name] = "";
 //         it = ret->tokens.find(cpn->places[j].name);
 //         // executeExp(it->second, arc_exp, true);
-//         if (arc_exp.find("write.")!=string::npos)
+//         if (arc_exp.find("write.")!=std::string::npos)
 //             it->second = "1`" + tokenString(arc_exp) + ", ";
 //         else
 //             it->second += "1`" + tokenString(arc_exp) + ", ";
@@ -205,12 +206,12 @@ void StateSpace::generate(State *init_s) {
 /**
  * 检查给定的token是否满足条件表达式exp
 */
-// bool StateSpace::tokenCheck(const string &exp, const string &t) {
-//     if (exp.find("1`().") != string ::npos) {
-//         if (t.find("C") != string::npos)
+// bool StateSpace::tokenCheck(const std::string &exp, const std::string &t) {
+//     if (exp.find("1`().") != std::string ::npos) {
+//         if (t.find("C") != std::string::npos)
 //             return true;
 //     }
-//     if (exp.find("x.") != string::npos || exp.find("y.")!= string::npos) {
+//     if (exp.find("x.") != std::string::npos || exp.find("y.")!= std::string::npos) {
 //         // 只是读取token，一定能读取到
 //         // read-->x，读取弧变成变量绑定弧。y也是绑定变量
 //         return true;
@@ -222,12 +223,12 @@ void StateSpace::generate(State *init_s) {
 /**
  * 判断tokens满足弧表达式
 */
-// bool StateSpace::satisfyExp(const string &exp, const string &tokens) {
+// bool StateSpace::satisfyExp(const std::string &exp, const std::string &tokens) {
 //     int i = 0, j = tokens.find(", ", 0);
 //     // i---j之间代表一个（或多个相同的）token
-//     while (j != string::npos) {
+//     while (j != std::string::npos) {
 //         size_t k = tokens.find('`', i);
-//         string token = tokens.substr(k + 1, j - k - 1);
+//         std::string token = tokens.substr(k + 1, j - k - 1);
 //         int num = atoi(tokens.substr(i, k - i).c_str());
 //         // cout << num << "##" << token << endl;
 //         if (tokenCheck(exp, token))
@@ -244,7 +245,7 @@ void StateSpace::generate(State *init_s) {
 */
 // bool StateSpace::isFireable(State *s, int t) {
 //     for (auto j : cpn->trans[t].pre) {
-//         string arc_exp =
+//         std::string arc_exp =
 //             cpn->getArc(cpn->places[j].name, cpn->trans[t].name).name;
         
         
@@ -282,12 +283,12 @@ void StateSpace::generate(State *init_s) {
 //     return list;
 // }
 
-vector<Binding> &StateSpace::getBinding(State *s) {
-    static vector<Binding> list;  // 设计为static
+std::vector<Binding> &StateSpace::getBinding(State *s) {
+    static std::vector<Binding> list;  // 设计为static
     list.clear();
 
     // 可能发生的变迁(前集【控制流】库所中含有token)
-    set<int> uncheck_trans;
+    std::set<int> uncheck_trans;
 #ifndef USE_TOKENS
     for (auto &p : s->tokens) {
         // cout << p.first << ":" << p.second << endl;
@@ -319,8 +320,8 @@ vector<Binding> &StateSpace::getBinding(State *s) {
     // 思路：将每种可能的绑定列出来，然后查找它的可行性
     for (auto t: uncheck_trans) {
         bool check = true;
-        vector<vector<string>> optional_list;
-        vector<string> place_list;
+        std::vector<std::vector<std::string>> optional_list;
+        std::vector<std::string> place_list;
         // 将每一个库所的变量所有种类都解析出来
         for (auto pre_place : cpn->trans[t].pre) {
             optional_list.emplace_back();
@@ -333,7 +334,7 @@ vector<Binding> &StateSpace::getBinding(State *s) {
         }
         // 将提取到的内容验证，并组成绑定
         if (optional_list.size() == place_list.size()) {
-            vector<int> iters(place_list.size(), 0);
+            std::vector<int> iters(place_list.size(), 0);
             checkBindings(list, optional_list, place_list, cpn->trans[t].name);
         }
     }
@@ -342,8 +343,8 @@ vector<Binding> &StateSpace::getBinding(State *s) {
 }
 
 /* 0计算成功，-1则计算失败已经到末尾 */
-inline int nextIterList(vector<int>& I_, 
-                        const vector<vector<string>>& O_) {
+inline int nextIterList(std::vector<int>& I_, 
+                        const std::vector<std::vector<std::string>>& O_) {
     // 执行思路：各位不同进制的加法
 
     I_[O_.size() - 1]++;                        // 末位+1
@@ -362,10 +363,10 @@ inline int nextIterList(vector<int>& I_,
     return 0;
 }
 
-unordered_map<string, string> var_sattisfy;  // '检查阶段'的变量绑定情况
+std::unordered_map<std::string, std::string> var_sattisfy;  // '检查阶段'的变量绑定情况
 
 /* 尝试绑定变量与token，如果成功则返回1，失败则返回0 */
-inline int try_bind(const string &t_, const string &v_, unordered_map<string, string>&var_map) {
+inline int try_bind(const std::string &t_, const std::string &v_, std::unordered_map<std::string, std::string>&var_map) {
     // 若不存在则直接绑定成功
     if (var_map.find(v_) == var_map.end()) {
         var_map[v_] = t_;
@@ -388,13 +389,13 @@ inline int try_bind(const string &t_, const string &v_, unordered_map<string, st
  * 注意：1、此时传入参数中token已经分割出数量，此时不能处理多个token的情况
  *      2、默认库所类型是匹配弧表达式类型的，不做多余复杂检查
 */
-int StateSpace::satisfyExp_singleExp(const string &token, 
-                    const string &expression) {
+int StateSpace::satisfyExp_singleExp(const std::string &token, 
+                    const std::string &expression) {
     // 空的token直接判定为不满足
     if (token == "")
         return 0;
     // 首先去除弧表达式末尾的   '.2' 、 '.15'
-    string exp = expression.substr(0, expression.find_last_of('.'));
+    std::string exp = expression.substr(0, expression.find_last_of('.'));
     // 分类处理弧表达式
     if (exp == "1`()")                                      // 控制弧
         return token == "()" ? 1 : 0;
@@ -405,9 +406,9 @@ int StateSpace::satisfyExp_singleExp(const string &token,
             return 0;
         int Lt = 1, Rt = token.find_first_of(',', Lt);
         int Lv = 1, Rv = exp.find_first_of(',', Lv);
-        while (Rt != string::npos && Rv != string::npos) {
-            string t = token.substr(Lt, Rt - Lt);
-            string v = exp.substr(Lv, Rv - Lv);
+        while (Rt != std::string::npos && Rv != std::string::npos) {
+            std::string t = token.substr(Lt, Rt - Lt);
+            std::string v = exp.substr(Lv, Rv - Lv);
             if (!try_bind(t, v, var_sattisfy))
                 return 0;
             Lt = Rt + 1;
@@ -429,18 +430,18 @@ int StateSpace::satisfyExp_singleExp(const string &token,
  * 检查一个组合是否满足对应的弧表达式 
  * return: 0代表不满足，1代表满足
 */
-int StateSpace::satisfyExp_group(const vector<int> &iter_list,
-                    const vector<vector<string>> &optional_list,
-                    const vector<string> &place_list,
-                    const string &trans_name) {
+int StateSpace::satisfyExp_group(const std::vector<int> &iter_list,
+                    const std::vector<std::vector<std::string>> &optional_list,
+                    const std::vector<std::string> &place_list,
+                    const std::string &trans_name) {
     var_sattisfy.clear();
     for (int i = 0; i < place_list.size(); i++) {
         // 如果该弧的前面的库所是空的，那么直接判定为不满足
         if (optional_list[i].size() == 0)
             return 0;
         // 逐个弧检查是否满足
-        string token = optional_list[i][iter_list[i]];
-        string arc_exp = cpn->getArc(place_list[i], trans_name).name;
+        std::string token = optional_list[i][iter_list[i]];
+        std::string arc_exp = cpn->getArc(place_list[i], trans_name).name;
 
         if (!satisfyExp_singleExp(token, arc_exp))
             return 0;
@@ -452,11 +453,11 @@ int StateSpace::satisfyExp_group(const vector<int> &iter_list,
  * 检查token是否可以构成一个绑定，如果可以则加入list
  * 预设前提：弧表达式之间的变量不存在公用关系（例：不存在一个变迁两个弧同时使用x变量）
 */
-int StateSpace::checkBindings(vector<Binding> &list,
-                    const vector<vector<string>> &optional_list,
-                    const vector<string> &place_list,
-                    const string &trans_name) {
-    vector<int> iter_list(place_list.size(), 0);
+int StateSpace::checkBindings(std::vector<Binding> &list,
+                    const std::vector<std::vector<std::string>> &optional_list,
+                    const std::vector<std::string> &place_list,
+                    const std::string &trans_name) {
+    std::vector<int> iter_list(place_list.size(), 0);
     while (iter_list[0] < place_list.size()) {
         // 验证该组合是否满足弧表达式
         if (satisfyExp_group(iter_list, optional_list, place_list, trans_name)) {
@@ -496,9 +497,9 @@ int init_DataPlace(CPN *cpn, State *s) {
 
 int parse_MultiSet(MultiSet &ms, const std::string &s) {
     // 已知规定，用++链接，全数字形式
-    stringstream ss(s);
+    std::stringstream ss(s);
     int n;
-    string token;
+    std::string token;
     char ch = '`';
 
     while (ss.peek()!=EOF) {
@@ -514,7 +515,7 @@ int parse_MultiSet(MultiSet &ms, const std::string &s) {
     return 0;
 }
 
-unordered_map<string, string> var_NextState;  // '生成下一个状态阶段'的变量绑定情况
+std::unordered_map<std::string, std::string> var_NextState;  // '生成下一个状态阶段'的变量绑定情况
 
 /**
  * 获取下一个状态，基于cur_和绑定b_生成
@@ -535,11 +536,11 @@ State *StateSpace::getNextState(State *cur_, Binding& b_) {
     }
     // 写入新增的token
     for (int i = 0; i < cpn->trans[b_.t_idx].pos.size();i++) {
-        string place_name = cpn->places[cpn->trans[b_.t_idx].pos[i]].name;
+        std::string place_name = cpn->places[cpn->trans[b_.t_idx].pos[i]].name;
         addToken(s->tokens[place_name], b_.t_idx, place_name);
     }
     // 删去空库所key值
-    vector<string> del;
+    std::vector<std::string> del;
 #ifndef USE_TOKENS
     for (auto p : s->tokens)
         if (p.second == "")
@@ -572,7 +573,7 @@ State *StateSpace::getNextState(State *cur_, Binding& b_) {
 }
 
 // 检查是否有对应的绑定变量
-inline void checkExpInVar(const string &e_) {
+inline void checkExpInVar(const std::string &e_) {
     auto it = var_NextState.find(e_);
     if (it==var_NextState.end()) {
         cerr << "StateSpace::addToken: checkExpInVar failed, unknown var["
@@ -582,42 +583,42 @@ inline void checkExpInVar(const string &e_) {
 }
 
 // 判断是否为二元操作, +-*/
-inline bool isBinaryOp(const string &e_) {
-    if (e_.find('+') != string::npos || e_.find('-') != string::npos 
-        || e_.find('*') != string::npos || e_.find('/') != string::npos
-        || e_.find('>') != string::npos || e_.find('<') != string::npos
-        || e_.find("==") != string::npos)
+inline bool isBinaryOp(const std::string &e_) {
+    if (e_.find('+') != std::string::npos || e_.find('-') != std::string::npos 
+        || e_.find('*') != std::string::npos || e_.find('/') != std::string::npos
+        || e_.find('>') != std::string::npos || e_.find('<') != std::string::npos
+        || e_.find("==") != std::string::npos)
         return true;
     return false;
 }
 
 // 解析二元运算表达式，并且按照运算规则得出结果，修改ms
-inline void calcExp_Bin(MultiSet &ms, const string &exp) {
+inline void calcExp_Bin(MultiSet &ms, const std::string &exp) {
     /* 目前二元运算只接受 ‘+’ ‘-’ ‘*’ ‘/’ 这四种(已扩充)，【也仅针对数值】 */
     int i = 0;
     while (exp[i] != '+' && exp[i] != '-' && exp[i] != '*' && exp[i] != '/'
             && exp[i] != '<'&& exp[i] != '>' && exp[i] != '&'&& exp[i] != '|'
             && exp[i] != '=')
         i++;
-    string op;
+    std::string op;
     op += exp[i];
     if (exp[i+1]=='='||exp[i+1]=='&'|| exp[i+1]=='|')
         op += exp[i + 1];
 
-    string opL = exp.substr(0, i);              // 左操作数
-    string opR = exp.substr(i + op.length());   // 右操作数
-    string opL_s = var_NextState[opL], opR_s = var_NextState[opR];
+    std::string opL = exp.substr(0, i);              // 左操作数
+    std::string opR = exp.substr(i + op.length());   // 右操作数
+    std::string opL_s = var_NextState[opL], opR_s = var_NextState[opR];
     int opL_i = isConstNum(opL) ? atoi(opL.c_str()) : atoi(opL_s.c_str());
     int opR_i = isConstNum(opR) ? atoi(opR.c_str()) : atoi(opR_s.c_str());
-    string res;
+    std::string res;
     if (op == "+")
-        res = to_string(opL_i + opR_i);
+        res = std::to_string(opL_i + opR_i);
     else if (op == "-")
-        res = to_string(opL_i - opR_i);
+        res = std::to_string(opL_i - opR_i);
     else if (op == "*")
-        res = to_string(opL_i * opR_i);
+        res = std::to_string(opL_i * opR_i);
     else if (op == "/")
-        res = to_string(opL_i / opR_i);
+        res = std::to_string(opL_i / opR_i);
     else if (op == "<")
         res = opL_i < opR_i ? "True" : "False";
     else if (op == ">")
@@ -625,7 +626,7 @@ inline void calcExp_Bin(MultiSet &ms, const string &exp) {
     else if (op == "==")                            // 区分不同类型的相等判别
         if (opL_s == "True" || opL_s == "False")
             res = opL_s == opR_s ? "True" : "False";
-        else if (opL_s.find("0x") != string::npos)
+        else if (opL_s.find("0x") != std::string::npos)
             res = opL_s == opR_s ? "True" : "False";
         else
             res = opL_i == opR_i ? "True" : "False";
@@ -638,18 +639,18 @@ inline void calcExp_Bin(MultiSet &ms, const string &exp) {
 }
 
 // 判断一个表达式是否为变量标识符
-inline bool isVarIdentifier(const string& exp_) {
+inline bool isVarIdentifier(const std::string& exp_) {
     if (exp_.length() > 2)  
         return false;       // 变量只接受长度为2最多，字母+数字
-    if (exp_.find_first_of("xyzw") == string::npos)
+    if (exp_.find_first_of("xyzw") == std::string::npos)
         return false;       // 变量起始字符为xyzw中的一个
     return true;
 }
 
 // 判断一个表达式是否为常量数值
-inline bool isConstNum(const string& exp_) {
+inline bool isConstNum(const std::string& exp_) {
     int n = atoi(exp_.c_str());
-    if (exp_ == to_string(n))
+    if (exp_ == std::to_string(n))
         return true;
     return false;
 }
@@ -659,18 +660,23 @@ inline bool isConstNum(const string& exp_) {
 */
 int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string& p_) {
     Arc& a = cpn->getArc(cpn->trans[t_idx_].name, p_);
-    string exp = a.name.substr(0, a.name.find_last_of('.'));
+    std::string exp = a.name.substr(0, a.name.find_last_of('.'));
 
     MultiSet ms;
     parse_MultiSet(ms, all_);
 
+    std::regex re_ctrl("1`\\(\\)");
+
     if (exp == "1`()"){                                 // 控制弧，输出控制流token
+        if (!std::regex_match(exp, re_ctrl)) {
+            
+        }
         ms.add("()");
         all_ = ms.str();
         return 0;
     }
     if (exp[0] == '(' && exp[exp.length() - 1] == ')') {// 交类型生成，（先判断交类型，避免进入二元运算）
-        string token = addToken_tuple(exp);
+        std::string token = addToken_tuple(exp);
         ms.add(token);
         all_ = ms.str();
         return 0;
@@ -705,16 +711,16 @@ int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string&
 /**
  * 根据弧表达式和var_NextState中的情况来生成下一个token的字符串
 */
-string StateSpace::addToken_tuple(const string& exp) {
+std::string StateSpace::addToken_tuple(const std::string& exp) {
     // 检查输入
     if (exp[0]!='('||exp[exp.length()-1]!=')') {
         cerr << "StateSpace::addToken_tuple: Input error, input expression is [" << exp << "]" << endl;
         exit(-1);
     }
-    string ret = "(";
+    std::string ret = "(";
     int pos = 1;
     while (pos < exp.length() - 1) {
-        string var = exp.substr(pos, exp.find(",", pos) - pos);
+        std::string var = exp.substr(pos, exp.find(",", pos) - pos);
         if (isBinaryOp(var)) {
             MultiSet ms;
             calcExp_Bin(ms, var);
@@ -746,7 +752,7 @@ int StateSpace::bindVar(const std::string& p_, const int t_idx_, const std::stri
     /*  在这个阶段不需要考虑绑定是否会失败，因为在之前生成可发
     生变迁组合的时候已经验证过一次了 */
     Arc& a = cpn->getArc(p_, cpn->trans[t_idx_].name);
-    string exp = a.name.substr(0, a.name.find_last_of('.'));
+    std::string exp = a.name.substr(0, a.name.find_last_of('.'));
     // 分类绑定的具体操作
     //     注意到这个函数的实现与StateSpace::satisfyExp_singleExp非常
     // 相似，但是有区别，这里的返回值虽然有处理，但是并无实际使用
@@ -763,9 +769,9 @@ int StateSpace::bindVar(const std::string& p_, const int t_idx_, const std::stri
         int Rt = t_.find_first_of(',', Lt);
         int Lv = 1;
         int Rv = exp.find_first_of(',', Lv);
-        while (Rt != string::npos && Rv != string::npos) {
-            string t = t_.substr(Lt, Rt - Lt);
-            string v = exp.substr(Lv, Rv - Lv);
+        while (Rt != std::string::npos && Rv != std::string::npos) {
+            std::string t = t_.substr(Lt, Rt - Lt);
+            std::string v = exp.substr(Lv, Rv - Lv);
             if (!try_bind(t, v, var_NextState)) {
                 cerr << "StateSpace::bindVar: Try to bind var[" << v << "] and token-component[" << t << "] failed, var is [" << var_NextState[v] << "]" << endl;
                 exit(-1);
@@ -836,10 +842,10 @@ int MultiSet::sub(const std::string& t_, const int n_) {
 }
 
 /* 生成Multi-set对应的字符串形式的token，生成过程注意排序保持唯一性 */
-string MultiSet::str() {
-    string ret;
+std::string MultiSet::str() {
+    std::string ret;
     for (int i = 0; i < num.size();i++) {
-        ret += to_string(num[i]) + '`' + token[i];
+        ret += std::to_string(num[i]) + '`' + token[i];
         if (i < num.size() - 1)
             ret += "++";
     }
@@ -855,7 +861,7 @@ void MultiSet::sort() {
                 num[i] = num[j];
                 num[j] = tmp_i;
 
-                string tmp_s = token[i];
+                std::string tmp_s = token[i];
                 token[i] = token[j];
                 token[j] = tmp_s;
             }
@@ -900,7 +906,7 @@ MarkingP *Tokens::end() const {
 /**
  * 根据输入的字符串从当前状态中清除一个库所-token
  */
-void Tokens::erase(const string& p_) {
+void Tokens::erase(const std::string& p_) {
     // 先尝试从MarkingALL删除
     auto it = base->find(p_);
     if (it != base->end()) {
@@ -957,7 +963,7 @@ Tokens &Tokens::operator=(const Tokens &src_) {
 void Tokens::shrink_to_fit(CPN *cpn_) {
     V.shrink_to_fit();
     
-    string P_init = cpn_->getPlaceByMatch("P.init.c.").name;
+    std::string P_init = cpn_->getPlaceByMatch("P.init.c.").name;
     // auto mp = this->find(P_init);
     int j;
     for (j = 0; j < V.size(); j++) {
@@ -986,7 +992,7 @@ void Tokens::shrink_to_fit(CPN *cpn_) {
  * 重载[]
  * 根据参数库所名，返回对应的token的字符串的引用
 */
-string& Tokens::operator[](const std::string& p_) {
+std::string& Tokens::operator[](const std::string& p_) {
     if (!base)
         base = new MarkingALL;
     // !!!不可用思路!!! 基于速度考虑，先检查是否已有，再考虑是否插入【这个是不行的，不能修改基础的MarkingALL】

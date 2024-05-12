@@ -8,7 +8,7 @@
 #include "common.h"
 
 const bool print_AST = true;
-bool debug = false;
+bool debug = true;
 std::string path_ast = "error file name";
 std::vector<Timer> timer;
 
