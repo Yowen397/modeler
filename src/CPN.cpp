@@ -805,7 +805,7 @@ int CPN::mid_IfStatement(const Value *node) {
     newArc(p_result_name, lastTransition, "p2t", "x");
     newArc(lastTransition, p_result_name, "t2p", "x");
     newPlace("IfStatementCTrue", true);
-    newArc(lastTransition, lastPlace, "t2p", "if x=true then 1`() else empty");
+    newArc(lastTransition, lastPlace, "t2p", "if x==True then 1`() else Empty");
     this->traverse(&node->FindMember("trueBody")->value);
     // 收尾部分
     string t_true_name = newTransition("IfStatementTrue", id, true).name;
@@ -815,10 +815,10 @@ int CPN::mid_IfStatement(const Value *node) {
 
     // false 部分
     if (node->FindMember("falseBody")==node->MemberEnd()) {
-        newArc(t_if_name, p_c_if_name, "t2p", "if x=false then 1`() else empty");
+        newArc(t_if_name, p_c_if_name, "t2p", "if x==False then 1`() else Empty");
     } else {
         auto p_c_false_name = newPlace("IfStatementCFalse", true).name;
-        newArc(t_if_name, p_c_false_name, "t2p", "if x=false then 1`() else empty");
+        newArc(t_if_name, p_c_false_name, "t2p", "if x==False then 1`() else Empty");
         this->traverse(&node->FindMember("falseBody")->value);
         auto t_false_name = newTransition("IfStatementFalse", id, true).name;
         newArc(lastPlace, lastTransition, "p2t", "1`()");

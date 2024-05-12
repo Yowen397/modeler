@@ -68,6 +68,7 @@ class MultiSet{
     void sort();
     int add(const std::string& t_, const int n_ = 1);
     int sub(const std::string& t_, const int n_ = 1);
+    MultiSet& operator+=(const MultiSet & b);
 };
 // class Bingdings{
 //   public:
@@ -125,6 +126,49 @@ protected:
 
   public:
   State* getLastState() { return lastState; };
+};
+
+namespace EXP {
+
+typedef int NUM;
+
+class Oprand {
+protected:
+    std::string str;
+    NUM value;
+public:
+    NUM get_value() const { return value; };
+    Oprand(const std::string& s_);
+};
+
+// 计算
+std::string calc(const Oprand& op1, const std::string& opcode, const Oprand& op2);
+
+class Expression {
+protected:
+    std::string str;
+
+public:
+    Expression(const std::string& s_)
+        : str(s_) {};
+    virtual std::string result();
+};
+
+class BinExpression : public Expression {
+protected:
+    bool parsed = false;
+    std::vector<std::string> opcode;
+    std::vector<std::string> oprand;
+
+    void parse();
+
+public:
+    BinExpression(const std::string& s_)
+        : Expression(s_) {};
+    virtual std::string result();
+};
+
+
 };
 
 /* 初始化变量库所（已手动初始化的库所除外），局部变量、临时变量等，赋予零值 */

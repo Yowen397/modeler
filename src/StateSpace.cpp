@@ -4,6 +4,7 @@
 #include <regex>
 
 using std::cerr, std::cout, std::endl;
+using namespace EXP;
 
 extern bool debug;
 
@@ -638,6 +639,48 @@ inline void calcExp_Bin(MultiSet &ms, const std::string &exp) {
     ms.add(res);
 }
 
+// 计算if语句的输出
+inline void calcExp_If(MultiSet& ms, const std::string& exp)
+{
+    // 默认if语句的条件判断是一个二元运算判定，且有if就有else
+    // 先左边变量、运算符为=，右边为常量，目前只有这种建模
+
+    // 取出条件判定表达式
+    static std::regex re_con("if .* then");
+    std::smatch sm_con;
+    std::regex_search(exp, sm_con, re_con);
+    std::string exp_con = sm_con.str().substr(3, sm_con.length() - 3 - 5);
+    // 取出true的输出集合
+    static std::regex re_true("then .* else");
+    std::smatch sm_true;
+    std::regex_search(exp, sm_true, re_true);
+    std::string exp_true = sm_true.str().substr(5, sm_true.str().length() - 5 - 5);
+    // 取出false的输出集合
+    static std::regex re_false("else .*");
+    std::smatch sm_false;
+    std::regex_search(exp, sm_false, re_false);
+    std::string exp_false = sm_false.str().substr(5);
+
+    // 计算if语句判定表达式的值
+    std::shared_ptr<EXP::BinExpression> con = std::make_shared<EXP::BinExpression>(exp_con);
+    std::string tmp_con = con->result();
+
+    MultiSet tmp_ms;    
+
+    if (tmp_con == "1")
+    {
+        parse_MultiSet(tmp_ms, exp_true);
+        ms += tmp_ms;
+    }
+    else
+    {
+        parse_MultiSet(tmp_ms, exp_false);
+        ms += tmp_ms;
+    }
+
+    return;
+}
+
 // 判断一个表达式是否为变量标识符
 inline bool isVarIdentifier(const std::string& exp_) {
     if (exp_.length() > 2)  
@@ -649,8 +692,22 @@ inline bool isVarIdentifier(const std::string& exp_) {
 
 // 判断一个表达式是否为常量数值
 inline bool isConstNum(const std::string& exp_) {
+    static std::regex re("-?\\d+");
+    if (std::regex_match(exp_, re))
+        return true;
+    return false;
+
     int n = atoi(exp_.c_str());
     if (exp_ == std::to_string(n))
+        return true;
+    return false;
+}
+
+// 判断一个表达式是否为if语句
+inline bool isIfStmt(const std::string& exp)
+{
+    static std::regex re("if .* then .* (else .*)?");
+    if (std::regex_match(exp, re))
         return true;
     return false;
 }
@@ -665,12 +722,13 @@ int StateSpace::addToken(std::string& all_, const int t_idx_, const std::string&
     MultiSet ms;
     parse_MultiSet(ms, all_);
 
-    std::regex re_ctrl("1`\\(\\)");
-
-    if (exp == "1`()"){                                 // 控制弧，输出控制流token
-        if (!std::regex_match(exp, re_ctrl)) {
-            
-        }
+    if (isIfStmt(exp)) {
+        calcExp_If(ms, exp);
+        all_ = ms.str();
+        return 0;
+    }
+    std::regex re_ctrl("1`\\(\\)");                       
+    if (std::regex_match(exp, re_ctrl)) {               // 控制弧，输出控制流token
         ms.add("()");
         all_ = ms.str();
         return 0;
@@ -866,6 +924,26 @@ void MultiSet::sort() {
                 token[j] = tmp_s;
             }
         }
+}
+
+MultiSet& MultiSet::operator+=(const MultiSet&b)
+{
+    for (int i = 0; i < b.num.size();i++) 
+    {
+        int j;
+        for (j = 0; j < this->num.size(); j++)
+            if (b.token[i] == this->token[j])
+                break;
+        
+        if (j<this->num.size())
+            this->num[j] += b.num[i];
+        else 
+        {
+            this->num.emplace_back(b.num[i]);
+            this->token.emplace_back(b.token[i]);
+        }
+    }
+    return *this;
 }
 
 /**
