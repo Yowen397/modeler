@@ -53,8 +53,8 @@ int main(int argc, char* argv[]){
         test_integer_overflow_multitx_onefunc_feasible(sp);
 
     timer.emplace_back("state space done");
-    
-    
+
+    std::cout << YELLOW << "Filename: [" << path_ast << "]" << RESET << std::endl;
     Timer::outputTime(timer);
     VmPeak();
 
