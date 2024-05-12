@@ -16,6 +16,7 @@ void test_Storage(StateSpace &sp);
 void test_Purchase(StateSpace& sp);
 void test_Timelock(StateSpace& sp);
 void test_SafeMath(StateSpace& sp);
+void test_integer_overflow_multitx_onefunc_feasible(StateSpace& sp);
 
 int main(int argc, char* argv[]){
     timer.emplace_back("program begin");
@@ -48,6 +49,8 @@ int main(int argc, char* argv[]){
         test_Timelock(sp);
     if (path_ast.find("SafeMath") != std::string::npos)
         test_SafeMath(sp);
+    if (path_ast.find("integer_overflow_multitx_onefunc_feasible")!=std::string::npos)
+        test_integer_overflow_multitx_onefunc_feasible(sp);
 
     timer.emplace_back("state space done");
     
@@ -135,5 +138,23 @@ void test_SafeMath(StateSpace &sp) {
     std::cout << s->getStr(sp.cpn) << std::endl;
     sp.generate(s);
     
+    return;
+}
+
+void test_integer_overflow_multitx_onefunc_feasible(StateSpace& sp)
+{
+    State* s = new State();
+    // std::shared_ptr<State> s = std::make_shared<State>();
+    s->tokens[sp.cpn->getPlaceByMatch("P.init.c").name] = "1`()";
+    s->tokens[sp.cpn->getPlaceByMatch("global.this").name] = "1`20";
+    s->tokens[sp.cpn->getPlaceByMatch("global.msg").name] = "1`(0x0000,0,)";
+    s->tokens[sp.cpn->getPlaceByMatch("global.ALLUSERS").name] = "1`(0x000A,100,)";
+
+    s->tokens[sp.cpn->getPlaceByMatch("run.pcall").name] = "1`(5,0x000A,0,)++1`(3,0x000A,0,)";
+
+    init_DataPlace(sp.cpn, s);
+    std::cout << s->getStr(sp.cpn) << std::endl;
+    sp.generate(s);
+
     return;
 }

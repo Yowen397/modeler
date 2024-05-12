@@ -65,5 +65,10 @@
         "numbers": "cpp",
         "list": "cpp"
     },
-    
+    "cmake.debugConfig": {
+        "args": ["../solc_files/output2/integer_overflow_multitx_onefunc_feasible/combined.json"],
+        "cwd": "${workspaceFolder}/bin"
+        
+    },
+    "http.proxySupport": "off", // 不知道干什么用的
 }
