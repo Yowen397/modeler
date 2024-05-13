@@ -1,5 +1,7 @@
 #include <unistd.h>
 #include <string>
+#include <fstream>
+#include <regex>
 
 #include "common.h"
 
@@ -22,7 +24,43 @@ int parse_arg(int argc, char* argv[]) {
     extern std::string path_ast;
     path_ast = argv[1];
 
+    //argv[2]规定为.ini文件
+    if (argc <= 2) {
+        std::cerr << "no ini file" << std::endl;
+        exit(-1);
+    }
+    extern std::string path_ini;
+    path_ini = argv[2];
+
     return 0;
+}
+
+void parse_ini(std::unordered_map<std::string, std::string>& um, const std::string& ini_)
+{
+    std::ifstream fin(ini_);
+    if (!fin) {
+        std::cerr << RED << "can't open file [" << ini_ << "]" << RESET << std::endl;
+        exit(-1);
+    }
+
+    std::string line;
+    while (std::getline(fin, line)) {
+        std::regex re_jump("\\s*;.*|\\s*#.*|^\\s*");
+        if (std::regex_match(line, re_jump))
+            continue;
+
+        std::regex re_use(".*=.*");
+        if (!std::regex_match(line, re_use)) {
+            std::cerr << RED << "parse .ini file error, line :" << std::endl
+                      << line << RESET << std::endl;
+            exit(-1);
+        }
+        std::string option = line.substr(0, line.find_first_of("=")),
+                    arg = line.substr(line.find_first_of("=") + 1);
+        um[option] = arg;
+    }
+
+    return;
 }
 
 /**

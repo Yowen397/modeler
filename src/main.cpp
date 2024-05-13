@@ -10,9 +10,12 @@
 const bool print_AST = true;
 bool debug = true;
 std::string path_ast = "error file name";
+std::string path_ini = "error file name";
+std::unordered_map<std::string, std::string> ini_info;
 std::vector<Timer> timer;
 
-void test_Storage(StateSpace &sp);
+void test4ini(StateSpace& sp);
+void test_Storage(StateSpace& sp);
 void test_Purchase(StateSpace& sp);
 void test_Timelock(StateSpace& sp);
 void test_SafeMath(StateSpace& sp);
@@ -22,7 +25,8 @@ int main(int argc, char* argv[]){
     timer.emplace_back("program begin");
     
     parse_arg(argc, argv);
-    
+    parse_ini(ini_info, path_ini);
+
     timer.emplace_back("before parse ast");
     
     AST ast;
@@ -40,25 +44,41 @@ int main(int argc, char* argv[]){
     timer.emplace_back("cpn done, next state space");
 
     StateSpace sp(&cpn);
-    if (path_ast.find("storage") != std::string::npos)
-        test_Storage(sp);
-    // test_Storage(sp);
-    if (path_ast.find("Purchase") != std::string::npos)
-        test_Purchase(sp);
-    if (path_ast.find("Timelock") != std::string::npos)
-        test_Timelock(sp);
-    if (path_ast.find("SafeMath") != std::string::npos)
-        test_SafeMath(sp);
-    if (path_ast.find("integer_overflow_multitx_onefunc_feasible")!=std::string::npos)
-        test_integer_overflow_multitx_onefunc_feasible(sp);
+    test4ini(sp);
+    // if (path_ast.find("storage") != std::string::npos)
+    //     test_Storage(sp);
+    // // test_Storage(sp);
+    // if (path_ast.find("Purchase") != std::string::npos)
+    //     test_Purchase(sp);
+    // if (path_ast.find("Timelock") != std::string::npos)
+    //     test_Timelock(sp);
+    // if (path_ast.find("SafeMath") != std::string::npos)
+    //     test_SafeMath(sp);
+    // if (path_ast.find("integer_overflow_multitx_onefunc_feasible")!=std::string::npos)
+    //     test_integer_overflow_multitx_onefunc_feasible(sp);
 
     timer.emplace_back("state space done");
 
-    std::cout << YELLOW << "Filename: [" << path_ast << "]" << RESET << std::endl;
+    std::cout << YELLOW << "AST Filename: [" << path_ast << "]" << RESET << std::endl;
+    std::cout << YELLOW << "ini Filename: [" << path_ini << "]" << RESET << std::endl;
     Timer::outputTime(timer);
     VmPeak();
 
     return 0;
+}
+
+void test4ini(StateSpace& sp)
+{
+    State* s = new State();
+    for (auto kv : ini_info)
+        s->tokens[sp.cpn->getPlaceByMatch(kv.first).name] = kv.second;
+
+    init_DataPlace(sp.cpn, s);
+    std::cout << s->getStr(sp.cpn) << std::endl;
+
+    sp.generate(s);
+
+    return;
 }
 
 void test_Storage(StateSpace &sp) {

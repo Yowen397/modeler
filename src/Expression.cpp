@@ -60,7 +60,15 @@ std::string BinExpression::result()
 std::string EXP::calc(const Oprand& op1, const std::string& opcode, const Oprand& op2)
 {
     std::map<std::string, std::function<NUM(NUM, NUM)>> m = {
-        { "==", [](const NUM a, const NUM b) -> NUM { return a == b; } }
+        { "==", [](const NUM a, const NUM b) -> NUM { return a == b; } },
+        { "<=", [](const NUM a, const NUM b) -> NUM { return a <= b; } },
+        { ">=", [](const NUM a, const NUM b) -> NUM { return a >= b; } },
+        { ">", [](const NUM a, const NUM b) -> NUM { return a > b; } },
+        { "<", [](const NUM a, const NUM b) -> NUM { return a < b; } },
+        { "+", [](const NUM a, const NUM b) -> NUM { return a + b; } },
+        { "-", [](const NUM a, const NUM b) -> NUM { return a - b; } },
+        { "*", [](const NUM a, const NUM b) -> NUM { return a * b; } },
+        { "/", [](const NUM a, const NUM b) -> NUM { return a / b; } },
     };
 
     std::string res = std::to_string(m[opcode](op1.get_value(), op2.get_value()));
