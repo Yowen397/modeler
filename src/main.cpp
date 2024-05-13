@@ -8,7 +8,7 @@
 #include "common.h"
 
 const bool print_AST = true;
-bool debug = true;
+bool debug = false;
 std::string path_ast = "error file name";
 std::string path_ini = "error file name";
 std::unordered_map<std::string, std::string> ini_info;
