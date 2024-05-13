@@ -485,7 +485,7 @@ int init_DataPlace(CPN *cpn, State *s) {
         if (s->tokens[p.name].size() != 0)
             continue;  // 已经手动初始化的库所不再重复初始化
 
-        if (p.color == "uint256")
+        if (p.color.find("uint") != std::string::npos)
             s->tokens[p.name] = "1`0";
         if (p.color == "bool")
             s->tokens[p.name] = "1`False";

@@ -1,1 +1,238 @@
-{"contracts":{"tests/integer_overflow_1.sol:Overflow":{}},"sourceList":["tests/integer_overflow_1.sol"],"sources":{"tests/integer_overflow_1.sol":{"AST":{"absolutePath":"tests/integer_overflow_1.sol","exportedSymbols":{"Overflow":[17]},"id":18,"license":"UNLICENSED","nodeType":"SourceUnit","nodes":[{"id":1,"literals":["solidity",">","0.4",".15"],"nodeType":"PragmaDirective","src":"209:24:0"},{"abstract":false,"baseContracts":[],"canonicalName":"Overflow","contractDependencies":[],"contractKind":"contract","fullyImplemented":true,"id":17,"linearizedBaseContracts":[17],"name":"Overflow","nameLocation":"245:8:0","nodeType":"ContractDefinition","nodes":[{"constant":false,"id":4,"mutability":"mutable","name":"sellerBalance","nameLocation":"274:13:0","nodeType":"VariableDeclaration","scope":17,"src":"261:28:0","stateVariable":true,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":2,"name":"uint","nodeType":"ElementaryTypeName","src":"261:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"value":{"hexValue":"30","id":3,"isConstant":false,"isLValue":false,"isPure":true,"kind":"number","lValueRequested":false,"nodeType":"Literal","src":"288:1:0","typeDescriptions":{"typeIdentifier":"t_rational_0_by_1","typeString":"int_const 0"},"value":"0"},"visibility":"private"},{"body":{"id":15,"nodeType":"Block","src":"329:231:0","statements":[{"expression":{"id":13,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftHandSide":{"id":9,"name":"sellerBalance","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":4,"src":"435:13:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"Assignment","operator":"=","rightHandSide":{"commonType":{"typeIdentifier":"t_uint256","typeString":"uint256"},"id":12,"isConstant":false,"isLValue":false,"isPure":false,"lValueRequested":false,"leftExpression":{"id":10,"name":"sellerBalance","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":4,"src":"451:13:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"nodeType":"BinaryOperation","operator":"+","rightExpression":{"id":11,"name":"value","nodeType":"Identifier","overloadedDeclarations":[],"referencedDeclaration":6,"src":"467:5:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"451:21:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"src":"435:37:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"id":14,"nodeType":"ExpressionStatement","src":"435:37:0"}]},"functionSelector":"1003e2d2","id":16,"implemented":true,"kind":"function","modifiers":[],"name":"add","nameLocation":"306:3:0","nodeType":"FunctionDefinition","parameters":{"id":7,"nodeType":"ParameterList","parameters":[{"constant":false,"id":6,"mutability":"mutable","name":"value","nameLocation":"315:5:0","nodeType":"VariableDeclaration","scope":16,"src":"310:10:0","stateVariable":false,"storageLocation":"default","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"},"typeName":{"id":5,"name":"uint","nodeType":"ElementaryTypeName","src":"310:4:0","typeDescriptions":{"typeIdentifier":"t_uint256","typeString":"uint256"}},"visibility":"internal"}],"src":"309:12:0"},"returnParameters":{"id":8,"nodeType":"ParameterList","parameters":[],"src":"329:0:0"},"scope":17,"src":"297:263:0","stateMutability":"nonpayable","virtual":false,"visibility":"public"}],"scope":18,"src":"236:472:0","usedErrors":[],"usedEvents":[]}],"src":"209:500:0"},"id":0}},"version":"0.8.20+commit.a1b79de6.Linux.g++"}
+{
+    "contracts": {
+        "tests/integer_overflow_1.sol:Overflow": {}
+    },
+    "sourceList": [
+        "tests/integer_overflow_1.sol"
+    ],
+    "sources": {
+        "tests/integer_overflow_1.sol": {
+            "AST": {
+                "absolutePath": "tests/integer_overflow_1.sol",
+                "exportedSymbols": {
+                    "Overflow": [
+                        17
+                    ]
+                },
+                "id": 18,
+                "license": "UNLICENSED",
+                "nodeType": "SourceUnit",
+                "nodes": [
+                    {
+                        "id": 1,
+                        "literals": [
+                            "solidity",
+                            ">",
+                            "0.4",
+                            ".15"
+                        ],
+                        "nodeType": "PragmaDirective",
+                        "src": "209:24:0"
+                    },
+                    {
+                        "abstract": false,
+                        "baseContracts": [],
+                        "canonicalName": "Overflow",
+                        "contractDependencies": [],
+                        "contractKind": "contract",
+                        "fullyImplemented": true,
+                        "id": 17,
+                        "linearizedBaseContracts": [
+                            17
+                        ],
+                        "name": "Overflow",
+                        "nameLocation": "245:8:0",
+                        "nodeType": "ContractDefinition",
+                        "nodes": [
+                            {
+                                "constant": false,
+                                "id": 4,
+                                "mutability": "mutable",
+                                "name": "sellerBalance",
+                                "nameLocation": "274:13:0",
+                                "nodeType": "VariableDeclaration",
+                                "scope": 17,
+                                "src": "261:28:0",
+                                "stateVariable": true,
+                                "storageLocation": "default",
+                                "typeDescriptions": {
+                                    "typeIdentifier": "t_uint256",
+                                    "typeString": "uint256"
+                                },
+                                "typeName": {
+                                    "id": 2,
+                                    "name": "uint",
+                                    "nodeType": "ElementaryTypeName",
+                                    "src": "261:4:0",
+                                    "typeDescriptions": {
+                                        "typeIdentifier": "t_uint256",
+                                        "typeString": "uint256"
+                                    }
+                                },
+                                "value": {
+                                    "hexValue": "30",
+                                    "id": 3,
+                                    "isConstant": false,
+                                    "isLValue": false,
+                                    "isPure": true,
+                                    "kind": "number",
+                                    "lValueRequested": false,
+                                    "nodeType": "Literal",
+                                    "src": "288:1:0",
+                                    "typeDescriptions": {
+                                        "typeIdentifier": "t_rational_0_by_1",
+                                        "typeString": "int_const 0"
+                                    },
+                                    "value": "0"
+                                },
+                                "visibility": "private"
+                            },
+                            {
+                                "body": {
+                                    "id": 15,
+                                    "nodeType": "Block",
+                                    "src": "329:231:0",
+                                    "statements": [
+                                        {
+                                            "expression": {
+                                                "id": 13,
+                                                "isConstant": false,
+                                                "isLValue": false,
+                                                "isPure": false,
+                                                "lValueRequested": false,
+                                                "leftHandSide": {
+                                                    "id": 9,
+                                                    "name": "sellerBalance",
+                                                    "nodeType": "Identifier",
+                                                    "overloadedDeclarations": [],
+                                                    "referencedDeclaration": 4,
+                                                    "src": "435:13:0",
+                                                    "typeDescriptions": {
+                                                        "typeIdentifier": "t_uint256",
+                                                        "typeString": "uint256"
+                                                    }
+                                                },
+                                                "nodeType": "Assignment",
+                                                "operator": "=",
+                                                "rightHandSide": {
+                                                    "commonType": {
+                                                        "typeIdentifier": "t_uint256",
+                                                        "typeString": "uint256"
+                                                    },
+                                                    "id": 12,
+                                                    "isConstant": false,
+                                                    "isLValue": false,
+                                                    "isPure": false,
+                                                    "lValueRequested": false,
+                                                    "leftExpression": {
+                                                        "id": 10,
+                                                        "name": "sellerBalance",
+                                                        "nodeType": "Identifier",
+                                                        "overloadedDeclarations": [],
+                                                        "referencedDeclaration": 4,
+                                                        "src": "451:13:0",
+                                                        "typeDescriptions": {
+                                                            "typeIdentifier": "t_uint256",
+                                                            "typeString": "uint256"
+                                                        }
+                                                    },
+                                                    "nodeType": "BinaryOperation",
+                                                    "operator": "+",
+                                                    "rightExpression": {
+                                                        "id": 11,
+                                                        "name": "value",
+                                                        "nodeType": "Identifier",
+                                                        "overloadedDeclarations": [],
+                                                        "referencedDeclaration": 6,
+                                                        "src": "467:5:0",
+                                                        "typeDescriptions": {
+                                                            "typeIdentifier": "t_uint256",
+                                                            "typeString": "uint256"
+                                                        }
+                                                    },
+                                                    "src": "451:21:0",
+                                                    "typeDescriptions": {
+                                                        "typeIdentifier": "t_uint256",
+                                                        "typeString": "uint256"
+                                                    }
+                                                },
+                                                "src": "435:37:0",
+                                                "typeDescriptions": {
+                                                    "typeIdentifier": "t_uint256",
+                                                    "typeString": "uint256"
+                                                }
+                                            },
+                                            "id": 14,
+                                            "nodeType": "ExpressionStatement",
+                                            "src": "435:37:0"
+                                        }
+                                    ]
+                                },
+                                "functionSelector": "1003e2d2",
+                                "id": 16,
+                                "implemented": true,
+                                "kind": "function",
+                                "modifiers": [],
+                                "name": "add",
+                                "nameLocation": "306:3:0",
+                                "nodeType": "FunctionDefinition",
+                                "parameters": {
+                                    "id": 7,
+                                    "nodeType": "ParameterList",
+                                    "parameters": [
+                                        {
+                                            "constant": false,
+                                            "id": 6,
+                                            "mutability": "mutable",
+                                            "name": "value",
+                                            "nameLocation": "315:5:0",
+                                            "nodeType": "VariableDeclaration",
+                                            "scope": 16,
+                                            "src": "310:10:0",
+                                            "stateVariable": false,
+                                            "storageLocation": "default",
+                                            "typeDescriptions": {
+                                                "typeIdentifier": "t_uint256",
+                                                "typeString": "uint256"
+                                            },
+                                            "typeName": {
+                                                "id": 5,
+                                                "name": "uint",
+                                                "nodeType": "ElementaryTypeName",
+                                                "src": "310:4:0",
+                                                "typeDescriptions": {
+                                                    "typeIdentifier": "t_uint256",
+                                                    "typeString": "uint256"
+                                                }
+                                            },
+                                            "visibility": "internal"
+                                        }
+                                    ],
+                                    "src": "309:12:0"
+                                },
+                                "returnParameters": {
+                                    "id": 8,
+                                    "nodeType": "ParameterList",
+                                    "parameters": [],
+                                    "src": "329:0:0"
+                                },
+                                "scope": 17,
+                                "src": "297:263:0",
+                                "stateMutability": "nonpayable",
+                                "virtual": false,
+                                "visibility": "public"
+                            }
+                        ],
+                        "scope": 18,
+                        "src": "236:472:0",
+                        "usedErrors": [],
+                        "usedEvents": []
+                    }
+                ],
+                "src": "209:500:0"
+            },
+            "id": 0
+        }
+    },
+    "version": "0.8.20+commit.a1b79de6.Linux.g++"
+}
