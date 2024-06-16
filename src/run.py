@@ -17,6 +17,7 @@ def get_all_files(directory):
 
 if __name__ == "__main__":
     file_list = get_all_files(tests_dir)
+    os.system("rm record.txt")
     # 运行命令
     for f in file_list:
         cmd = "./modeler "
