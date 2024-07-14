@@ -28,6 +28,7 @@ int main(int argc, char* argv[]){
     parse_ini(ini_info, path_ini);
 
     timer.emplace_back("before parse ast");
+    std::cout << YELLOW << "VmSize[START]: " << VmSize() << " kB " << RESET << std::endl;
     
     AST ast;
     ast.parse(path_ast);
@@ -35,6 +36,7 @@ int main(int argc, char* argv[]){
     ast.info();
 
     timer.emplace_back("ast done, next build cpn");
+    std::cout << YELLOW << "VmSize[AST]: " << VmSize() << " kB " << RESET << std::endl;
 
     CPN cpn(ast);
     cpn.build();
@@ -42,6 +44,7 @@ int main(int argc, char* argv[]){
     cpn.draw();
 
     timer.emplace_back("cpn done, next state space");
+    std::cout << YELLOW << "VmSize[CPN]: " << VmSize() << " kB " << RESET << std::endl;
 
     StateSpace sp(&cpn);
     test4ini(sp);
@@ -58,11 +61,13 @@ int main(int argc, char* argv[]){
     //     test_integer_overflow_multitx_onefunc_feasible(sp);
 
     timer.emplace_back("state space done");
+    std::cout << YELLOW << "VmSize[STATE]: " << VmSize() << " kB " << RESET << std::endl;
 
     std::cout << YELLOW << "AST Filename: [" << path_ast << "]" << RESET << std::endl;
     std::cout << YELLOW << "ini Filename: [" << path_ini << "]" << RESET << std::endl;
     Timer::outputTime(timer);
     VmPeak();
+    std::cout << YELLOW << "VmSize[END]: " << VmSize() << " kB " << RESET << std::endl;
 
     return 0;
 }

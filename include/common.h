@@ -35,3 +35,14 @@ constexpr auto BLUE = "\033[34m";     // 蓝色
 constexpr auto RESET = "\033[0m";     // 重置颜色
 
 void parse_ini(std::unordered_map<std::string, std::string>& um, const std::string& ini_);
+
+/**
+ * 读取整个文件的内容，返回一个std::string
+ * @param filePath 文件路径
+*/
+std::string readFileFromPath(const std::string& filePath);
+
+/**
+ * 获取当前使用的内存大小，单位：kB
+*/
+std::size_t VmSize();

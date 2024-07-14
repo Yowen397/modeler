@@ -1,7 +1,7 @@
 {
     "files.associations": {
         "*.solc": "solidity",
-        "*.iii": "cpp",
+                "*.iii": "cpp",
         "*.i": "cpp",
         "*.ast": "json",
         "ostream": "cpp",
@@ -63,16 +63,20 @@
         "compare": "cpp",
         "concepts": "cpp",
         "numbers": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "strstream": "cpp",
+        "semaphore": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp"
     },
     "cmake.debugConfig": {
         "args": [
-            // "../solc_files/output2/storage/combined.json",
-            // "../solc_files/iniFile/storage.ini",
+            "../solc_files/output2/storage/combined.json",
+            "../solc_files/iniFile/storage.ini",
             // "../solc_files/output2/Purchase/combined.json",
             // "../solc_files/iniFile/Purchase.ini",
-            "../solc_files/output2/SafeMath/combined.json",
-            "../solc_files/iniFile/SafeMath.ini",
+            // "../solc_files/output2/SafeMath/combined.json",
+            // "../solc_files/iniFile/SafeMath.ini",
             // "../solc_files/output2/integer_overflow_multitx_onefunc_feasible/combined.json",
             // "../solc_files/iniFile/integer_overflow_multitx_onefunc_feasible.ini",
             // "../solc_files/output2/integer_overflow_1/combined.json",

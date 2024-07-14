@@ -36,6 +36,18 @@ size_t State::hash(const CPN*_cpn) const {
     return h_v;
 }
 
+bool State::isCommonState(CPN*_cpn) const {
+    // this->tokens["P.init.c"];
+    const std::string pName = _cpn->getPlaceByMatch("P.init.c").name;
+    auto it = this->tokens.find(pName);
+
+    if (it != this->tokens.end()) {
+        if (it->second != "")
+            return true;
+    }
+    return false;
+}
+
 StateSpace::StateSpace(CPN* cpn_) {
     this->cpn = cpn_;
 }
@@ -47,11 +59,14 @@ void StateSpace::generate(State *init_s) {
     states[init_s->hash(cpn)] = init_s;
 
     static int state_cnt = 0;
+    static int memStateCnt = 0;
     while (!q.empty()) {
         std::vector<Binding> &bindList = getBinding(q.front());
         state_cnt++;
+        if (q.front()->isCommonState(cpn))
+            memStateCnt++;
         if (state_cnt % 10000 == 0 && !debug)
-            cout << "State No." << state_cnt << " Processing]" << endl;
+            cout << "[State No." << state_cnt << " Processing]" << endl;
         else if (debug) {
             cout << "[State No." << state_cnt << " Processing]" << endl;
             cout << q.front()->getStr(cpn);
@@ -69,7 +84,8 @@ void StateSpace::generate(State *init_s) {
             } else {
                 // 生成成功，则加入队列、哈希表
                 q.push(next_s);
-                states[next_s->hash(cpn)] = next_s;
+                if (next_s->isCommonState(cpn))
+                    states[next_s->hash(cpn)] = next_s;
                 // 维护前继和后继关系
                 q.front()->subsequentNodes.emplace_back(next_s);
                 next_s->predecessorNodes.emplace_back(q.front());
@@ -82,6 +98,7 @@ void StateSpace::generate(State *init_s) {
 
     cout << "Total state num [" << state_cnt << "]" << endl;
     cout << "Total repeat num [" << repeat << "]" << endl;
+    cout << "Total mem state num [" << memStateCnt << "]" << endl;
 }
 
 /**

@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <strstream>
 #include <string>
 #include <fstream>
 #include <regex>
@@ -92,4 +93,35 @@ int VmPeak() {
     std::string cmd = "cat /proc/" + std::to_string(pid) + "/status | grep VmPeak";
     system(cmd.c_str());
     return 0;
+}
+
+std::string readFileFromPath(const std::string& filePath) {
+    std::ifstream file(filePath);
+    if (!file) {
+        std::cerr << "无法打开文件: " << filePath << std::endl;
+        return "";
+    }
+    std::strstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    return buffer.str();
+}
+
+std::size_t VmSize() {
+    std::string content = readFileFromPath("/proc/self/status");
+    std::size_t startPos = content.find("VmSize:");
+    std::size_t endPos = content.find("kB", startPos);
+    if (startPos==std::string::npos || endPos == std::string::npos) {
+        std::cerr << RED << "VmSize: error in parsing /proc/self/status" << RESET << std::endl;
+        return -1;
+    }
+    static std::size_t prefixLen = std::string("VmSize:").length();
+    std::string sizeStr = content.substr(startPos + prefixLen, endPos - startPos - prefixLen);
+    std::size_t size=0;
+    try {
+        size = std::stoul(sizeStr.c_str());
+    } catch (const std::exception& e) {
+        std::cerr << RED << e.what() << RESET << std::endl;
+    }
+    return size;
 }

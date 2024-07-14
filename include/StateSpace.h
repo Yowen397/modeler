@@ -7,7 +7,7 @@
 #include <list>
 #include "CPN.h"
 
-#define USE_TOKENS
+// #define USE_TOKENS
 
 typedef std::pair<std::string, std::string> MarkingP;
 typedef std::unordered_map<std::string, std::string> MarkingALL;
@@ -43,6 +43,7 @@ class State {
 
     std::string getStr(const CPN*_cpn) const;
     std::size_t hash(const CPN*_cpn) const;
+    bool isCommonState(CPN*_cpn) const;
     static int copy(State*);
 
     State() = default;
