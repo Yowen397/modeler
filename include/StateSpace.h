@@ -8,6 +8,7 @@
 #include "CPN.h"
 
 // #define USE_TOKENS
+#define MERGE_STATUS
 
 typedef std::pair<std::string, std::string> MarkingP;
 typedef std::unordered_map<std::string, std::string> MarkingALL;

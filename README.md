@@ -3,9 +3,13 @@
 
 
 
-### 切换Tokens的方法 ###
+### ~~切换Tokens的方法~~ ###
+~~直接注释/取消注释StateSpace.h文件中的宏定义 \
+#define USE_TOKENS~~
+
+### 切换是否应用合并状态压缩空间 ###
 直接注释/取消注释StateSpace.h文件中的宏定义 \
-#define USE_TOKENS
+#define MERGE_STATUS
 
 ### 运行 ###
 solc_files目录下scripts.py运行可批量生成语法树，对应测试集文件在tests目录下，生成的语法树文件以path/SmartContractName/combined.json格式存在 \

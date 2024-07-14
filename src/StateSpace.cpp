@@ -93,6 +93,10 @@ void StateSpace::generate(State *init_s) {
             }
             // cout << "check point" << endl;
         }
+#ifdef MERGE_STATUS
+        if (!q.front()->isCommonState(cpn))
+            delete q.front();
+#endif
         q.pop();
     }
 
