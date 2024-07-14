@@ -91,8 +91,8 @@ void Timer::outputTime(std::vector<Timer> &v) {
 int VmPeak() {
     int pid = getpid();
     std::string cmd = "cat /proc/" + std::to_string(pid) + "/status | grep VmPeak";
-    system(cmd.c_str());
-    return 0;
+    int retOfCMD = system(cmd.c_str());
+    return retOfCMD;
 }
 
 std::string readFileFromPath(const std::string& filePath) {
