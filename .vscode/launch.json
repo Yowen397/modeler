@@ -5,14 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python 调试程序: 当前文件",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/bin"
+        },
+        {
             "name": "未预设测试",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": [   
+            "args": [
                 "../solc_files/output2/storage/combined.json",
                 "../solc_files/iniFile/storage.ini"
-                    ],
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -36,7 +44,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": ["../solc_files/output2/SafeMath/combined.json"],
+            "args": [
+                "../solc_files/output2/SafeMath/combined.json"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -60,7 +70,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": ["../solc_files/output2/Timelock/combined.json"],
+            "args": [
+                "../solc_files/output2/Timelock/combined.json"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -84,7 +96,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": ["../solc_files/output2/SimpleAution/combined.json"],
+            "args": [
+                "../solc_files/output2/SimpleAution/combined.json"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -108,7 +122,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": ["../solc_files/output2/Purchase/combined.json"],
+            "args": [
+                "../solc_files/output2/Purchase/combined.json"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -132,7 +148,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": ["../solc_files/output2/storage/combined.json"],
+            "args": [
+                "../solc_files/output2/storage/combined.json"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -156,7 +174,9 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/modeler",
-            "args": ["hello test"],
+            "args": [
+                "hello test"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/bin",
             "environment": [],
@@ -176,6 +196,5 @@
             ],
             "miDebuggerPath": "/usr/bin/gdb"
         }
-
     ]
 }
