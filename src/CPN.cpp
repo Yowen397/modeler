@@ -440,12 +440,12 @@ Transition &CPN::newTransition(const string &name_, const int id,
     return trans.back();
 }
 
-Arc& CPN::newArc(const string &st_, const string &ed_, const string &dir_,
-                 const string &name_) {
+Arc & CPN::newArc(const std::string & st_, const std::string & ed_, const std::string & dir_, const std::string & name_, Arc::ArcExpression exp_) {
     Arc a;
     a.st = st_;
     a.ed = ed_;
     a.dir = dir_;
+    a.arcExp = exp_;
 
     static int cnt = 1;
     if (name_ != "1`()") {

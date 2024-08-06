@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <map>
+#include <optional>
 
 
 /**
@@ -50,6 +51,9 @@ class Arc {
     std::string ed;
     std::string dir;  // "t2p" or "p2t"
     std::string name; // name当作表达式使用，加上全局编号
+
+    using ArcExpression = std::function<std::optional<std::string>(std::string)>;
+    ArcExpression arcExp = nullptr;
 
     bool isControl;
 
@@ -98,9 +102,10 @@ protected:
     Transition &newTransition(const std::string &name_, const int id,
                               const bool isControl = true,
                               const bool isSubNet = false);
-    Arc &newArc(const std::string &st_, const std::string &ed,
-                const std::string &dir, const std::string &name_="1`()");
-    Place &newPlace(const std::string &name_, const bool isControl);
+    Arc& newArc(const std::string& st_, const std::string& ed,
+                const std::string& dir, const std::string& name_ = "1`()",
+                Arc::ArcExpression exp_ = nullptr);
+    Place& newPlace(const std::string& name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
     int removePlace(const std::string &name_);
     int removeArc(const std::string &st_, const std::string &ed_);
