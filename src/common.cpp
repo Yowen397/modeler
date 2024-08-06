@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <fstream>
 #include <regex>
@@ -101,7 +101,7 @@ std::string readFileFromPath(const std::string& filePath) {
         std::cerr << "无法打开文件: " << filePath << std::endl;
         return "";
     }
-    std::strstream buffer;
+    std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
     return buffer.str();
