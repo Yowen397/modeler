@@ -440,7 +440,7 @@ Transition &CPN::newTransition(const string &name_, const int id,
     return trans.back();
 }
 
-Arc & CPN::newArc(const std::string & st_, const std::string & ed_, const std::string & dir_, const std::string & name_, Arc::ArcExpression exp_) {
+Arc & CPN::newArc(const std::string & st_, const std::string & ed_, const std::string & dir_, const std::string & name_, ArcExp::ArcExpression exp_) {
     Arc a;
     a.st = st_;
     a.ed = ed_;
@@ -1250,7 +1250,7 @@ int CPN::po_Assignment(const Value *node) {
 
     // 填充控制库所
     Place &p_c = newPlace("Assignment", true);
-    newArc(t.name, lastPlace, "t2p", "1`()");
+    newArc(t.name, lastPlace, "t2p", "1`()", ArcExp::ControlFlow::getInst());
 
     if (debug) {
         cout << "Assignment expression left hand side variable is : "

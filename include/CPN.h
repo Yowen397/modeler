@@ -45,6 +45,32 @@ class Transition {
     void init(std::string name_, bool isControl_, bool isSubNet_ = false);
 };
 
+namespace ArcExp {
+
+using Result = std::string;
+using Token = std::vector<std::string>;
+using ArcExpression = std::function<ArcExp::Result(ArcExp::Token)>;
+
+const static std::string SATISFIED = "__Arc_Exp_Successful";
+const static std::string DISSATISFIED = "__Arc_Exp_failed";
+
+//==========类变成函数类===================
+#define ARC_EXP(classname)                 \
+    class classname {                      \
+    public:                                \
+        static classname& getInst()        \
+        {                                  \
+            static classname inst;         \
+            return inst;                   \
+        }                                  \
+        Result operator()(Token t) const; \
+    };
+//=======================================
+
+ARC_EXP(ControlFlow)
+
+};
+
 class Arc {
   public:
     std::string st;
@@ -52,8 +78,7 @@ class Arc {
     std::string dir;  // "t2p" or "p2t"
     std::string name; // name当作表达式使用，加上全局编号
 
-    using ArcExpression = std::function<std::optional<std::string>(std::string)>;
-    ArcExpression arcExp = nullptr;
+    ArcExp::ArcExpression arcExp = nullptr;
 
     bool isControl;
 
@@ -104,7 +129,7 @@ protected:
                               const bool isSubNet = false);
     Arc& newArc(const std::string& st_, const std::string& ed,
                 const std::string& dir, const std::string& name_ = "1`()",
-                Arc::ArcExpression exp_ = nullptr);
+                ArcExp::ArcExpression exp_ = nullptr);
     Place& newPlace(const std::string& name_, const bool isControl);
     SC_FUN &getFun(const std::string &name_);
     int removePlace(const std::string &name_);

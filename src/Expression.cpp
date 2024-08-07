@@ -92,3 +92,23 @@ Oprand::Oprand(const std::string& s_)
         exit(-1);
     }
 }
+
+namespace ArcExp {
+
+//======函数类的函数操作定义==
+#define ARC_EXP_DEF(classname)      \
+Result classname::operator()(Token t) const 
+//==========================
+
+    ARC_EXP_DEF(ControlFlow)
+    {
+        /**
+         * 控制流应该检查输入，如果满足  ()   则可以接受
+         */
+        if (t.size() != 1)
+            return DISSATISFIED;
+        if (t[0] == "()")
+            return SATISFIED;
+        return DISSATISFIED;
+    }
+};
