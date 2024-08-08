@@ -1214,7 +1214,7 @@ int CPN::po_Assignment(const Value *node) {
     // trans.emplace_back(t);
     // lastTransition = t.name;
     Transition &t = newTransition("Assignment", attr_id->value.GetInt(), true, false);
-    newArc(lastPlace, t.name, "p2t", "1`()");
+    newArc(lastPlace, t.name, "p2t", "1`()", ArcExp::ControlFlow::getInst());
     // t.init()
     string constant, id;
     // 从栈顶取元素处理
@@ -1229,9 +1229,9 @@ int CPN::po_Assignment(const Value *node) {
         auto p_name = getPlaceByIdentifier(id, true).name;
         string exp_x = genArcExpByPlace(getPlace(p_name), "x");
         // 建立弧连接，操作类型为read
-        newArc(p_name, t.name, "p2t", exp_x);
+        newArc(p_name, t.name, "p2t", exp_x, ArcExp::DataConsumerAnyX::getInst());
         // 读完之后要返回
-        newArc(t.name, p_name, "t2p", exp_x);
+        newArc(t.name, p_name, "t2p", exp_x, ArcExp::DataProducerAny::getInst());
     }
     // 最后处理表达式左值
     if (id_stk.empty()||(id_stk.top()!=attr_name->value.GetString())) {
@@ -1240,7 +1240,7 @@ int CPN::po_Assignment(const Value *node) {
     }
     Place &p_reslut = getPlaceByIdentifier(id_stk.top());
     id_stk.pop();
-    newArc(p_reslut.name, t.name, "p2t", "z");
+    newArc(p_reslut.name, t.name, "p2t", "z", ArcExp::DataConsumerAnyZ::getInst());
     if (constant!="")
         newArc(t.name, p_reslut.name, "t2p", constant);
     else {

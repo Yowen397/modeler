@@ -69,6 +69,11 @@ const static std::string DISSATISFIED = "__Arc_Exp_failed";
 
 ARC_EXP(ControlFlow)
 
+ARC_EXP(DataConsumerAnyX)
+
+ARC_EXP(DataProducerAny)
+
+ARC_EXP(DataConsumerAnyZ)
 };
 
 class Arc {

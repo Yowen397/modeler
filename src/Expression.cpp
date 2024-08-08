@@ -4,7 +4,8 @@
 
 using namespace EXP;
 
-extern std::unordered_map<std::string, std::string> var_NextState; // '生成下一个状态阶段'的变量绑定情况
+extern std::unordered_map<std::string, std::string> var_sattisfy;  // '检查阶段'的变量绑定情况
+extern std::unordered_map<std::string, std::string> var_NextState;  // '生成下一个状态阶段'的变量绑定情况
 
 std::string Expression::result()
 {
@@ -96,19 +97,151 @@ Oprand::Oprand(const std::string& s_)
 namespace ArcExp {
 
 //======函数类的函数操作定义==
-#define ARC_EXP_DEF(classname)      \
-Result classname::operator()(Token t) const 
+#define ARC_EXP_DEF(classname) \
+    Result classname::operator()(Token t) const
 //==========================
 
-    ARC_EXP_DEF(ControlFlow)
-    {
-        /**
-         * 控制流应该检查输入，如果满足  ()   则可以接受
-         */
-        if (t.size() != 1)
-            return DISSATISFIED;
-        if (t[0] == "()")
-            return SATISFIED;
+ARC_EXP_DEF(ControlFlow)
+{
+    /**
+     * 控制流应该检查输入，如果满足  1`()   则可以接受
+     */
+    if (t.size() != 1)
         return DISSATISFIED;
+    if (t[0] == "1`()")
+        return SATISFIED;
+    return DISSATISFIED;
+}
+
+ARC_EXP_DEF(DataConsumerAnyX)
+{
+    /**
+     * 接受一个任意类型的Token（可能为单类型，可能为交类型）
+     * 但是需要对Token重的各个成分分开存
+     */
+    if (t.size() != 1)
+        return DISSATISFIED;
+
+    static const std::string base_ = "x";
+
+    if (t[0][0]=='(') {
+        // 交类型
+        std::string tmp = t[0].substr(1, t[0].length() - 2);
+
+        for (int i = 1, pos = 0; pos != std::string::npos && pos < tmp.length(); i++) {
+            int nxt_pos = tmp.find(',', pos);
+            int len = nxt_pos - pos;
+            std::string sub_t = tmp.substr(pos, len);
+            pos = nxt_pos + 1;
+
+            // 检验是否前面已经消费过这个同名变量
+            std::string var = base_ + std::to_string(i);
+            if (var_sattisfy.find(var)!=var_sattisfy.end()) {
+                if (var_sattisfy[var]!=sub_t)
+                    return DISSATISFIED;
+            } else {
+                var_sattisfy[var] = sub_t;
+            }
+
+            var_NextState[var] = sub_t;
+        }
+    } else {
+        // 单类型的Token
+
+        // 检验是否前面已经消费过这个同名变量
+        std::string var = base_;
+        if (var_sattisfy.find(var) != var_sattisfy.end()) {
+            if (var_sattisfy[var] != t[0])
+                return DISSATISFIED;
+        } else {
+            var_sattisfy[var] = t[0];
+        }
+
+        var_NextState[base_] = t[0];
     }
+    return SATISFIED;
+}
+
+ARC_EXP_DEF(DataProducerAny) 
+{
+    /**
+     * 需要根据终点库所类型生成对应的token，匹配可能有x1,x2或者是单个的x
+    */
+    if (t.size() <= 0)
+        return DISSATISFIED;
+    
+    if (t.size() == 1) {
+        if (var_NextState.find(t[0])!=var_NextState.end()) {
+            return var_NextState[t[0]];
+        } else {
+            return DISSATISFIED;
+        }
+    }
+
+    // 需要从变量空间中取出多个变量的情况
+    if (t.size() > 1) {
+        std::string ret;
+        ret += "(";
+        for (int i = 0; i < t.size(); i++) {
+            if (var_NextState.find(t[i]) != var_NextState.end()) {
+                ret += var_NextState[t[i]];
+            } else {
+                return DISSATISFIED;
+            }
+        }
+        ret += ")";
+        return ret;
+    }
+
+    return DISSATISFIED;
+}
+
+ARC_EXP_DEF(DataConsumerAnyZ) 
+{
+    /**
+     * 接受一个任意类型的Token（可能为单类型，可能为交类型）
+     * 但是需要对Token重的各个成分分开存
+     */
+    if (t.size() != 1)
+        return DISSATISFIED;
+
+    static const std::string base_ = "z";
+
+    if (t[0][0]=='(') {
+        // 交类型
+        std::string tmp = t[0].substr(1, t[0].length() - 2);
+
+        for (int i = 1, pos = 0; pos != std::string::npos && pos < tmp.length(); i++) {
+            int nxt_pos = tmp.find(',', pos);
+            int len = nxt_pos - pos;
+            std::string sub_t = tmp.substr(pos, len);
+            pos = nxt_pos + 1;
+
+            // 检验是否前面已经消费过这个同名变量
+            std::string var = base_ + std::to_string(i);
+            if (var_sattisfy.find(var)!=var_sattisfy.end()) {
+                if (var_sattisfy[var]!=sub_t)
+                    return DISSATISFIED;
+            } else {
+                var_sattisfy[var] = sub_t;
+            }
+
+            var_NextState[var] = sub_t;
+        }
+    } else {
+        // 单类型的Token
+
+        // 检验是否前面已经消费过这个同名变量
+        std::string var = base_;
+        if (var_sattisfy.find(var) != var_sattisfy.end()) {
+            if (var_sattisfy[var] != t[0])
+                return DISSATISFIED;
+        } else {
+            var_sattisfy[var] = t[0];
+        }
+
+        var_NextState[base_] = t[0];
+    }
+    return SATISFIED;
+}
 };
