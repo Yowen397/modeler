@@ -125,6 +125,7 @@ protected:
     int build_entryPlace();
     int build_topNet();
     void link_();
+    int countColors();  // 计算颜色数量
 
     /* 构造中通用函数、变量 */
     int e_Unkonwn(const std::string &type_, const rapidjson::Value *node_,

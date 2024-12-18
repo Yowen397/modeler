@@ -1,4 +1,5 @@
 #include "CPN.h"
+#include <set>
 
 using namespace rapidjson;
 using namespace std;
@@ -53,8 +54,22 @@ int CPN::info() {
     cout << "Place num: " << places.size() << endl;
     cout << "Transition num: " << trans.size() << endl;
     cout << "Arc num: " << arcs.size() << endl;
+    cout << "Color num: " << this->countColors() << endl;
     cout << "============================" << endl << endl;
     return 0;
+}
+
+/**
+ * 计算颜色的数量
+*/
+int CPN::countColors() {
+    std::set<std::string> uniqueStrings;
+
+    for (const auto & place: this->places) {
+        uniqueStrings.insert(place.color);
+    }
+
+    return uniqueStrings.size();
 }
 
 /**
